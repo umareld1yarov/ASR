@@ -1,4 +1,4 @@
-package com.example.asr
+package com.naiza.asr
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -30,11 +30,13 @@ class CategoryPickerSheet extends ConsumerStatefulWidget {
 class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
   ActivityCategory? _selectedCategory;
   final _nameController = TextEditingController();
+  final _nameFocusNode = FocusNode();
   bool _showValidationError = false;
 
   @override
   void dispose() {
     _nameController.dispose();
+    _nameFocusNode.dispose();
     super.dispose();
   }
 
@@ -88,10 +90,19 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
             children: ActivityCategory.values.map((category) {
               final isSelected = _selectedCategory == category;
               return InkWell(
-                onTap: () => setState(() {
-                  _selectedCategory = category;
-                  _showValidationError = false;
-                }),
+                onTap: () {
+                  setState(() {
+                    _selectedCategory = category;
+                    _showValidationError = false;
+                  });
+                  // Небольшая задержка нужна, чтобы TextField успел стать
+                  // enabled=true (перерисовка после setState) прежде чем
+                  // запрашивать фокус — иначе клавиатура иногда не
+                  // появляется с первого тапа.
+                  Future.delayed(const Duration(milliseconds: 50), () {
+                    if (mounted) _nameFocusNode.requestFocus();
+                  });
+                },
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   decoration: BoxDecoration(
@@ -126,6 +137,7 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
           // ── Поле ввода названия ──
           TextField(
             controller: _nameController,
+            focusNode: _nameFocusNode,
             enabled: _selectedCategory != null,
             autofocus: false,
             decoration: InputDecoration(

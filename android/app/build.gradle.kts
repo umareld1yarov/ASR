@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.asr"
+    namespace = "com.naiza.asr"
     
     // 💡 ИЗМЕНЕНИЕ: Указываем явно 34 (или минимум 31) вместо flutter.compileSdkVersion
     compileSdk = 35
@@ -23,7 +23,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.asr"
+        applicationId = "com.naiza.asr"
         minSdk = flutter.minSdkVersion
         
         // 💡 ОПЦИОНАЛЬНО: targetSdk также лучше подтянуть до 34
