@@ -1,48 +1,63 @@
 import 'package:flutter/material.dart';
 
-/// Шесть фиксированных категорий активности.
-/// В MVP список захардкожен — редактируемые категории отложены на этап 2.
+/// Девять фиксированных категорий активности.
+/// Список захардкожен намеренно — редактируемость не нужна.
 enum ActivityCategory {
-  focus,
   religion,
+  work,
   growth,
+  finance,
   sport,
-  base,
-  waste;
+  family,
+  rest,
+  waste,
+  base;
 
   /// Название на русском для UI
   String get label {
     switch (this) {
-      case ActivityCategory.focus:
-        return 'Фокус';
       case ActivityCategory.religion:
         return 'Религия';
+      case ActivityCategory.work:
+        return 'Работа';
       case ActivityCategory.growth:
         return 'Развитие';
+      case ActivityCategory.finance:
+        return 'Финансы';
       case ActivityCategory.sport:
         return 'Спорт';
-      case ActivityCategory.base:
-        return 'Базовые';
+      case ActivityCategory.family:
+        return 'Семья/Друзья';
+      case ActivityCategory.rest:
+        return 'Отдых';
       case ActivityCategory.waste:
         return 'Потери';
+      case ActivityCategory.base:
+        return 'Базовые';
     }
   }
 
   /// Цвет категории — используется в таймере, статах, ленте
   Color get color {
     switch (this) {
-      case ActivityCategory.focus:
-        return const Color(0xFF22C55E); // зелёный
       case ActivityCategory.religion:
         return const Color(0xFFA855F7); // фиолетовый
+      case ActivityCategory.work:
+        return const Color(0xFF22C55E); // зелёный
       case ActivityCategory.growth:
         return const Color(0xFFF97316); // оранжевый
+      case ActivityCategory.finance:
+        return const Color(0xFFEAB308); // золотистый
       case ActivityCategory.sport:
         return const Color(0xFF3B82F6); // синий
-      case ActivityCategory.base:
-        return const Color(0xFFA3A3A3); // серый
+      case ActivityCategory.family:
+        return const Color(0xFFEC4899); // розовый
+      case ActivityCategory.rest:
+        return const Color(0xFF06B6D4); // бирюзовый
       case ActivityCategory.waste:
         return const Color(0xFFEF4444); // красный
+      case ActivityCategory.base:
+        return const Color(0xFFA3A3A3); // серый
     }
   }
 

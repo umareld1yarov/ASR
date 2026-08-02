@@ -34,12 +34,15 @@ final closedStatsProvider = FutureProvider<Map<String, int>>((ref) async {
   final entries = await repo.getEntriesByDate(today);
 
   final stats = <String, int>{
-    'focus': 0,
     'religion': 0,
+    'work': 0,
     'growth': 0,
+    'finance': 0,
     'sport': 0,
-    'base': 0,
+    'family': 0,
+    'rest': 0,
     'waste': 0,
+    'base': 0,
   };
   for (final e in entries) {
     stats[e.categoryKey] = (stats[e.categoryKey] ?? 0) + e.durationSeconds;
@@ -75,8 +78,17 @@ class TimerController {
   Future<void> switchActivity({
     required String name,
     required String categoryKey,
+    String? reviewMood,
+    List<String>? reviewObstacles,
+    String? reviewNextExperiment,
   }) async {
-    await _repo.switchActivity(name: name, categoryKey: categoryKey);
+    await _repo.switchActivity(
+      name: name,
+      categoryKey: categoryKey,
+      reviewMood: reviewMood,
+      reviewObstacles: reviewObstacles,
+      reviewNextExperiment: reviewNextExperiment,
+    );
 
     // Оповещаем зависимые провайдеры, что данные изменились
     _ref.invalidate(currentActivityProvider);

@@ -129,6 +129,9 @@ class TimerRepository {
   Future<void> switchActivity({
     required String name,
     required String categoryKey,
+    String? reviewMood,
+    List<String>? reviewObstacles,
+    String? reviewNextExperiment,
   }) async {
     final now = DateTime.now().millisecondsSinceEpoch;
 
@@ -152,7 +155,10 @@ class TimerRepository {
           ..startedAt = lastChunkStart
           ..endedAt = now
           ..durationSeconds = durationSeconds
-          ..dateKey = du.DateUtils.dateKeyFromMillis(lastChunkStart);
+          ..dateKey = du.DateUtils.dateKeyFromMillis(lastChunkStart)
+          ..mood = reviewMood
+          ..obstacles = reviewObstacles
+          ..nextExperiment = reviewNextExperiment;
 
         await _addEntry(finalEntry);
       }
@@ -180,12 +186,15 @@ class TimerRepository {
     final entries = await getEntriesByDate(today);
 
     final stats = <String, int>{
-      'focus': 0,
       'religion': 0,
+      'work': 0,
       'growth': 0,
+      'finance': 0,
       'sport': 0,
-      'base': 0,
+      'family': 0,
+      'rest': 0,
       'waste': 0,
+      'base': 0,
     };
 
     for (final e in entries) {
