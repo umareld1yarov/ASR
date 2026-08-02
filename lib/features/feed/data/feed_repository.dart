@@ -41,6 +41,30 @@ class FeedRepository {
     });
   }
 
+  /// Добавляет путь к фото в список записи (до 4 штук — проверка на UI-стороне).
+  Future<void> addPhoto(int id, String photoPath) async {
+    await _isar.writeTxn(() async {
+      final entry = await _isar.activityEntrys.get(id);
+      if (entry == null) return;
+      final photos = List<String>.from(entry.photoPaths ?? []);
+      photos.add(photoPath);
+      entry.photoPaths = photos;
+      await _isar.activityEntrys.put(entry);
+    });
+  }
+
+  /// Убирает путь к фото из списка записи (сам файл на диске удаляется отдельно).
+  Future<void> removePhoto(int id, String photoPath) async {
+    await _isar.writeTxn(() async {
+      final entry = await _isar.activityEntrys.get(id);
+      if (entry == null) return;
+      final photos = List<String>.from(entry.photoPaths ?? []);
+      photos.remove(photoPath);
+      entry.photoPaths = photos;
+      await _isar.activityEntrys.put(entry);
+    });
+  }
+
   Future<void> deleteEntry(int id) async {
     await _isar.writeTxn(() async {
       final entry = await _isar.activityEntrys.get(id);

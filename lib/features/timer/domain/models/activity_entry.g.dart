@@ -46,8 +46,13 @@ const ActivityEntrySchema = CollectionSchema(
       name: r'obstacles',
       type: IsarType.stringList,
     ),
-    r'startedAt': PropertySchema(
+    r'photoPaths': PropertySchema(
       id: 9,
+      name: r'photoPaths',
+      type: IsarType.stringList,
+    ),
+    r'startedAt': PropertySchema(
+      id: 10,
       name: r'startedAt',
       type: IsarType.long,
     ),
@@ -115,6 +120,18 @@ int _activityEntryEstimateSize(
       }
     }
   }
+  {
+    final list = object.photoPaths;
+    if (list != null) {
+      bytesCount += 3 + list.length * 3;
+      {
+        for (var i = 0; i < list.length; i++) {
+          final value = list[i];
+          bytesCount += value.length * 3;
+        }
+      }
+    }
+  }
   return bytesCount;
 }
 
@@ -133,7 +150,8 @@ void _activityEntrySerialize(
   writer.writeString(offsets[6], object.name);
   writer.writeString(offsets[7], object.nextExperiment);
   writer.writeStringList(offsets[8], object.obstacles);
-  writer.writeLong(offsets[9], object.startedAt);
+  writer.writeStringList(offsets[9], object.photoPaths);
+  writer.writeLong(offsets[10], object.startedAt);
 }
 
 ActivityEntry _activityEntryDeserialize(
@@ -153,7 +171,8 @@ ActivityEntry _activityEntryDeserialize(
   object.name = reader.readString(offsets[6]);
   object.nextExperiment = reader.readStringOrNull(offsets[7]);
   object.obstacles = reader.readStringList(offsets[8]);
-  object.startedAt = reader.readLong(offsets[9]);
+  object.photoPaths = reader.readStringList(offsets[9]);
+  object.startedAt = reader.readLong(offsets[10]);
   return object;
 }
 
@@ -183,6 +202,8 @@ P _activityEntryDeserializeProp<P>(
     case 8:
       return (reader.readStringList(offset)) as P;
     case 9:
+      return (reader.readStringList(offset)) as P;
+    case 10:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1480,6 +1501,218 @@ extension ActivityEntryQueryFilter
   }
 
   QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  photoPathsIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'photoPaths'),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  photoPathsIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'photoPaths'),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  photoPathsElementEqualTo(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'photoPaths',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  photoPathsElementGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'photoPaths',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  photoPathsElementLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'photoPaths',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  photoPathsElementBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'photoPaths',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  photoPathsElementStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'photoPaths',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  photoPathsElementEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'photoPaths',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  photoPathsElementContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'photoPaths',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  photoPathsElementMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'photoPaths',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  photoPathsElementIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'photoPaths', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  photoPathsElementIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'photoPaths', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  photoPathsLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'photoPaths', length, true, length, true);
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  photoPathsIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'photoPaths', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  photoPathsIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'photoPaths', 0, false, 999999, true);
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  photoPathsLengthLessThan(int length, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'photoPaths', 0, true, length, include);
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  photoPathsLengthGreaterThan(int length, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'photoPaths', length, include, 999999, true);
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  photoPathsLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'photoPaths',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
   startedAtEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1858,6 +2091,12 @@ extension ActivityEntryQueryWhereDistinct
     });
   }
 
+  QueryBuilder<ActivityEntry, ActivityEntry, QDistinct> distinctByPhotoPaths() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'photoPaths');
+    });
+  }
+
   QueryBuilder<ActivityEntry, ActivityEntry, QDistinct> distinctByStartedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'startedAt');
@@ -1926,6 +2165,13 @@ extension ActivityEntryQueryProperty
   obstaclesProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'obstacles');
+    });
+  }
+
+  QueryBuilder<ActivityEntry, List<String>?, QQueryOperations>
+  photoPathsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'photoPaths');
     });
   }
 

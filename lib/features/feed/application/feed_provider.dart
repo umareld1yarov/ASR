@@ -19,6 +19,7 @@ final selectedDateProvider = StateProvider<DateTime>((ref) {
 
 /// Записи за выбранную дату.
 final feedEntriesProvider = FutureProvider((ref) async {
+  ref.watch(entriesChangedProvider); // обновляться при любом изменении записей
   final repo = ref.watch(feedRepositoryProvider);
   final date = ref.watch(selectedDateProvider);
   final dateKey = du.DateUtils.dateKey(date);
@@ -69,6 +70,18 @@ class FeedController {
 
   Future<void> updateEntry(int id, {String? name, String? categoryKey}) async {
     await _repo.updateEntry(id, name: name, categoryKey: categoryKey);
+    _ref.invalidate(feedEntriesProvider);
+    _ref.read(entriesChangedProvider.notifier).state++;
+  }
+
+  Future<void> addPhoto(int id, String photoPath) async {
+    await _repo.addPhoto(id, photoPath);
+    _ref.invalidate(feedEntriesProvider);
+    _ref.read(entriesChangedProvider.notifier).state++;
+  }
+
+  Future<void> removePhoto(int id, String photoPath) async {
+    await _repo.removePhoto(id, photoPath);
     _ref.invalidate(feedEntriesProvider);
     _ref.read(entriesChangedProvider.notifier).state++;
   }

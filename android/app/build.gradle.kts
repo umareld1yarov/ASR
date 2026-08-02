@@ -9,7 +9,7 @@ android {
     namespace = "com.naiza.asr"
     
     // 💡 ИЗМЕНЕНИЕ: Указываем явно 34 (или минимум 31) вместо flutter.compileSdkVersion
-    compileSdk = 35
+    compileSdk = 36
     
     ndkVersion = flutter.ndkVersion
 

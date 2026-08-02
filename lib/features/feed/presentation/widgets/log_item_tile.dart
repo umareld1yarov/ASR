@@ -23,6 +23,21 @@ class LogItemTile extends StatelessWidget {
     return '$mм';
   }
 
+  String? _moodEmoji(String? mood) {
+    switch (mood) {
+      case 'fire':
+        return '🔥';
+      case 'good':
+        return '👍';
+      case 'meh':
+        return '😐';
+      case 'bad':
+        return '😞';
+      default:
+        return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final category = ActivityCategory.fromStorageKey(entry.categoryKey);
@@ -72,13 +87,25 @@ class LogItemTile extends StatelessWidget {
             ),
 
             // Длительность
-            Text(
-              _formatShort(entry.durationSeconds),
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.white70,
-                fontWeight: FontWeight.w600,
-              ),
+            // Длительность + эмодзи настроения (если есть ревью)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_moodEmoji(entry.mood) != null)
+                  Text(
+                    _moodEmoji(entry.mood)!,
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                Text(
+                  _formatShort(entry.durationSeconds),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.white70,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
