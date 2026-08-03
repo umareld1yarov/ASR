@@ -11,44 +11,57 @@ class FocusScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Column(
-          children: [
-            // ── Шапка с датой ──
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                _todayLabel(),
-                style: const TextStyle(fontSize: 13, color: Colors.white38),
-              ),
-            ),
-
-            const Spacer(flex: 2),
-
-            // ── Таймер и текущая активность ──
-            const TimerDisplay(),
-
-            const Spacer(flex: 2),
-
-            // ── Мини-статы по категориям ──
-            const CategoryStatsGrid(),
-
-            const SizedBox(height: 20),
-
-            // ── Кнопка смены активности ──
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => CategoryPickerSheet.show(context),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text('Сменить активность'),
-              ),
-            ),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color.fromARGB(255, 125, 125, 137), // светлее сверху
+            Color.fromARGB(255, 26, 25, 25), // чистый чёрный к низу
           ],
+          stops: [0.0, 0.4],
+        ),
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Column(
+            children: [
+              // ── Шапка с датой ──
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  _todayLabel(),
+                  style: const TextStyle(fontSize: 13, color: Colors.white38),
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              // ── Таймер и текущая активность ──
+              const TimerDisplay(),
+
+              const SizedBox(height: 28),
+
+              // ── Мини-статы по категориям ──
+              const CategoryStatsGrid(),
+
+              const Spacer(),
+
+              // ── Кнопка смены активности ──
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => CategoryPickerSheet.show(context),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: const Text('Сменить активность'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

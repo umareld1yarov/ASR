@@ -27,14 +27,15 @@ class CategoryStatsGrid extends ConsumerWidget {
           crossAxisCount: 3,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 8,
-          crossAxisSpacing: 8,
-          childAspectRatio: 1.4,
+          mainAxisSpacing: 6,
+          crossAxisSpacing: 6,
+          childAspectRatio: 1.55,
           children: ActivityCategory.values.map((category) {
             final seconds = stats[category.storageKey] ?? 0;
             return CategoryStatCard(
               category: category,
               seconds: seconds,
+              isActive: current?.categoryKey == category.storageKey,
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => CategoryDetailScreen(category: category),

@@ -306,6 +306,18 @@ class _EntryDetailSheetState extends ConsumerState<EntryDetailSheet> {
                             width: 64,
                             height: 64,
                             fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                width: 64,
+                                height: 64,
+                                color: const Color(0xFF1F1F1F),
+                                child: const Icon(
+                                  Icons.broken_image_outlined,
+                                  color: Colors.white24,
+                                  size: 22,
+                                ),
+                              );
+                            },
                           ),
                         ),
                         Positioned(

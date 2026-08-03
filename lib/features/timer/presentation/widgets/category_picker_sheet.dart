@@ -172,10 +172,12 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
           // ── Поле ввода названия ──
           TextField(
             controller: _nameController,
+            maxLength: 50,
             focusNode: _nameFocusNode,
             enabled: _selectedCategory != null,
             autofocus: false,
             decoration: InputDecoration(
+              // counterText: '',
               hintText: _selectedCategory == null
                   ? 'Сначала выбери категорию...'
                   : 'Например: Пишу код...',

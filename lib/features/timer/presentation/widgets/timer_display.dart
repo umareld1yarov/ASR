@@ -1,13 +1,17 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/activity_category.dart';
 import '../../application/timer_provider.dart';
 
-/// Большой таймер + название текущей активности.
-/// Аналог блока .current-block из index.html (PWA).
+/// Карточка текущей активности в стеклянном (glassmorphism) стиле:
+/// категория (цветная) → название → большой таймер (тоже цветной).
 class TimerDisplay extends ConsumerWidget {
   const TimerDisplay({super.key});
+
+  static const double _aspectRatio = 442 / 252;
 
   String _formatHMS(int seconds) {
     final h = (seconds ~/ 3600).toString().padLeft(2, '0');
@@ -21,65 +25,198 @@ class TimerDisplay extends ConsumerWidget {
     final currentAsync = ref.watch(currentActivityProvider);
     final elapsedAsync = ref.watch(elapsedSecondsProvider);
 
-    return currentAsync.when(
-      data: (current) {
-        if (current == null) {
-          return const Column(
-            children: [
-              Text('—', style: TextStyle(fontSize: 14, color: Colors.grey)),
-              SizedBox(height: 8),
-              Text(
-                'Нажми «Старт»',
-                style: TextStyle(fontSize: 18, color: Colors.white70),
-              ),
-              SizedBox(height: 12),
-              Text(
-                '00:00:00',
-                style: TextStyle(
-                  fontSize: 48,
-                  fontWeight: FontWeight.w300,
-                  fontFeatures: [FontFeature.tabularFigures()],
+    return AspectRatio(
+      aspectRatio: _aspectRatio,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          final height = constraints.maxHeight;
+
+          final radius = width * 0.115;
+          final hPad = width * 0.085;
+          final vPad = height * 0.10;
+
+          return currentAsync.when(
+            data: (current) {
+              final category = current != null
+                  ? ActivityCategory.fromStorageKey(current.categoryKey)
+                  : null;
+              final accentColor = Colors.white;
+              final elapsed = elapsedAsync.maybeWhen(
+                data: (s) => s,
+                orElse: () => 0,
+              );
+
+              return _GlassCard(
+                width: width,
+                height: height,
+                radius: radius,
+                hPad: hPad,
+                vPad: vPad,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          category?.emoji ?? '⏸️',
+                          style: TextStyle(fontSize: width * 0.09),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          current?.name ?? 'Нажми «Сменить активность»',
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: width * 0.058,
+                            fontWeight: FontWeight.w700,
+                            height: 1.1,
+                            letterSpacing: 0.1,
+                          ),
+                        ),
+                      ],
+                    ),
+                    _AutoFitText(
+                      _formatHMS(elapsed),
+                      style: TextStyle(
+                        color: accentColor,
+                        fontSize: width * 0.186,
+                        fontWeight: FontWeight.w700,
+                        height: 0.95,
+                        letterSpacing: -1.0,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+            loading: () => _GlassCard(
+              width: width,
+              height: height,
+              radius: radius,
+              hPad: hPad,
+              vPad: vPad,
+              child: const Center(child: CircularProgressIndicator()),
+            ),
+            error: (e, _) => Text('Ошибка: $e'),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Стеклянная обёртка карточки — обводка, тень, размытие фона, блик.
+class _GlassCard extends StatelessWidget {
+  const _GlassCard({
+    required this.width,
+    required this.height,
+    required this.radius,
+    required this.hPad,
+    required this.vPad,
+    required this.child,
+  });
+
+  final double width;
+  final double height;
+  final double radius;
+  final double hPad;
+  final double vPad;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.22),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.4),
+            blurRadius: 25,
+            spreadRadius: -5,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(radius - 1),
+        child: Stack(
+          children: [
+            // Базовый полупрозрачный фон стекла
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      const Color(0xFF63656E).withValues(alpha: 0.45),
+                      const Color(0xFF2A2B30).withValues(alpha: 0.55),
+                    ],
+                  ),
                 ),
               ),
-            ],
-          );
-        }
-
-        final category = ActivityCategory.fromStorageKey(current.categoryKey);
-        final elapsed = elapsedAsync.maybeWhen(data: (s) => s, orElse: () => 0);
-
-        return Column(
-          children: [
-            Text(
-              category.label,
-              style: TextStyle(
-                fontSize: 14,
-                color: category.color,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.2,
+            ),
+            // Мягкий белый блик внутри
+            Positioned(
+              top: -height * 0.35,
+              left: -width * 0.15,
+              width: width * 1.1,
+              height: height * 1.2,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      Colors.white.withValues(alpha: 0.28),
+                      Colors.white.withValues(alpha: 0.08),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              current.name,
-              style: const TextStyle(fontSize: 18, color: Colors.white70),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              _formatHMS(elapsed),
-              style: TextStyle(
-                fontSize: 48,
-                fontWeight: FontWeight.w300,
-                color: category.color,
-                fontFeatures: const [FontFeature.tabularFigures()],
+            // Размытие фона за карточкой + контент
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                child: Container(
+                  color: Colors.white.withValues(alpha: 0.04),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: hPad,
+                    vertical: vPad,
+                  ),
+                  child: child,
+                ),
               ),
             ),
           ],
-        );
-      },
-      loading: () => const CircularProgressIndicator(),
-      error: (e, _) => Text('Ошибка: $e'),
+        ),
+      ),
+    );
+  }
+}
+
+/// Автоматически уменьшает шрифт, если текст не помещается по ширине.
+class _AutoFitText extends StatelessWidget {
+  const _AutoFitText(this.text, {required this.style});
+
+  final String text;
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Text(text, maxLines: 1, style: style),
     );
   }
 }

@@ -61,6 +61,31 @@ enum ActivityCategory {
     }
   }
 
+  /// Иконка категории — используется в плитках статистики и пикере.
+  /// Эмодзи категории — используется в плитках статистики и пикере.
+  String get emoji {
+    switch (this) {
+      case ActivityCategory.religion:
+        return '🕌';
+      case ActivityCategory.work:
+        return '💼';
+      case ActivityCategory.growth:
+        return '📚';
+      case ActivityCategory.finance:
+        return '💰';
+      case ActivityCategory.sport:
+        return '💪';
+      case ActivityCategory.family:
+        return '👪';
+      case ActivityCategory.rest:
+        return '🌴';
+      case ActivityCategory.waste:
+        return '⏳';
+      case ActivityCategory.base:
+        return '🏠';
+    }
+  }
+
   /// Строковый ключ для хранения в Isar (стабильный, не зависит от порядка enum)
   String get storageKey => name;
 
