@@ -5,6 +5,7 @@ import '../../../../core/constants/activity_category.dart';
 import '../../application/timer_provider.dart';
 import '../../domain/focus_review_obstacles.dart';
 import 'focus_review_sheet.dart';
+import '../../../../shared/widgets/glass_pill_button.dart';
 
 /// Модалка смены активности: выбор категории → ввод названия → запуск.
 /// Аналог #modal-overlay из index.html (PWA).
@@ -118,14 +119,14 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
           ),
           const SizedBox(height: 20),
 
-          // ── Сетка категорий ──
+          // ── Сетка категорий (тот же стиль, что на Экране 1) ──
           GridView.count(
             crossAxisCount: 3,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
-            childAspectRatio: 1.6,
+            childAspectRatio: 1.25,
             children: ActivityCategory.values.map((category) {
               final isSelected = _selectedCategory == category;
               return InkWell(
@@ -138,29 +139,43 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
                     if (mounted) _nameFocusNode.requestFocus();
                   });
                 },
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: isSelected
-                        ? category.color.withValues(alpha: 0.15)
-                        : const Color(0xFF1F1F1F),
-                    borderRadius: BorderRadius.circular(12),
+                    color: category.color.withValues(
+                      alpha: isSelected ? 0.18 : 0.05,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: isSelected ? category.color : Colors.transparent,
-                      width: 1.5,
+                      color: category.color.withValues(
+                        alpha: isSelected ? 0.9 : 0.18,
+                      ),
+                      width: isSelected ? 1.5 : 1,
                     ),
                   ),
-                  child: Center(
-                    child: Text(
-                      category.label,
-                      style: TextStyle(
-                        color: isSelected ? category.color : Colors.white70,
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.normal,
-                        fontSize: 13,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        category.emoji,
+                        style: const TextStyle(fontSize: 19),
                       ),
-                    ),
+                      const SizedBox(height: 4),
+                      Text(
+                        category.label,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.white70,
+                          fontWeight: isSelected
+                              ? FontWeight.w700
+                              : FontWeight.w600,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               );
@@ -195,12 +210,17 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
 
           const SizedBox(height: 16),
 
-          ElevatedButton(
-            onPressed: _confirm,
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 14),
+          GlassPillButton(
+            onTap: _confirm,
+            height: 52,
+            child: const Text(
+              'Запустить →',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-            child: const Text('Запустить →'),
           ),
         ],
       ),

@@ -8,13 +8,11 @@ class CategoryStatCard extends StatelessWidget {
     super.key,
     required this.category,
     required this.seconds,
-    required this.isActive,
     this.onTap,
   });
 
   final ActivityCategory category;
   final int seconds;
-  final bool isActive;
   final VoidCallback? onTap;
 
   String _formatShort(int seconds) {
@@ -28,25 +26,16 @@ class CategoryStatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 4),
         decoration: BoxDecoration(
-          color: category.color.withValues(alpha: isActive ? 0.28 : 0.08),
-          borderRadius: BorderRadius.circular(12),
+          color: category.color.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: category.color.withValues(alpha: isActive ? 1.0 : 0.35),
-            width: isActive ? 2 : 1,
+            color: category.color.withValues(alpha: 0.18),
+            width: 1,
           ),
-          boxShadow: isActive
-              ? [
-                  BoxShadow(
-                    color: category.color.withValues(alpha: 0.55),
-                    blurRadius: 16,
-                    spreadRadius: 1,
-                  ),
-                ]
-              : null,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

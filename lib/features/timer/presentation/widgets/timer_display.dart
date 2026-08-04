@@ -59,20 +59,39 @@ class TimerDisplay extends ConsumerWidget {
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          category?.emoji ?? '⏸️',
-                          style: TextStyle(fontSize: width * 0.09),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: category?.color ?? Colors.white38,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            _AutoFitText(
+                              category?.label.toUpperCase() ?? 'НЕТ АКТИВНОСТИ',
+                              style: TextStyle(
+                                color: category?.color ?? Colors.white38,
+                                fontSize: width * 0.045,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 6),
                         Text(
                           current?.name ?? 'Нажми «Сменить активность»',
                           textAlign: TextAlign.center,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Colors.white.withValues(alpha: 0.65),
                             fontSize: width * 0.058,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w600,
                             height: 1.1,
                             letterSpacing: 0.1,
                           ),
@@ -150,7 +169,6 @@ class _GlassCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(radius - 1),
         child: Stack(
           children: [
-            // Базовый полупрозрачный фон стекла
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
@@ -165,7 +183,6 @@ class _GlassCard extends StatelessWidget {
                 ),
               ),
             ),
-            // Мягкий белый блик внутри
             Positioned(
               top: -height * 0.35,
               left: -width * 0.15,
@@ -184,7 +201,6 @@ class _GlassCard extends StatelessWidget {
                 ),
               ),
             ),
-            // Размытие фона за карточкой + контент
             Positioned.fill(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),

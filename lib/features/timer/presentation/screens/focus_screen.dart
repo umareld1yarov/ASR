@@ -1,6 +1,6 @@
+import 'package:asr/features/timer/presentation/widgets/switch_activity_button.dart';
 import 'package:flutter/material.dart';
 
-import '../widgets/category_picker_sheet.dart';
 import '../widgets/category_stats_grid.dart';
 import '../widgets/timer_display.dart';
 
@@ -50,16 +50,7 @@ class FocusScreen extends StatelessWidget {
               const Spacer(),
 
               // ── Кнопка смены активности ──
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => CategoryPickerSheet.show(context),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  child: const Text('Сменить активность'),
-                ),
-              ),
+              const SwitchActivityButton(),
             ],
           ),
         ),
