@@ -31,12 +31,24 @@ class FeedRepository {
     return earliest?.startedAt;
   }
 
-  Future<void> updateEntry(int id, {String? name, String? categoryKey}) async {
+  Future<void> updateEntry(
+    int id, {
+    String? name,
+    String? categoryKey,
+    String? note,
+    String? mood,
+    List<String>? obstacles,
+    String? nextExperiment,
+  }) async {
     await _isar.writeTxn(() async {
       final entry = await _isar.activityEntrys.get(id);
       if (entry == null) return;
       if (name != null) entry.name = name;
       if (categoryKey != null) entry.categoryKey = categoryKey;
+      if (note != null) entry.note = note;
+      if (mood != null) entry.mood = mood;
+      if (obstacles != null) entry.obstacles = obstacles;
+      if (nextExperiment != null) entry.nextExperiment = nextExperiment;
       await _isar.activityEntrys.put(entry);
     });
   }

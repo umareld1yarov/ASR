@@ -1,10 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/activity_category.dart';
 import '../../../timer/domain/models/activity_entry.dart';
 
-/// Одна строка записи в Ленте.
-/// Аналог .log-item из index.html (PWA).
+/// Карточка одной записи в таймлайне Ленты — цветная подложка по категории,
+/// время + длительность, название, миниатюры фото (если есть).
 class LogItemTile extends StatelessWidget {
   const LogItemTile({super.key, required this.entry, this.onTap});
 
@@ -19,94 +21,90 @@ class LogItemTile extends StatelessWidget {
   String _formatShort(int seconds) {
     final h = seconds ~/ 3600;
     final m = (seconds % 3600) ~/ 60;
-    if (h > 0) return '$hч $mм';
-    return '$mм';
-  }
-
-  String? _moodEmoji(String? mood) {
-    switch (mood) {
-      case 'fire':
-        return '🔥';
-      case 'good':
-        return '👍';
-      case 'meh':
-        return '😐';
-      case 'bad':
-        return '😞';
-      default:
-        return null;
-    }
+    if (h > 0) return '${h}ч ${m}м';
+    return '${m}м';
   }
 
   @override
   Widget build(BuildContext context) {
     final category = ActivityCategory.fromStorageKey(entry.categoryKey);
+    final photos = entry.photoPaths ?? [];
 
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
         decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: Colors.white.withValues(alpha: 0.06)),
-          ),
+          color: category.color.withValues(alpha: 0.07),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: category.color.withValues(alpha: 0.15)),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Цветная полоска категории слева
-            Container(
-              width: 3,
-              height: 36,
-              decoration: BoxDecoration(
-                color: category.color,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(width: 12),
-
-            // Название + время + категория
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    entry.name,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${_time(entry.startedAt)} – ${_time(entry.endedAt)} · ${category.label}',
-                    style: const TextStyle(fontSize: 12, color: Colors.white38),
-                  ),
-                ],
-              ),
-            ),
-
-            // Длительность
-            // Длительность + эмодзи настроения (если есть ревью)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.min,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                if (_moodEmoji(entry.mood) != null)
-                  Text(
-                    _moodEmoji(entry.mood)!,
-                    style: const TextStyle(fontSize: 13),
-                  ),
                 Text(
-                  _formatShort(entry.durationSeconds),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.white70,
-                    fontWeight: FontWeight.w600,
+                  '${_time(entry.startedAt)} – ${_time(entry.endedAt)} · ${_formatShort(entry.durationSeconds)}',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white.withValues(alpha: 0.55),
+                  ),
+                ),
+                Text(
+                  category.label.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                    color: category.color,
+                    letterSpacing: 0.4,
                   ),
                 ),
               ],
             ),
+            const SizedBox(height: 6),
+            Text(
+              entry.name,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+            if (photos.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Row(
+                children: photos.take(4).map((path) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.file(
+                        File(path),
+                        width: 44,
+                        height: 44,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: 44,
+                            height: 44,
+                            color: const Color(0xFF1F1F1F),
+                            child: const Icon(
+                              Icons.broken_image_outlined,
+                              color: Colors.white24,
+                              size: 16,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
           ],
         ),
       ),

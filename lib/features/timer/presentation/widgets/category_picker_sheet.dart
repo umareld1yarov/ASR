@@ -3,19 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/activity_category.dart';
 import '../../application/timer_provider.dart';
-import '../../domain/focus_review_obstacles.dart';
-import 'focus_review_sheet.dart';
+
 import '../../../../shared/widgets/glass_pill_button.dart';
 
 /// Модалка смены активности: выбор категории → ввод названия → запуск.
 /// Аналог #modal-overlay из index.html (PWA).
 class CategoryPickerSheet extends ConsumerStatefulWidget {
-  const CategoryPickerSheet({super.key, required this.outerContext});
-
-  /// Контекст экрана, который открыл эту модалку — нужен, чтобы после
-  /// закрытия этой шторки открыть следующую (Focus Review) поверх экрана,
-  /// а не поверх уже закрытой модалки.
-  final BuildContext outerContext;
+  const CategoryPickerSheet({super.key});
 
   /// Удобный статический метод для вызова модалки откуда угодно.
   static Future<void> show(BuildContext context) {
@@ -26,7 +20,7 @@ class CategoryPickerSheet extends ConsumerStatefulWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => CategoryPickerSheet(outerContext: context),
+      builder: (_) => const CategoryPickerSheet(),
     );
   }
 
@@ -40,8 +34,6 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
   final _nameController = TextEditingController();
   final _nameFocusNode = FocusNode();
   bool _showValidationError = false;
-
-  static const _reviewMinDurationSeconds = 5; // 10 минут
 
   @override
   void dispose() {
@@ -58,36 +50,6 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
       return;
     }
 
-    final current = await ref.read(currentActivityProvider.future);
-
-    if (!mounted) return;
-
-    if (current != null) {
-      final prevCategory = ActivityCategory.fromStorageKey(current.categoryKey);
-      final elapsed =
-          ((DateTime.now().millisecondsSinceEpoch - current.startedAt) / 1000)
-              .floor();
-
-      // Показываем рефлексию только если категория поддерживает её
-      // и сессия была достаточно долгой, чтобы было что осмыслить.
-      if (FocusReviewObstacles.appliesTo(prevCategory) &&
-          elapsed >= _reviewMinDurationSeconds) {
-        Navigator.of(context).pop(); // закрываем пикер категорий
-
-        if (!widget.outerContext.mounted) return;
-
-        FocusReviewSheet.show(
-          widget.outerContext,
-          previousActivityName: current.name,
-          previousCategory: prevCategory,
-          nextActivityName: name,
-          nextCategoryKey: _selectedCategory!.storageKey,
-        );
-        return;
-      }
-    }
-
-    // Короткая сессия или категория без рефлексии — переключаем сразу.
     await ref
         .read(timerControllerProvider)
         .switchActivity(name: name, categoryKey: _selectedCategory!.storageKey);

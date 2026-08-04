@@ -41,18 +41,19 @@ const ActivityEntrySchema = CollectionSchema(
       name: r'nextExperiment',
       type: IsarType.string,
     ),
+    r'note': PropertySchema(id: 8, name: r'note', type: IsarType.string),
     r'obstacles': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'obstacles',
       type: IsarType.stringList,
     ),
     r'photoPaths': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'photoPaths',
       type: IsarType.stringList,
     ),
     r'startedAt': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'startedAt',
       type: IsarType.long,
     ),
@@ -109,6 +110,12 @@ int _activityEntryEstimateSize(
     }
   }
   {
+    final value = object.note;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
     final list = object.obstacles;
     if (list != null) {
       bytesCount += 3 + list.length * 3;
@@ -149,9 +156,10 @@ void _activityEntrySerialize(
   writer.writeString(offsets[5], object.mood);
   writer.writeString(offsets[6], object.name);
   writer.writeString(offsets[7], object.nextExperiment);
-  writer.writeStringList(offsets[8], object.obstacles);
-  writer.writeStringList(offsets[9], object.photoPaths);
-  writer.writeLong(offsets[10], object.startedAt);
+  writer.writeString(offsets[8], object.note);
+  writer.writeStringList(offsets[9], object.obstacles);
+  writer.writeStringList(offsets[10], object.photoPaths);
+  writer.writeLong(offsets[11], object.startedAt);
 }
 
 ActivityEntry _activityEntryDeserialize(
@@ -170,9 +178,10 @@ ActivityEntry _activityEntryDeserialize(
   object.mood = reader.readStringOrNull(offsets[5]);
   object.name = reader.readString(offsets[6]);
   object.nextExperiment = reader.readStringOrNull(offsets[7]);
-  object.obstacles = reader.readStringList(offsets[8]);
-  object.photoPaths = reader.readStringList(offsets[9]);
-  object.startedAt = reader.readLong(offsets[10]);
+  object.note = reader.readStringOrNull(offsets[8]);
+  object.obstacles = reader.readStringList(offsets[9]);
+  object.photoPaths = reader.readStringList(offsets[10]);
+  object.startedAt = reader.readLong(offsets[11]);
   return object;
 }
 
@@ -200,10 +209,12 @@ P _activityEntryDeserializeProp<P>(
     case 7:
       return (reader.readStringOrNull(offset)) as P;
     case 8:
-      return (reader.readStringList(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 9:
       return (reader.readStringList(offset)) as P;
     case 10:
+      return (reader.readStringList(offset)) as P;
+    case 11:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1289,6 +1300,168 @@ extension ActivityEntryQueryFilter
   }
 
   QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  noteIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'note'),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  noteIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'note'),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition> noteEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'note',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  noteGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'note',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  noteLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'note',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition> noteBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'note',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  noteStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'note',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  noteEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'note',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  noteContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'note',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition> noteMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'note',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  noteIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'note', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  noteIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'note', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
   obstaclesIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1878,6 +2051,18 @@ extension ActivityEntryQuerySortBy
     });
   }
 
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterSortBy> sortByNote() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'note', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterSortBy> sortByNoteDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'note', Sort.desc);
+    });
+  }
+
   QueryBuilder<ActivityEntry, ActivityEntry, QAfterSortBy> sortByStartedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'startedAt', Sort.asc);
@@ -2008,6 +2193,18 @@ extension ActivityEntryQuerySortThenBy
     });
   }
 
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterSortBy> thenByNote() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'note', Sort.asc);
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterSortBy> thenByNoteDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'note', Sort.desc);
+    });
+  }
+
   QueryBuilder<ActivityEntry, ActivityEntry, QAfterSortBy> thenByStartedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'startedAt', Sort.asc);
@@ -2085,6 +2282,14 @@ extension ActivityEntryQueryWhereDistinct
     });
   }
 
+  QueryBuilder<ActivityEntry, ActivityEntry, QDistinct> distinctByNote({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'note', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<ActivityEntry, ActivityEntry, QDistinct> distinctByObstacles() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'obstacles');
@@ -2158,6 +2363,12 @@ extension ActivityEntryQueryProperty
   nextExperimentProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'nextExperiment');
+    });
+  }
+
+  QueryBuilder<ActivityEntry, String?, QQueryOperations> noteProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'note');
     });
   }
 

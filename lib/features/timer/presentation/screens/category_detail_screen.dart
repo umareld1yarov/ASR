@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/activity_category.dart';
-import '../../../feed/presentation/widgets/entry_detail_sheet.dart';
+import '../../../feed/presentation/screens/entry_detail_screen.dart';
 import '../../../feed/presentation/widgets/log_item_tile.dart';
 import '../../application/timer_provider.dart';
 
@@ -40,7 +40,11 @@ class CategoryDetailScreen extends ConsumerWidget {
               final entry = entries[index];
               return LogItemTile(
                 entry: entry,
-                onTap: () => EntryDetailSheet.show(context, entry),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => EntryDetailScreen(entry: entry),
+                  ),
+                ),
               );
             },
           );

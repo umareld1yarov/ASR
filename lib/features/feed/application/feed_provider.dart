@@ -68,8 +68,24 @@ class FeedController {
     _ref.read(selectedDateProvider.notifier).state = nextDay;
   }
 
-  Future<void> updateEntry(int id, {String? name, String? categoryKey}) async {
-    await _repo.updateEntry(id, name: name, categoryKey: categoryKey);
+  Future<void> updateEntry(
+    int id, {
+    String? name,
+    String? categoryKey,
+    String? note,
+    String? mood,
+    List<String>? obstacles,
+    String? nextExperiment,
+  }) async {
+    await _repo.updateEntry(
+      id,
+      name: name,
+      categoryKey: categoryKey,
+      note: note,
+      mood: mood,
+      obstacles: obstacles,
+      nextExperiment: nextExperiment,
+    );
     _ref.invalidate(feedEntriesProvider);
     _ref.read(entriesChangedProvider.notifier).state++;
   }

@@ -1,4 +1,5 @@
 import 'package:asr/features/timer/presentation/widgets/switch_activity_button.dart';
+import 'package:asr/shared/widgets/app_background.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/category_stats_grid.dart';
@@ -11,18 +12,7 @@ class FocusScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color.fromARGB(255, 125, 125, 137), // светлее сверху
-            Color.fromARGB(255, 26, 25, 25), // чистый чёрный к низу
-          ],
-          stops: [0.0, 0.4],
-        ),
-      ),
+    return AppBackground(
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),

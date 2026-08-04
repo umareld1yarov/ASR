@@ -39,6 +39,15 @@ class FocusReviewObstacles {
 
   /// Список тегов для конкретной категории (пустой список, если категория
   /// не поддерживает рефлексию — на практике проверяй appliesTo() раньше).
+  static const _fallbackTags = [
+    '📱 Телефон',
+    '😴 Устал',
+    '🗣️ Отвлекли',
+    '❓ Другое',
+  ];
+
+  /// Список тегов для конкретной категории. Если для категории нет
+  /// специфичного набора — используется общий резервный список.
   static List<String> tagsFor(ActivityCategory category) =>
-      _byCategory[category] ?? const [];
+      _byCategory[category] ?? _fallbackTags;
 }
