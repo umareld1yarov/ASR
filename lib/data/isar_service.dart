@@ -1,6 +1,8 @@
 import 'package:isar_community/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../features/profile/domain/models/goal.dart';
+import '../features/profile/domain/models/user_profile.dart';
 import '../features/timer/domain/models/activity_entry.dart';
 import '../features/timer/domain/models/current_activity.dart';
 
@@ -21,6 +23,8 @@ class IsarService {
     _instance = await Isar.open([
       ActivityEntrySchema,
       CurrentActivitySchema,
+      UserProfileSchema,
+      GoalSchema,
     ], directory: dir.path);
 
     return _instance!;

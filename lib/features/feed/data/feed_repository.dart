@@ -1,6 +1,7 @@
 import 'package:isar_community/isar.dart';
 
 import '../../timer/domain/models/activity_entry.dart';
+import 'dart:math';
 
 /// Репозиторий Ленты: чтение записей по дате, редактирование, удаление,
 /// определение границ доступных дат для навигации ← / →.
@@ -53,6 +54,21 @@ class FeedRepository {
     });
   }
 
+  /// Случайная запись с хотя бы одним фото — для секции "Воспоминания"
+  /// в Профиле. Полностью случайная при каждом вызове (не стабильная).
+  Future<ActivityEntry?> getRandomEntryWithPhoto() async {
+    final entries = await _isar.activityEntrys
+        .filter()
+        .isDeletedEqualTo(false)
+        .photoPathsIsNotEmpty()
+        .findAll();
+
+    if (entries.isEmpty) return null;
+
+    final random = Random();
+    return entries[random.nextInt(entries.length)];
+  }
+
   /// Добавляет путь к фото в список записи (до 4 штук — проверка на UI-стороне).
   Future<void> addPhoto(int id, String photoPath) async {
     await _isar.writeTxn(() async {
@@ -84,5 +100,15 @@ class FeedRepository {
       entry.isDeleted = true;
       await _isar.activityEntrys.put(entry);
     });
+  }
+
+  /// Все записи с фото, для полного экрана "Воспоминания" — от новых к старым.
+  Future<List<ActivityEntry>> getAllEntriesWithPhotos() {
+    return _isar.activityEntrys
+        .filter()
+        .isDeletedEqualTo(false)
+        .photoPathsIsNotEmpty()
+        .sortByStartedAtDesc()
+        .findAll();
   }
 }
