@@ -49,14 +49,15 @@ class StreakCard extends ConsumerWidget {
         );
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 
   String _daysWord(int n) {
     if (n % 10 == 1 && n % 100 != 11) return 'день';
-    if ([2, 3, 4].contains(n % 10) && ![12, 13, 14].contains(n % 100))
+    if ([2, 3, 4].contains(n % 10) && ![12, 13, 14].contains(n % 100)) {
       return 'дня';
+    }
     return 'дней';
   }
 }

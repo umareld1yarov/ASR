@@ -3,6 +3,41 @@ import 'package:isar_community/isar.dart';
 import '../../timer/domain/models/activity_entry.dart';
 import 'dart:math';
 
+/// Одна запись-кандидат для карточки "Дневник дня" — со ВСЕМИ её фото
+/// (до 4 штук). Какое именно фото показать — выбирает пользователь на
+/// экране превью, репозиторий сам ничего не решает за него.
+class DayStoryEntry {
+  const DayStoryEntry({
+    required this.entryId,
+    required this.entryName,
+    required this.note,
+    required this.categoryKey,
+    required this.startedAt,
+    required this.photoPaths,
+  });
+
+  final int entryId;
+  final String entryName;
+  final String? note;
+  final String categoryKey;
+  final int startedAt;
+
+  /// Все фото этой записи (1–4 шт.) — выбор конкретного делается в UI.
+  final List<String> photoPaths;
+}
+
+/// Группа записей одной категории за день (максимум 2 записи) — для сборки
+/// "разбросанного полароида" в порядке, в котором категории происходили за день.
+class DayStoryCategoryGroup {
+  const DayStoryCategoryGroup({
+    required this.categoryKey,
+    required this.entries,
+  });
+
+  final String categoryKey;
+  final List<DayStoryEntry> entries;
+}
+
 /// Репозиторий Ленты: чтение записей по дате, редактирование, удаление,
 /// определение границ доступных дат для навигации ← / →.
 class FeedRepository {
@@ -110,5 +145,45 @@ class FeedRepository {
         .photoPathsIsNotEmpty()
         .sortByStartedAtDesc()
         .findAll();
+  }
+
+  /// Фото дня для "Дневника дня" — сгруппированы по категории (максимум
+  /// 2 фото на категорию, из первых по времени записей), категории идут
+  /// в порядке первого появления за день (утренняя активность — первая).
+  Future<List<DayStoryCategoryGroup>> getDayStoryGroups(String dateKey) async {
+    final photoEntries = await _isar.activityEntrys
+        .filter()
+        .dateKeyEqualTo(dateKey)
+        .isDeletedEqualTo(false)
+        .photoPathsIsNotEmpty()
+        .sortByStartedAt()
+        .findAll();
+
+    // Map в Dart сохраняет порядок вставки — благодаря сортировке записей
+    // по startedAt выше, первая встреченная запись каждой категории и
+    // определяет порядок категорий на карточке.
+    final grouped = <String, List<ActivityEntry>>{};
+    for (final e in photoEntries) {
+      final list = grouped.putIfAbsent(e.categoryKey, () => []);
+      if (list.length < 2) list.add(e);
+    }
+
+    return [
+      for (final group in grouped.entries)
+        DayStoryCategoryGroup(
+          categoryKey: group.key,
+          entries: [
+            for (final e in group.value)
+              DayStoryEntry(
+                entryId: e.id,
+                entryName: e.name,
+                note: e.note,
+                categoryKey: e.categoryKey,
+                startedAt: e.startedAt,
+                photoPaths: e.photoPaths ?? [],
+              ),
+          ],
+        ),
+    ];
   }
 }

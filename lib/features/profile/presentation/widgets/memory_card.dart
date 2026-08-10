@@ -19,7 +19,7 @@ class MemoryCard extends ConsumerWidget {
 
     return memoryAsync.when(
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
       data: (entry) {
         if (entry == null ||
             entry.photoPaths == null ||

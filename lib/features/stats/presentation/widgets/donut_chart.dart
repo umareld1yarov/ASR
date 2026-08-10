@@ -19,8 +19,8 @@ class DonutChart extends ConsumerWidget {
   String _formatDuration(int seconds) {
     final h = seconds ~/ 3600;
     final m = (seconds % 3600) ~/ 60;
-    if (h > 0) return '${h}ч ${m}м';
-    return '${m}м';
+    if (h > 0) return '$hч $mм';
+    return '$mм';
   }
 
   @override

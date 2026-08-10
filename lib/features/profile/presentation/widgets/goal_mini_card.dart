@@ -26,8 +26,8 @@ class GoalMiniCard extends ConsumerWidget {
   String _formatHours(int seconds) {
     final h = seconds ~/ 3600;
     final m = (seconds % 3600) ~/ 60;
-    if (h > 0) return '${h}ч ${m}м';
-    return '${m}м';
+    if (h > 0) return '$hч $mм';
+    return '$mм';
   }
 
   @override
@@ -88,7 +88,7 @@ class GoalMiniCard extends ConsumerWidget {
         );
       },
       loading: () => const SizedBox(height: 60),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 }

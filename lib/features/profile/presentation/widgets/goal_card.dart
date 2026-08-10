@@ -26,8 +26,8 @@ class GoalCard extends ConsumerWidget {
   String _formatHours(int seconds) {
     final h = seconds ~/ 3600;
     final m = (seconds % 3600) ~/ 60;
-    if (h > 0) return '${h}ч ${m}м';
-    return '${m}м';
+    if (h > 0) return '$hч $mм';
+    return '$mм';
   }
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
@@ -131,7 +131,7 @@ class GoalCard extends ConsumerWidget {
         );
       },
       loading: () => const SizedBox(height: 80),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 }

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/activity_category.dart';
 import '../../../../core/utils/date_utils.dart' as du;
-import '../../../stats/data/stats_repository.dart';
 import '../../application/profile_provider.dart';
 
 /// Личные рекорды — 4 карточки 2×2: самая длинная сессия, лучший день,
@@ -15,8 +14,8 @@ class PersonalRecordsSection extends ConsumerWidget {
   String _formatDuration(int seconds) {
     final h = seconds ~/ 3600;
     final m = (seconds % 3600) ~/ 60;
-    if (h > 0) return '${h}ч ${m}м';
-    return '${m}м';
+    if (h > 0) return '$hч $mм';
+    return '$mм';
   }
 
   String _daysWord(int n) {

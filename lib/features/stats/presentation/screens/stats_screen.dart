@@ -60,7 +60,7 @@ class StatsScreen extends ConsumerWidget {
                       skipLoadingOnReload: true,
                       skipLoadingOnRefresh: true,
                       loading: () => const SizedBox.shrink(),
-                      error: (_, __) => const SizedBox.shrink(),
+                      error: (_, _) => const SizedBox.shrink(),
                       data: (insights) {
                         if (insights.isEmpty) return const SizedBox.shrink();
                         return Column(
