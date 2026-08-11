@@ -105,7 +105,7 @@ class _SectionLabel extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          color: Colors.white.withOpacity(0.5),
+          color: Colors.white.withValues(alpha: 0.5),
           fontSize: 13,
           fontWeight: FontWeight.w600,
         ),
@@ -131,7 +131,7 @@ class _IncomingTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -172,7 +172,7 @@ class _OutgoingTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -186,7 +186,7 @@ class _OutgoingTile extends StatelessWidget {
           Text(
             'Ожидание...',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.4),
+              color: Colors.white.withValues(alpha: 0.4),
               fontSize: 12.5,
             ),
           ),
@@ -218,7 +218,7 @@ class _ErrorText extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     'Ошибка загрузки',
-    style: TextStyle(color: Colors.white.withOpacity(0.4)),
+    style: TextStyle(color: Colors.white.withValues(alpha: 0.4)),
   );
 }
 
@@ -230,7 +230,10 @@ class _EmptyLine extends StatelessWidget {
     padding: const EdgeInsets.symmetric(vertical: 8),
     child: Text(
       text,
-      style: TextStyle(color: Colors.white.withOpacity(0.35), fontSize: 13),
+      style: TextStyle(
+        color: Colors.white.withValues(alpha: 0.35),
+        fontSize: 13,
+      ),
     ),
   );
 }

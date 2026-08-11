@@ -18,9 +18,11 @@ class MyActivityPreviewCard extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: CommunityTheme.accentColor.withOpacity(0.08),
+        color: CommunityTheme.accentColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: CommunityTheme.accentColor.withOpacity(0.4)),
+        border: Border.all(
+          color: CommunityTheme.accentColor.withValues(alpha: 0.4),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,7 +30,7 @@ class MyActivityPreviewCard extends ConsumerWidget {
           Text(
             'так тебя видят друзья',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.4),
+              color: Colors.white.withValues(alpha: 0.4),
               fontSize: 11,
             ),
           ),
@@ -37,7 +39,7 @@ class MyActivityPreviewCard extends ConsumerWidget {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: Colors.white.withOpacity(0.1),
+                backgroundColor: Colors.white.withValues(alpha: 0.1),
                 child: const Text(
                   'Я',
                   style: TextStyle(
@@ -57,7 +59,7 @@ class MyActivityPreviewCard extends ConsumerWidget {
                       return Text(
                         'Сейчас без активности',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                           fontSize: 14,
                         ),
                       );

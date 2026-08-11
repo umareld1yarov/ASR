@@ -101,7 +101,7 @@ class _SharingSettingsScreenState extends ConsumerState<SharingSettingsScreen> {
                     Text(
                       'Категории',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.5),
+                        color: Colors.white.withValues(alpha: 0.5),
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
@@ -126,10 +126,10 @@ class _SharingSettingsScreenState extends ConsumerState<SharingSettingsScreen> {
                               }
                             });
                           },
-                          selectedColor: CommunityTheme.accentColor.withOpacity(
-                            0.25,
+                          selectedColor: CommunityTheme.accentColor.withValues(
+                            alpha: 0.25,
                           ),
-                          backgroundColor: Colors.white.withOpacity(0.06),
+                          backgroundColor: Colors.white.withValues(alpha: 0.06),
                           labelStyle: TextStyle(
                             color: selected
                                 ? CommunityTheme.accentColor
@@ -139,7 +139,7 @@ class _SharingSettingsScreenState extends ConsumerState<SharingSettingsScreen> {
                           side: BorderSide(
                             color: selected
                                 ? CommunityTheme.accentColor
-                                : Colors.white.withOpacity(0.1),
+                                : Colors.white.withValues(alpha: 0.1),
                           ),
                         );
                       }).toList(),
@@ -209,13 +209,13 @@ class _ScopeOption extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: selected
-              ? CommunityTheme.accentColor.withOpacity(0.12)
-              : Colors.white.withOpacity(0.05),
+              ? CommunityTheme.accentColor.withValues(alpha: 0.12)
+              : Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: selected
                 ? CommunityTheme.accentColor
-                : Colors.white.withOpacity(0.08),
+                : Colors.white.withValues(alpha: 0.08),
           ),
         ),
         child: Row(
@@ -242,7 +242,7 @@ class _ScopeOption extends StatelessWidget {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.4),
+                      color: Colors.white.withValues(alpha: 0.4),
                       fontSize: 12,
                     ),
                   ),

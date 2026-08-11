@@ -50,10 +50,10 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
                       decoration: InputDecoration(
                         hintText: 'Поиск по username',
                         hintStyle: TextStyle(
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withValues(alpha: 0.3),
                         ),
                         filled: true,
-                        fillColor: Colors.white.withOpacity(0.06),
+                        fillColor: Colors.white.withValues(alpha: 0.06),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 14,
                         ),
@@ -74,7 +74,9 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
                   ? Center(
                       child: Text(
                         'Начни вводить username',
-                        style: TextStyle(color: Colors.white.withOpacity(0.35)),
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.35),
+                        ),
                       ),
                     )
                   : resultsAsync.when(
@@ -87,7 +89,7 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
                         child: Text(
                           'Ошибка поиска',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.4),
+                            color: Colors.white.withValues(alpha: 0.4),
                           ),
                         ),
                       ),
@@ -96,7 +98,7 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
                               child: Text(
                                 'Никого не найдено',
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.35),
+                                  color: Colors.white.withValues(alpha: 0.35),
                                 ),
                               ),
                             )

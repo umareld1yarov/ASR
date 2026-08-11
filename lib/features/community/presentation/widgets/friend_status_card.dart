@@ -37,7 +37,7 @@ class FriendStatusCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -70,7 +70,7 @@ class FriendStatusCard extends StatelessWidget {
                         style: TextStyle(
                           color: isLive
                               ? CommunityTheme.liveColor
-                              : Colors.white.withOpacity(0.35),
+                              : Colors.white.withValues(alpha: 0.35),
                           fontSize: 12,
                         ),
                       ),
@@ -79,7 +79,7 @@ class FriendStatusCard extends StatelessWidget {
                 ),
                 Icon(
                   Icons.chevron_right,
-                  color: Colors.white.withOpacity(0.25),
+                  color: Colors.white.withValues(alpha: 0.25),
                   size: 18,
                 ),
               ],
@@ -122,10 +122,10 @@ class _LivePill extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: CommunityTheme.liveColor.withOpacity(0.12),
+            color: CommunityTheme.liveColor.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: CommunityTheme.liveColor.withOpacity(0.4),
+              color: CommunityTheme.liveColor.withValues(alpha: 0.4),
             ),
           ),
           child: Row(
@@ -155,13 +155,13 @@ class _LivePill extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.06),
+              color: Colors.white.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
               category.label,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.6),
+                color: Colors.white.withValues(alpha: 0.6),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
