@@ -7,6 +7,7 @@ import '../../../../shared/widgets/app_background.dart';
 import '../../application/community_provider.dart';
 import '../../domain/models/friendship.dart';
 import 'sharing_settings_screen.dart';
+import '../widgets/community_avatar.dart';
 
 /// Профиль друга: показывает live-статус (если он разрешил) и даёт доступ
 /// к настройке того, что Я разрешаю видеть ЕМУ.
@@ -50,40 +51,11 @@ class FriendProfileScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
             Center(
-              child: Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundColor: Colors.white.withOpacity(0.1),
-                    child: Text(
-                      friendship.friend.displayName.isNotEmpty
-                          ? friendship.friend.displayName[0].toUpperCase()
-                          : '?',
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 28,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  if (statusAsync.valueOrNull != null)
-                    Positioned(
-                      right: 4,
-                      bottom: 4,
-                      child: Container(
-                        width: 16,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: CommunityTheme.liveColor,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: const Color(0xFF0A0A0A),
-                            width: 3,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
+              child: CommunityAvatar(
+                name: friendship.friend.displayName,
+                radius: 40,
+                showOnlineDot: true,
+                isOnline: statusAsync.valueOrNull != null,
               ),
             ),
             const SizedBox(height: 8),

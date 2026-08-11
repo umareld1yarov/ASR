@@ -10,6 +10,7 @@ import 'find_friends_screen.dart';
 import 'friend_profile_screen.dart';
 import 'friend_requests_screen.dart';
 import '../../community_theme.dart';
+import '../widgets/community_avatar.dart';
 
 /// Главный экран вкладки "Сообщества": превью моей активности сверху,
 /// список друзей на всю ширину, сворачиваемый блок рекомендаций внизу.
@@ -229,19 +230,7 @@ class _SuggestedUserTile extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 18,
-            backgroundColor: Colors.white.withOpacity(0.1),
-            child: Text(
-              user.displayName.isNotEmpty
-                  ? user.displayName[0].toUpperCase()
-                  : '?',
-              style: const TextStyle(
-                color: Colors.white70,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+          CommunityAvatar(name: user.displayName, radius: 18),
           const SizedBox(width: 10),
           Expanded(
             child: Column(

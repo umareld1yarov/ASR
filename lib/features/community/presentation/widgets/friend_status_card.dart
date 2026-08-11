@@ -4,6 +4,7 @@ import '../../../../core/constants/activity_category.dart';
 import '../../domain/models/friendship.dart';
 import '../../data/community_repository.dart';
 import '../../community_theme.dart';
+import 'community_avatar.dart';
 
 /// Карточка одного друга в списке Сообщества.
 /// Показывает: аватар + имя + "прямо сейчас"/"не в сети", затем (если есть
@@ -44,7 +45,12 @@ class FriendStatusCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                _Avatar(name: friend.displayName, isLive: isLive),
+                CommunityAvatar(
+                  name: friend.displayName,
+                  radius: 20,
+                  showOnlineDot: true,
+                  isOnline: isLive,
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -170,48 +176,5 @@ class _LivePill extends StatelessWidget {
     final m = (totalSeconds % 3600) ~/ 60;
     if (h > 0) return '$h ч $m мин';
     return '$m мин';
-  }
-}
-
-class _Avatar extends StatelessWidget {
-  const _Avatar({required this.name, required this.isLive});
-
-  final String name;
-  final bool isLive;
-
-  @override
-  Widget build(BuildContext context) {
-    final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
-
-    return Stack(
-      children: [
-        CircleAvatar(
-          radius: 20,
-          backgroundColor: Colors.white.withOpacity(0.1),
-          child: Text(
-            initial,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontWeight: FontWeight.w600,
-              fontSize: 15,
-            ),
-          ),
-        ),
-        if (isLive)
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: Container(
-              width: 11,
-              height: 11,
-              decoration: BoxDecoration(
-                color: CommunityTheme.liveColor,
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFF0A0A0A), width: 2),
-              ),
-            ),
-          ),
-      ],
-    );
   }
 }
