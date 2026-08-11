@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/widgets/app_background.dart';
 import '../../application/community_provider.dart';
 import '../../domain/models/community_user.dart';
+import '../widgets/user_tile.dart';
 
 /// Экран поиска пользователей по username и отправки заявок в друзья.
 class FindFriendsScreen extends ConsumerStatefulWidget {
@@ -106,15 +107,23 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
                               itemCount: users.length,
                               itemBuilder: (context, index) {
                                 final user = users[index];
-                                return _UserTile(
+                                return UserTile(
                                   user: user,
-                                  onAdd: () async {
-                                    await controller.sendFriendRequest(user.id);
-                                    // Обновляем список после отправки заявки —
-                                    // юзер должен исчезнуть из результатов поиска
-                                    // (см. фильтр в MockCommunityRepository.searchUsers).
-                                    ref.invalidate(userSearchProvider(_query));
-                                  },
+                                  trailing: IconButton(
+                                    onPressed: () async {
+                                      await controller.sendFriendRequest(
+                                        user.id,
+                                      );
+                                      ref.invalidate(
+                                        userSearchProvider(_query),
+                                      );
+                                    },
+                                    icon: const Icon(
+                                      Icons.person_add,
+                                      color: CommunityTheme.accentColor,
+                                      size: 20,
+                                    ),
+                                  ),
                                 );
                               },
                             ),
@@ -122,55 +131,6 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _UserTile extends StatelessWidget {
-  const _UserTile({required this.user, required this.onAdd});
-
-  final CommunityUser user;
-  final VoidCallback onAdd;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  user.displayName,
-                  style: const TextStyle(color: Colors.white, fontSize: 14.5),
-                ),
-                Text(
-                  '@${user.username}',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.4),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            onPressed: onAdd,
-            icon: const Icon(
-              Icons.person_add,
-              color: CommunityTheme.accentColor,
-              size: 20,
-            ),
-          ),
-        ],
       ),
     );
   }

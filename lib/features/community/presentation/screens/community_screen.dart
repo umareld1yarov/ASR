@@ -11,6 +11,7 @@ import 'friend_profile_screen.dart';
 import 'friend_requests_screen.dart';
 import '../../community_theme.dart';
 import '../widgets/community_avatar.dart';
+import '../widgets/user_tile.dart';
 
 /// Главный экран вкладки "Сообщества": превью моей активности сверху,
 /// список друзей на всю ширину, сворачиваемый блок рекомендаций внизу.
@@ -199,75 +200,33 @@ class _SuggestionsList extends ConsumerWidget {
         return Column(
           children: users
               .map(
-                (user) => _SuggestedUserTile(
+                (user) => UserTile(
                   user: user,
-                  onAdd: () async {
-                    await controller.sendFriendRequest(user.id);
-                  },
+                  trailing: TextButton(
+                    onPressed: () async {
+                      await controller.sendFriendRequest(user.id);
+                    },
+                    style: TextButton.styleFrom(
+                      backgroundColor: CommunityTheme.accentColor.withValues(
+                        alpha: 0.15,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text(
+                      'Добавить',
+                      style: TextStyle(
+                        color: CommunityTheme.accentColor,
+                        fontSize: 12.5,
+                      ),
+                    ),
+                  ),
                 ),
               )
               .toList(),
         );
       },
-    );
-  }
-}
-
-class _SuggestedUserTile extends StatelessWidget {
-  const _SuggestedUserTile({required this.user, required this.onAdd});
-
-  final CommunityUser user;
-  final VoidCallback onAdd;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          CommunityAvatar(name: user.displayName, radius: 18),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  user.displayName,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
-                ),
-                Text(
-                  '@${user.username}',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.4),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          TextButton(
-            onPressed: onAdd,
-            style: TextButton.styleFrom(
-              backgroundColor: CommunityTheme.accentColor.withOpacity(0.15),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: const Text(
-              'Добавить',
-              style: TextStyle(
-                color: CommunityTheme.accentColor,
-                fontSize: 12.5,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
