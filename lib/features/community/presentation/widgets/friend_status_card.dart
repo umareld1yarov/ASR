@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/activity_category.dart';
 import '../../domain/models/friendship.dart';
 import '../../data/community_repository.dart';
+import '../../community_theme.dart';
 
 /// Карточка одного друга в списке Сообщества.
 /// Показывает: аватар + имя + "прямо сейчас"/"не в сети", затем (если есть
@@ -23,8 +24,6 @@ class FriendStatusCard extends StatelessWidget {
   final FriendActivityStatus? status;
 
   final VoidCallback onTap;
-
-  static const _liveColor = Color(0xFF22C55E);
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +63,7 @@ class FriendStatusCard extends StatelessWidget {
                         isLive ? 'Прямо сейчас' : 'Не в сети',
                         style: TextStyle(
                           color: isLive
-                              ? _liveColor
+                              ? CommunityTheme.liveColor
                               : Colors.white.withOpacity(0.35),
                           fontSize: 12,
                         ),
@@ -95,8 +94,6 @@ class _LivePill extends StatelessWidget {
 
   final FriendActivityStatus status;
 
-  static const _liveColor = Color(0xFF22C55E);
-
   @override
   Widget build(BuildContext context) {
     final category = status.categoryKey != null
@@ -119,9 +116,11 @@ class _LivePill extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: _liveColor.withOpacity(0.12),
+            color: CommunityTheme.liveColor.withOpacity(0.12),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: _liveColor.withOpacity(0.4)),
+            border: Border.all(
+              color: CommunityTheme.liveColor.withOpacity(0.4),
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -130,7 +129,7 @@ class _LivePill extends StatelessWidget {
                 width: 7,
                 height: 7,
                 decoration: const BoxDecoration(
-                  color: _liveColor,
+                  color: CommunityTheme.liveColor,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -138,7 +137,7 @@ class _LivePill extends StatelessWidget {
               Text(
                 elapsed != null ? '$label · $elapsed' : label,
                 style: const TextStyle(
-                  color: _liveColor,
+                  color: CommunityTheme.liveColor,
                   fontSize: 12.5,
                   fontWeight: FontWeight.w600,
                 ),
@@ -180,8 +179,6 @@ class _Avatar extends StatelessWidget {
   final String name;
   final bool isLive;
 
-  static const _liveColor = Color(0xFF22C55E);
-
   @override
   Widget build(BuildContext context) {
     final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
@@ -208,7 +205,7 @@ class _Avatar extends StatelessWidget {
               width: 11,
               height: 11,
               decoration: BoxDecoration(
-                color: _liveColor,
+                color: CommunityTheme.liveColor,
                 shape: BoxShape.circle,
                 border: Border.all(color: const Color(0xFF0A0A0A), width: 2),
               ),

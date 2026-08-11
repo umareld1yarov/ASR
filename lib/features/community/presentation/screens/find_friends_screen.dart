@@ -1,3 +1,4 @@
+import 'package:asr/features/community/community_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,8 +17,6 @@ class FindFriendsScreen extends ConsumerStatefulWidget {
 class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
   final _controller = TextEditingController();
   String _query = '';
-
-  static const _accentColor = Color(0xFF06B6D4);
 
   @override
   void dispose() {
@@ -79,7 +78,9 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
                     )
                   : resultsAsync.when(
                       loading: () => const Center(
-                        child: CircularProgressIndicator(color: _accentColor),
+                        child: CircularProgressIndicator(
+                          color: CommunityTheme.accentColor,
+                        ),
                       ),
                       error: (e, _) => Center(
                         child: Text(
@@ -132,8 +133,6 @@ class _UserTile extends StatelessWidget {
   final CommunityUser user;
   final VoidCallback onAdd;
 
-  static const _accentColor = Color(0xFF06B6D4);
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -165,7 +164,11 @@ class _UserTile extends StatelessWidget {
           ),
           IconButton(
             onPressed: onAdd,
-            icon: const Icon(Icons.person_add, color: _accentColor, size: 20),
+            icon: const Icon(
+              Icons.person_add,
+              color: CommunityTheme.accentColor,
+              size: 20,
+            ),
           ),
         ],
       ),

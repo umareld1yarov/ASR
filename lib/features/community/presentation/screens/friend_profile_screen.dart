@@ -1,3 +1,4 @@
+import 'package:asr/features/community/community_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,8 +17,6 @@ class FriendProfileScreen extends ConsumerWidget {
   const FriendProfileScreen({super.key, required this.friendship});
 
   final Friendship friendship;
-
-  static const _accentColor = Color(0xFF06B6D4);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -75,7 +74,7 @@ class FriendProfileScreen extends ConsumerWidget {
                         width: 16,
                         height: 16,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF22C55E),
+                          color: CommunityTheme.liveColor,
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: const Color(0xFF0A0A0A),
@@ -102,7 +101,9 @@ class FriendProfileScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: statusAsync.when(
                 loading: () => const Center(
-                  child: CircularProgressIndicator(color: _accentColor),
+                  child: CircularProgressIndicator(
+                    color: CommunityTheme.accentColor,
+                  ),
                 ),
                 error: (e, _) => _InfoCard(
                   text: 'Не удалось загрузить статус',
@@ -122,7 +123,10 @@ class FriendProfileScreen extends ConsumerWidget {
                       : '—';
                   final activityText =
                       status.activityName ?? 'Занят: $categoryLabel';
-                  return _InfoCard(text: activityText, color: _accentColor);
+                  return _InfoCard(
+                    text: activityText,
+                    color: CommunityTheme.accentColor,
+                  );
                 },
               ),
             ),
@@ -140,14 +144,18 @@ class FriendProfileScreen extends ConsumerWidget {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.tune, color: _accentColor, size: 18),
+                  icon: const Icon(
+                    Icons.tune,
+                    color: CommunityTheme.accentColor,
+                    size: 18,
+                  ),
                   label: const Text(
                     'Настроить, что видит он',
-                    style: TextStyle(color: _accentColor),
+                    style: TextStyle(color: CommunityTheme.accentColor),
                   ),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    side: const BorderSide(color: _accentColor),
+                    side: const BorderSide(color: CommunityTheme.accentColor),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

@@ -9,6 +9,7 @@ import '../widgets/my_activity_preview_card.dart';
 import 'find_friends_screen.dart';
 import 'friend_profile_screen.dart';
 import 'friend_requests_screen.dart';
+import '../../community_theme.dart';
 
 /// Главный экран вкладки "Сообщества": превью моей активности сверху,
 /// список друзей на всю ширину, сворачиваемый блок рекомендаций внизу.
@@ -21,8 +22,6 @@ class CommunityScreen extends ConsumerStatefulWidget {
 
 class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   bool _suggestionsExpanded = false;
-
-  static const _accentColor = Color(0xFF06B6D4);
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +54,9 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                     loading: () => const Padding(
                       padding: EdgeInsets.symmetric(vertical: 20),
                       child: Center(
-                        child: CircularProgressIndicator(color: _accentColor),
+                        child: CircularProgressIndicator(
+                          color: CommunityTheme.accentColor,
+                        ),
                       ),
                     ),
                     error: (e, _) => Text(
@@ -111,8 +112,6 @@ class _SuggestionsSection extends ConsumerWidget {
   final bool expanded;
   final VoidCallback onToggle;
 
-  static const _accentColor = Color(0xFF06B6D4);
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(
@@ -163,8 +162,6 @@ class _SuggestionsSection extends ConsumerWidget {
 
 class _SuggestionsList extends ConsumerWidget {
   const _SuggestionsList();
-
-  static const _accentColor = Color(0xFF06B6D4);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -221,8 +218,6 @@ class _SuggestedUserTile extends StatelessWidget {
   final CommunityUser user;
   final VoidCallback onAdd;
 
-  static const _accentColor = Color(0xFF06B6D4);
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -269,14 +264,17 @@ class _SuggestedUserTile extends StatelessWidget {
           TextButton(
             onPressed: onAdd,
             style: TextButton.styleFrom(
-              backgroundColor: _accentColor.withOpacity(0.15),
+              backgroundColor: CommunityTheme.accentColor.withOpacity(0.15),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
             child: const Text(
               'Добавить',
-              style: TextStyle(color: _accentColor, fontSize: 12.5),
+              style: TextStyle(
+                color: CommunityTheme.accentColor,
+                fontSize: 12.5,
+              ),
             ),
           ),
         ],
@@ -289,8 +287,6 @@ class _Header extends StatelessWidget {
   const _Header({required this.incomingCount});
 
   final int incomingCount;
-
-  static const _accentColor = Color(0xFF06B6D4);
 
   @override
   Widget build(BuildContext context) {
@@ -343,8 +339,6 @@ class _IconButtonWithBadge extends StatelessWidget {
   final int badgeCount;
   final VoidCallback onTap;
 
-  static const _accentColor = Color(0xFF06B6D4);
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -367,7 +361,7 @@ class _IconButtonWithBadge extends StatelessWidget {
                   width: 8,
                   height: 8,
                   decoration: const BoxDecoration(
-                    color: _accentColor,
+                    color: CommunityTheme.accentColor,
                     shape: BoxShape.circle,
                   ),
                 ),

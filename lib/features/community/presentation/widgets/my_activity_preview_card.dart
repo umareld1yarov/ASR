@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../timer/application/timer_provider.dart';
+import '../../community_theme.dart';
 
 /// Превью того, как МОЯ текущая активность выглядит для друзей —
 /// показывается сверху вкладки "Сообщества". Данные берутся из реального
 /// Timer-провайдера (не из моков Community), т.к. это правда "я сейчас".
 class MyActivityPreviewCard extends ConsumerWidget {
   const MyActivityPreviewCard({super.key});
-
-  static const _accentColor = Color(0xFF06B6D4);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,9 +18,9 @@ class MyActivityPreviewCard extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: _accentColor.withOpacity(0.08),
+        color: CommunityTheme.accentColor.withOpacity(0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _accentColor.withOpacity(0.4)),
+        border: Border.all(color: CommunityTheme.accentColor.withOpacity(0.4)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,7 +78,7 @@ class MyActivityPreviewCard extends ConsumerWidget {
                         Text(
                           '${_formatElapsed(elapsed)} · сейчас',
                           style: const TextStyle(
-                            color: _accentColor,
+                            color: CommunityTheme.accentColor,
                             fontSize: 12,
                           ),
                         ),

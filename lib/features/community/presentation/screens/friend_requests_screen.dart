@@ -1,3 +1,4 @@
+import 'package:asr/features/community/community_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,8 +10,6 @@ import '../../domain/models/friendship.dart';
 /// и исходящие (можно отменить, ожидают ответа).
 class FriendRequestsScreen extends ConsumerWidget {
   const FriendRequestsScreen({super.key});
-
-  static const _accentColor = Color(0xFF06B6D4);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -126,8 +125,6 @@ class _IncomingTile extends StatelessWidget {
   final VoidCallback onAccept;
   final VoidCallback onDecline;
 
-  static const _accentColor = Color(0xFF06B6D4);
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -151,7 +148,11 @@ class _IncomingTile extends StatelessWidget {
           ),
           IconButton(
             onPressed: onAccept,
-            icon: const Icon(Icons.check_circle, color: _accentColor, size: 22),
+            icon: const Icon(
+              Icons.check_circle,
+              color: CommunityTheme.accentColor,
+              size: 22,
+            ),
           ),
         ],
       ),

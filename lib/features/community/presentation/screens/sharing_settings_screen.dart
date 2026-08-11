@@ -1,3 +1,4 @@
+import 'package:asr/features/community/community_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -25,8 +26,6 @@ class SharingSettingsScreen extends ConsumerStatefulWidget {
 class _SharingSettingsScreenState extends ConsumerState<SharingSettingsScreen> {
   late SharingScope _scope;
   late Set<String> _selectedCategories;
-
-  static const _accentColor = Color(0xFF06B6D4);
 
   @override
   void initState() {
@@ -127,15 +126,19 @@ class _SharingSettingsScreenState extends ConsumerState<SharingSettingsScreen> {
                               }
                             });
                           },
-                          selectedColor: _accentColor.withOpacity(0.25),
+                          selectedColor: CommunityTheme.accentColor.withOpacity(
+                            0.25,
+                          ),
                           backgroundColor: Colors.white.withOpacity(0.06),
                           labelStyle: TextStyle(
-                            color: selected ? _accentColor : Colors.white60,
+                            color: selected
+                                ? CommunityTheme.accentColor
+                                : Colors.white60,
                             fontWeight: FontWeight.w600,
                           ),
                           side: BorderSide(
                             color: selected
-                                ? _accentColor
+                                ? CommunityTheme.accentColor
                                 : Colors.white.withOpacity(0.1),
                           ),
                         );
@@ -161,7 +164,7 @@ class _SharingSettingsScreenState extends ConsumerState<SharingSettingsScreen> {
                     if (context.mounted) Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _accentColor,
+                    backgroundColor: CommunityTheme.accentColor,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -197,8 +200,6 @@ class _ScopeOption extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  static const _accentColor = Color(0xFF06B6D4);
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -208,18 +209,20 @@ class _ScopeOption extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: selected
-              ? _accentColor.withOpacity(0.12)
+              ? CommunityTheme.accentColor.withOpacity(0.12)
               : Colors.white.withOpacity(0.05),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: selected ? _accentColor : Colors.white.withOpacity(0.08),
+            color: selected
+                ? CommunityTheme.accentColor
+                : Colors.white.withOpacity(0.08),
           ),
         ),
         child: Row(
           children: [
             Icon(
               selected ? Icons.radio_button_checked : Icons.radio_button_off,
-              color: selected ? _accentColor : Colors.white30,
+              color: selected ? CommunityTheme.accentColor : Colors.white30,
               size: 20,
             ),
             const SizedBox(width: 12),
