@@ -45,13 +45,6 @@ final outgoingRequestsProvider = FutureProvider<List<Friendship>>((ref) async {
   return repo.getOutgoingRequests();
 });
 
-/// Рекомендованные пользователи для блока "Найти единомышленников".
-final suggestedUsersProvider = FutureProvider<List<CommunityUser>>((ref) async {
-  ref.watch(communityChangedProvider);
-  final repo = ref.watch(communityRepositoryProvider);
-  return repo.getSuggestedUsers();
-});
-
 /// Результаты поиска пользователей по username.
 /// family — параметризован строкой запроса, autoDispose — чтобы не
 /// накапливать кэш на каждый введённый символ.

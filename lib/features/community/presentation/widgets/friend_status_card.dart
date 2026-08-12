@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/activity_category.dart';
 import '../../domain/models/friendship.dart';
 import '../../data/community_repository.dart';
 import '../../community_theme.dart';
+import '../../../../core/constants/activity_category.dart';
 import 'community_avatar.dart';
+import 'activity_status_pill.dart';
 
 /// Карточка одного друга в списке Сообщества.
 /// Показывает: аватар + имя + "прямо сейчас"/"не в сети", затем (если есть
@@ -29,7 +30,11 @@ class FriendStatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final friend = friendship.friend;
-    final isLive = status != null;
+    final currentStatus = status;
+    final isLive = currentStatus != null;
+    final category = isLive && currentStatus.categoryKey != null
+        ? ActivityCategory.fromStorageKey(currentStatus.categoryKey!)
+        : null;
 
     return GestureDetector(
       onTap: onTap,
@@ -37,8 +42,12 @@ class FriendStatusCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: category?.color.withValues(alpha: 0.13) ??
+              Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
+          border: category != null
+              ? Border.all(color: category.color.withValues(alpha: 0.45))
+              : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,10 +75,12 @@ class FriendStatusCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 1),
                       Text(
-                        isLive ? 'Прямо сейчас' : 'Не в сети',
+                        isLive
+                            ? 'Прямо сейчас'
+                            : 'Сейчас не делится активностью',
                         style: TextStyle(
                           color: isLive
-                              ? CommunityTheme.liveColor
+                              ? category?.color ?? CommunityTheme.liveColor
                               : Colors.white.withValues(alpha: 0.35),
                           fontSize: 12,
                         ),
@@ -85,96 +96,17 @@ class FriendStatusCard extends StatelessWidget {
               ],
             ),
             if (isLive) ...[
-              const SizedBox(height: 10),
-              _LivePill(status: status!),
+              const SizedBox(height: 12),
+              ActivityStatusPill(
+                activityName: currentStatus.activityName,
+                categoryKey: currentStatus.categoryKey,
+                startedAt: currentStatus.startedAt,
+                embedded: true,
+              ),
             ],
           ],
         ),
       ),
     );
-  }
-}
-
-class _LivePill extends StatelessWidget {
-  const _LivePill({required this.status});
-
-  final FriendActivityStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final category = status.categoryKey != null
-        ? ActivityCategory.fromStorageKey(status.categoryKey!)
-        : null;
-    final hasName = status.activityName != null;
-    final label = status.activityName ?? category?.label ?? '—';
-    final elapsed = status.startedAt != null
-        ? _formatElapsed(
-            ((DateTime.now().millisecondsSinceEpoch - status.startedAt!) / 1000)
-                .floor(),
-          )
-        : null;
-
-    return Wrap(
-      spacing: 8,
-      runSpacing: 6,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: CommunityTheme.liveColor.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: CommunityTheme.liveColor.withValues(alpha: 0.4),
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 7,
-                height: 7,
-                decoration: const BoxDecoration(
-                  color: CommunityTheme.liveColor,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                elapsed != null ? '$label · $elapsed' : label,
-                style: const TextStyle(
-                  color: CommunityTheme.liveColor,
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (hasName && category != null)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              category.label,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.6),
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  static String _formatElapsed(int totalSeconds) {
-    final h = totalSeconds ~/ 3600;
-    final m = (totalSeconds % 3600) ~/ 60;
-    if (h > 0) return '$h ч $m мин';
-    return '$m мин';
   }
 }

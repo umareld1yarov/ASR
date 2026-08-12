@@ -24,10 +24,6 @@ abstract class CommunityRepository {
   /// Поиск пользователей по username (для добавления в друзья).
   Future<List<CommunityUser>> searchUsers(String query);
 
-  /// Небольшая подборка "рекомендованных" пользователей для блока
-  /// "Найти единомышленников" — без явного поискового запроса.
-  Future<List<CommunityUser>> getSuggestedUsers();
-
   /// Отправить заявку в друзья.
   Future<void> sendFriendRequest(String userId);
 

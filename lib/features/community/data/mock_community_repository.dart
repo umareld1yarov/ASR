@@ -29,11 +29,13 @@ class MockCommunityRepository implements CommunityRepository {
   };
 
   final Map<String, SharingPermission> _myPermissions = {
-    'u1': const SharingPermission(friendId: 'u1', scope: SharingScope.live),
+    'u1': const SharingPermission(
+      friendId: 'u1',
+      scope: SharingScope.fullActivity,
+    ),
     'u2': const SharingPermission(
       friendId: 'u2',
       scope: SharingScope.category,
-      allowedCategoryKeys: ['work', 'growth'],
     ),
   };
 
@@ -88,14 +90,6 @@ class MockCommunityRepository implements CommunityRepository {
         )
         .where((u) => !_statuses.containsKey(u.id)) // скрыть уже друзей/заявки
         .toList();
-  }
-
-  @override
-  Future<List<CommunityUser>> getSuggestedUsers() async {
-    // Мок: все пользователи, которые ещё не друзья и без заявки —
-    // после подключения Supabase здесь будет реальная рекомендательная логика
-    // (общие категории, друзья друзей и т.п.).
-    return _allUsers.where((u) => !_statuses.containsKey(u.id)).toList();
   }
 
   @override

@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../shared/widgets/app_background.dart';
 import '../../application/community_provider.dart';
-import '../../domain/models/community_user.dart';
 import '../widgets/user_tile.dart';
 
 /// Экран поиска пользователей по username и отправки заявок в друзья.
@@ -48,7 +47,7 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
                       autofocus: true,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
-                        hintText: 'Поиск по username',
+                        hintText: 'Введите @username',
                         hintStyle: TextStyle(
                           color: Colors.white.withValues(alpha: 0.3),
                         ),
@@ -73,7 +72,7 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
               child: _query.isEmpty
                   ? Center(
                       child: Text(
-                        'Начни вводить username',
+                        'Введите username друга',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.35),
                         ),

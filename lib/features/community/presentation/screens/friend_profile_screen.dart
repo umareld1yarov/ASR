@@ -2,12 +2,12 @@ import 'package:asr/features/community/community_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/constants/activity_category.dart';
 import '../../../../shared/widgets/app_background.dart';
 import '../../application/community_provider.dart';
 import '../../domain/models/friendship.dart';
 import 'sharing_settings_screen.dart';
 import '../widgets/community_avatar.dart';
+import '../widgets/activity_status_pill.dart';
 
 /// Профиль друга: показывает live-статус (если он разрешил) и даёт доступ
 /// к настройке того, что Я разрешаю видеть ЕМУ.
@@ -88,16 +88,10 @@ class FriendProfileScreen extends ConsumerWidget {
                       color: Colors.white38,
                     );
                   }
-                  final categoryLabel = status.categoryKey != null
-                      ? ActivityCategory.fromStorageKey(
-                          status.categoryKey!,
-                        ).label
-                      : '—';
-                  final activityText =
-                      status.activityName ?? 'Занят: $categoryLabel';
-                  return _InfoCard(
-                    text: activityText,
-                    color: CommunityTheme.accentColor,
+                  return ActivityStatusPill(
+                    activityName: status.activityName,
+                    categoryKey: status.categoryKey,
+                    startedAt: status.startedAt,
                   );
                 },
               ),
@@ -105,34 +99,82 @@ class FriendProfileScreen extends ConsumerWidget {
             const Spacer(),
             Padding(
               padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            SharingSettingsScreen(friendship: friendship),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => SharingSettingsScreen(
+                              friendship: friendship,
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.tune,
+                        color: CommunityTheme.accentColor,
+                        size: 18,
                       ),
-                    );
-                  },
-                  icon: const Icon(
-                    Icons.tune,
-                    color: CommunityTheme.accentColor,
-                    size: 18,
-                  ),
-                  label: const Text(
-                    'Настроить, что видит он',
-                    style: TextStyle(color: CommunityTheme.accentColor),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    side: const BorderSide(color: CommunityTheme.accentColor),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      label: const Text(
+                        'Настроить доступ',
+                        style: TextStyle(color: CommunityTheme.accentColor),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(
+                          color: CommunityTheme.accentColor,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () async {
+                      final shouldRemove = await showDialog<bool>(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          backgroundColor: const Color(0xFF242323),
+                          title: const Text(
+                            'Удалить из друзей?',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          content: Text(
+                            '${friendship.friend.displayName} больше не сможет видеть вашу активность, а вы — его.',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.7),
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(dialogContext).pop(false),
+                              child: const Text('Отмена'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(dialogContext).pop(true),
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.redAccent,
+                              ),
+                              child: const Text('Удалить'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (shouldRemove != true || !context.mounted) return;
+                      await ref
+                          .read(communityControllerProvider)
+                          .removeFriend(friendship.friend.id);
+                      if (context.mounted) Navigator.of(context).pop();
+                    },
+                    style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
+                    child: const Text('Удалить из друзей'),
+                  ),
+                ],
               ),
             ),
           ],

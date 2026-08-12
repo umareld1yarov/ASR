@@ -6,13 +6,9 @@ import '../../../../shared/widgets/app_background.dart';
 import '../../application/community_provider.dart';
 import '../../domain/models/friendship.dart';
 import '../../domain/models/sharing_permission.dart';
-import '../../../../core/constants/activity_category.dart';
 
 /// Настройка того, что Я разрешаю видеть КОНКРЕТНОМУ другу.
-/// scope: none / live / category / fullDay — см. SharingPermission.
-/// Категории — временный фиксированный список ключей (совпадает с
-/// core/constants/activity_category.dart), пока без импорта самого enum,
-/// чтобы не тянуть лишнюю зависимость в фичу community.
+/// Настройка индивидуального доступа друга к текущей активности.
 class SharingSettingsScreen extends ConsumerStatefulWidget {
   const SharingSettingsScreen({super.key, required this.friendship});
 
@@ -25,14 +21,12 @@ class SharingSettingsScreen extends ConsumerStatefulWidget {
 
 class _SharingSettingsScreenState extends ConsumerState<SharingSettingsScreen> {
   late SharingScope _scope;
-  late Set<String> _selectedCategories;
 
   @override
   void initState() {
     super.initState();
     final permission = widget.friendship.myPermissionForFriend;
     _scope = permission.scope;
-    _selectedCategories = permission.allowedCategoryKeys.toSet();
   }
 
   @override
@@ -54,7 +48,7 @@ class _SharingSettingsScreenState extends ConsumerState<SharingSettingsScreen> {
                   ),
                   Expanded(
                     child: Text(
-                      'Доступ для ${widget.friendship.friend.displayName}',
+                      'Доступ к активности',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -72,79 +66,25 @@ class _SharingSettingsScreenState extends ConsumerState<SharingSettingsScreen> {
                 children: [
                   _ScopeOption(
                     title: 'Ничего не показывать',
-                    subtitle: 'Друг видит, что вы не в сети',
+                    subtitle: 'Друг не увидит, чем вы занимаетесь сейчас',
                     selected: _scope == SharingScope.none,
                     onTap: () => setState(() => _scope = SharingScope.none),
                   ),
                   _ScopeOption(
-                    title: 'Только "сейчас"',
+                    title: 'Только категория',
                     subtitle:
-                        'Видно только текущую активность в реальном времени',
-                    selected: _scope == SharingScope.live,
-                    onTap: () => setState(() => _scope = SharingScope.live),
-                  ),
-                  _ScopeOption(
-                    title: 'Выбранные категории',
-                    subtitle:
-                        'Видно live и записи только по отмеченным категориям',
+                        'Видны категория и время с начала, без названия дела',
                     selected: _scope == SharingScope.category,
                     onTap: () => setState(() => _scope = SharingScope.category),
                   ),
                   _ScopeOption(
-                    title: 'Весь день',
-                    subtitle: 'Видно всю ленту активностей за сегодня',
-                    selected: _scope == SharingScope.fullDay,
-                    onTap: () => setState(() => _scope = SharingScope.fullDay),
+                    title: 'Полная активность',
+                    subtitle:
+                        'Видны категория, название дела и время с начала',
+                    selected: _scope == SharingScope.fullActivity,
+                    onTap: () =>
+                        setState(() => _scope = SharingScope.fullActivity),
                   ),
-                  if (_scope == SharingScope.category) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      'Категории',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.5),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: ActivityCategory.values.map((category) {
-                        final key = category.storageKey;
-                        final label = category.label;
-                        final selected = _selectedCategories.contains(key);
-                        return ChoiceChip(
-                          label: Text(label),
-                          selected: selected,
-                          onSelected: (value) {
-                            setState(() {
-                              if (value) {
-                                _selectedCategories.add(key);
-                              } else {
-                                _selectedCategories.remove(key);
-                              }
-                            });
-                          },
-                          selectedColor: CommunityTheme.accentColor.withValues(
-                            alpha: 0.25,
-                          ),
-                          backgroundColor: Colors.white.withValues(alpha: 0.06),
-                          labelStyle: TextStyle(
-                            color: selected
-                                ? CommunityTheme.accentColor
-                                : Colors.white60,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          side: BorderSide(
-                            color: selected
-                                ? CommunityTheme.accentColor
-                                : Colors.white.withValues(alpha: 0.1),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
                 ],
               ),
             ),
@@ -158,7 +98,6 @@ class _SharingSettingsScreenState extends ConsumerState<SharingSettingsScreen> {
                       SharingPermission(
                         friendId: widget.friendship.friend.id,
                         scope: _scope,
-                        allowedCategoryKeys: _selectedCategories.toList(),
                       ),
                     );
                     if (context.mounted) Navigator.of(context).pop();
