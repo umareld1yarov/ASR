@@ -3,22 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/activity_category.dart';
 import '../../application/timer_provider.dart';
+import 'activity_suggestions_list.dart';
+import 'category_selection_grid.dart';
+import 'new_activity_form.dart';
 
-import '../../../../shared/widgets/glass_pill_button.dart';
-
-/// Модалка смены активности: выбор категории → ввод названия → запуск.
-/// Аналог #modal-overlay из index.html (PWA).
+/// Two-step flow for switching an activity: category, then a reusable name.
 class CategoryPickerSheet extends ConsumerStatefulWidget {
   const CategoryPickerSheet({super.key});
 
-  /// Удобный статический метод для вызова модалки откуда угодно.
   static Future<void> show(BuildContext context) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF141414),
+      backgroundColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) => const CategoryPickerSheet(),
     );
@@ -33,7 +32,8 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
   ActivityCategory? _selectedCategory;
   final _nameController = TextEditingController();
   final _nameFocusNode = FocusNode();
-  bool _showValidationError = false;
+  bool _isCreatingNew = false;
+  bool _isStarting = false;
 
   @override
   void dispose() {
@@ -42,150 +42,257 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
     super.dispose();
   }
 
-  Future<void> _confirm() async {
-    final name = _nameController.text.trim();
+  void _selectCategory(ActivityCategory category) {
+    setState(() {
+      _selectedCategory = category;
+      _isCreatingNew = false;
+    });
+  }
 
-    if (_selectedCategory == null || name.isEmpty) {
-      setState(() => _showValidationError = true);
-      return;
-    }
+  void _showNewActivityForm() {
+    setState(() => _isCreatingNew = true);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _nameFocusNode.requestFocus());
+  }
 
-    await ref
-        .read(timerControllerProvider)
-        .switchActivity(name: name, categoryKey: _selectedCategory!.storageKey);
+  Future<void> _startActivity(String name) async {
+    final category = _selectedCategory;
+    final trimmedName = name.trim();
+    if (category == null || trimmedName.isEmpty || _isStarting) return;
 
+    setState(() => _isStarting = true);
+    await ref.read(timerControllerProvider).switchActivity(
+          name: trimmedName,
+          categoryKey: category.storageKey,
+        );
     if (mounted) Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF7D7D89), Color(0xFF1A1919)],
+          stops: [0.0, 0.4],
+        ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text(
-            'Чем занимаешься?',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-
-          // ── Сетка категорий (тот же стиль, что на Экране 1) ──
-          GridView.count(
-            crossAxisCount: 3,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 10,
-            crossAxisSpacing: 10,
-            childAspectRatio: 1.25,
-            children: ActivityCategory.values.map((category) {
-              final isSelected = _selectedCategory == category;
-              return InkWell(
-                onTap: () {
-                  setState(() {
-                    _selectedCategory = category;
-                    _showValidationError = false;
-                  });
-                  Future.delayed(const Duration(milliseconds: 50), () {
-                    if (mounted) _nameFocusNode.requestFocus();
-                  });
-                },
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: category.color.withValues(
-                      alpha: isSelected ? 0.18 : 0.05,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: category.color.withValues(
-                        alpha: isSelected ? 0.9 : 0.18,
-                      ),
-                      width: isSelected ? 1.5 : 1,
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        category.emoji,
-                        style: const TextStyle(fontSize: 19),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        category.label,
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.white70,
-                          fontWeight: isSelected
-                              ? FontWeight.w700
-                              : FontWeight.w600,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ],
-                  ),
+      child: AnimatedPadding(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: screenHeight * 0.75),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 22),
+          child: _selectedCategory == null
+              ? _CategoryStep(onSelected: _selectCategory)
+              : _ActivityStep(
+                  category: _selectedCategory!,
+                  isCreatingNew: _isCreatingNew,
+                  isStarting: _isStarting,
+                  nameController: _nameController,
+                  nameFocusNode: _nameFocusNode,
+                  onBack: () => setState(() {
+                    _selectedCategory = null;
+                    _isCreatingNew = false;
+                  }),
+                  onNewActivity: _showNewActivityForm,
+                  onStart: () => _startActivity(_nameController.text),
+                  onSuggestionSelected: _startActivity,
                 ),
-              );
-            }).toList(),
-          ),
-
-          const SizedBox(height: 20),
-
-          // ── Поле ввода названия ──
-          TextField(
-            controller: _nameController,
-            maxLength: 50,
-            focusNode: _nameFocusNode,
-            enabled: _selectedCategory != null,
-            autofocus: false,
-            decoration: InputDecoration(
-              // counterText: '',
-              hintText: _selectedCategory == null
-                  ? 'Сначала выбери категорию...'
-                  : 'Например: Пишу код...',
-              filled: true,
-              fillColor: const Color(0xFF1F1F1F),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: _showValidationError
-                    ? const BorderSide(color: Colors.red)
-                    : BorderSide.none,
-              ),
-            ),
-            onSubmitted: (_) => _confirm(),
-          ),
-
-          const SizedBox(height: 16),
-
-          GlassPillButton(
-            onTap: _confirm,
-            height: 52,
-            child: const Text(
-              'Запустить →',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
+        ),
+      ),
       ),
     );
   }
+}
+
+class _CategoryStep extends StatelessWidget {
+  const _CategoryStep({required this.onSelected});
+  final ValueChanged<ActivityCategory> onSelected;
+
+  @override
+  Widget build(BuildContext context) => SingleChildScrollView(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _DragHandle(),
+        const SizedBox(height: 18),
+        const Text(
+          'Чем занимаешься?',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Выбери категорию',
+          style: TextStyle(color: Colors.white.withValues(alpha: 0.48), fontSize: 14),
+        ),
+        const SizedBox(height: 22),
+        CategorySelectionGrid(onSelected: onSelected),
+      ],
+    ),
+  );
+}
+
+class _ActivityStep extends ConsumerWidget {
+  const _ActivityStep({
+    required this.category,
+    required this.isCreatingNew,
+    required this.isStarting,
+    required this.nameController,
+    required this.nameFocusNode,
+    required this.onBack,
+    required this.onNewActivity,
+    required this.onStart,
+    required this.onSuggestionSelected,
+  });
+
+  final ActivityCategory category;
+  final bool isCreatingNew;
+  final bool isStarting;
+  final TextEditingController nameController;
+  final FocusNode nameFocusNode;
+  final VoidCallback onBack;
+  final VoidCallback onNewActivity;
+  final VoidCallback onStart;
+  final ValueChanged<String> onSuggestionSelected;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final suggestions = ref.watch(activitySuggestionsProvider(category.storageKey));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _DragHandle(),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            IconButton(
+              onPressed: onBack,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+            ),
+            const SizedBox(width: 4),
+            Container(
+              width: 9,
+              height: 9,
+              decoration: BoxDecoration(color: category.color, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              category.label,
+              style: TextStyle(
+                color: category.color,
+                fontSize: 21,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Expanded(
+          child: isCreatingNew
+              ? SingleChildScrollView(
+                  child: NewActivityForm(
+                    controller: nameController,
+                    focusNode: nameFocusNode,
+                    onStart: onStart,
+                  ),
+                )
+              : suggestions.when(
+                  loading: () => Center(
+                    child: CircularProgressIndicator(color: category.color),
+                  ),
+                  error: (_, _) => _SuggestionsError(onNewActivity: onNewActivity),
+                  data: (items) => ListView(
+                    children: [
+                      if (items.isEmpty)
+                        _NoSuggestions(onNewActivity: onNewActivity)
+                      else ...[
+                        ActivitySuggestionsList(
+                          suggestions: items,
+                          onSelected: onSuggestionSelected,
+                        ),
+                        const SizedBox(height: 16),
+                        _NewActivityButton(onTap: onNewActivity),
+                      ],
+                    ],
+                  ),
+                ),
+        ),
+        if (isStarting)
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: LinearProgressIndicator(color: category.color),
+          ),
+      ],
+    );
+  }
+}
+
+class _DragHandle extends StatelessWidget {
+  const _DragHandle();
+  @override
+  Widget build(BuildContext context) => Center(
+    child: Container(
+      width: 36,
+      height: 4,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(2),
+      ),
+    ),
+  );
+}
+
+class _NewActivityButton extends StatelessWidget {
+  const _NewActivityButton({required this.onTap});
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) => TextButton.icon(
+    onPressed: onTap,
+    icon: const Icon(Icons.add, size: 19),
+    label: const Text('Новая активность'),
+    style: TextButton.styleFrom(
+      foregroundColor: Colors.white70,
+      minimumSize: const Size.fromHeight(48),
+      alignment: Alignment.centerLeft,
+    ),
+  );
+}
+
+class _NoSuggestions extends StatelessWidget {
+  const _NoSuggestions({required this.onNewActivity});
+  final VoidCallback onNewActivity;
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 20),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Здесь пока нет сохранённых активностей.',
+          style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 14),
+        ),
+        const SizedBox(height: 12),
+        _NewActivityButton(onTap: onNewActivity),
+      ],
+    ),
+  );
+}
+
+class _SuggestionsError extends StatelessWidget {
+  const _SuggestionsError({required this.onNewActivity});
+  final VoidCallback onNewActivity;
+  @override
+  Widget build(BuildContext context) => _NoSuggestions(onNewActivity: onNewActivity);
 }

@@ -2,6 +2,7 @@ import 'package:isar_community/isar.dart';
 
 import '../../../core/utils/date_utils.dart' as du;
 import '../domain/models/activity_entry.dart';
+import '../domain/models/activity_suggestion.dart';
 import '../domain/models/current_activity.dart';
 
 /// Репозиторий таймера: работа с текущей активностью и завершёнными записями.
@@ -46,6 +47,67 @@ class TimerRepository {
         .isDeletedEqualTo(false)
         .sortByStartedAt()
         .findAll();
+  }
+
+  /// Returns every distinct activity ever completed in [categoryKey]. Names are
+  /// normalized for comparison, while the spelling from the most recent entry
+  /// is retained for display.
+  Future<List<ActivitySuggestion>> getActivitySuggestions(
+    String categoryKey,
+  ) async {
+    final entries = await _isar.activityEntrys
+        .filter()
+        .categoryKeyEqualTo(categoryKey)
+        .isDeletedEqualTo(false)
+        .findAll();
+
+    final grouped = <String, _SuggestionAccumulator>{};
+
+    void addName(String name, int usedAt) {
+      final displayName = name.trim();
+      if (displayName.isEmpty) return;
+      final normalizedName = displayName.toLowerCase();
+      final current = grouped[normalizedName];
+      if (current == null) {
+        grouped[normalizedName] = _SuggestionAccumulator(
+          displayName: displayName,
+          usesCount: 1,
+          lastUsedAt: usedAt,
+        );
+      } else {
+        current.usesCount++;
+        if (usedAt > current.lastUsedAt) {
+          current.displayName = displayName;
+          current.lastUsedAt = usedAt;
+        }
+      }
+    }
+
+    for (final entry in entries) {
+      addName(entry.name, entry.startedAt);
+    }
+
+    // A just-started activity has not become a completed entry yet, but it
+    // should already be reusable if the user opens the picker again.
+    final currentActivity = await getCurrent();
+    if (currentActivity?.categoryKey == categoryKey) {
+      addName(currentActivity!.name, currentActivity.startedAt);
+    }
+
+    final suggestions = grouped.values
+        .map(
+          (item) => ActivitySuggestion(
+            name: item.displayName,
+            usesCount: item.usesCount,
+            lastUsedAt: item.lastUsedAt,
+          ),
+        )
+        .toList();
+    suggestions.sort((a, b) {
+      final byUses = b.usesCount.compareTo(a.usesCount);
+      return byUses != 0 ? byUses : b.lastUsedAt.compareTo(a.lastUsedAt);
+    });
+    return suggestions;
   }
 
   // ── Нарезка по полуночи ──────────────────────
@@ -245,4 +307,16 @@ class TimerRepository {
       await _isar.activityEntrys.put(entry);
     });
   }
+}
+
+class _SuggestionAccumulator {
+  _SuggestionAccumulator({
+    required this.displayName,
+    required this.usesCount,
+    required this.lastUsedAt,
+  });
+
+  String displayName;
+  int usesCount;
+  int lastUsedAt;
 }

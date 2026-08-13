@@ -7,6 +7,7 @@ import '../../../data/isar_service.dart';
 import '../data/timer_repository.dart';
 import '../domain/models/current_activity.dart';
 import '../domain/models/activity_entry.dart';
+import '../domain/models/activity_suggestion.dart';
 
 /// Провайдер репозитория — единая точка доступа к данным таймера.
 final timerRepositoryProvider = Provider<TimerRepository>((ref) {
@@ -116,3 +117,13 @@ final categoryEntriesProvider =
       final entries = await repo.getEntriesByDate(today);
       return entries.where((e) => e.categoryKey == categoryKey).toList();
     });
+
+/// Reusable activity names for one category, built from the entire history.
+final activitySuggestionsProvider = FutureProvider.family<
+  List<ActivitySuggestion>,
+  String
+>((ref, categoryKey) async {
+  ref.watch(entriesChangedProvider);
+  final repo = ref.watch(timerRepositoryProvider);
+  return repo.getActivitySuggestions(categoryKey);
+});
