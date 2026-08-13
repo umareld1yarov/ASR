@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/activity_category.dart';
+import '../../../../shared/widgets/glass_pill_button.dart';
 import '../../application/timer_provider.dart';
 import 'activity_suggestions_list.dart';
 import 'category_selection_grid.dart';
 import 'new_activity_form.dart';
+import 'picker_help_button.dart';
 
 /// Two-step flow for switching an activity: category, then a reusable name.
 class CategoryPickerSheet extends ConsumerStatefulWidget {
@@ -51,7 +53,9 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
 
   void _showNewActivityForm() {
     setState(() => _isCreatingNew = true);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _nameFocusNode.requestFocus());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _nameFocusNode.requestFocus(),
+    );
   }
 
   Future<void> _startActivity(String name) async {
@@ -60,10 +64,9 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
     if (category == null || trimmedName.isEmpty || _isStarting) return;
 
     setState(() => _isStarting = true);
-    await ref.read(timerControllerProvider).switchActivity(
-          name: trimmedName,
-          categoryKey: category.storageKey,
-        );
+    await ref
+        .read(timerControllerProvider)
+        .switchActivity(name: trimmedName, categoryKey: category.storageKey);
     if (mounted) Navigator.of(context).pop();
   }
 
@@ -80,31 +83,33 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
         ),
       ),
       child: AnimatedPadding(
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOut,
-      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: screenHeight * 0.75),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 22),
-          child: _selectedCategory == null
-              ? _CategoryStep(onSelected: _selectCategory)
-              : _ActivityStep(
-                  category: _selectedCategory!,
-                  isCreatingNew: _isCreatingNew,
-                  isStarting: _isStarting,
-                  nameController: _nameController,
-                  nameFocusNode: _nameFocusNode,
-                  onBack: () => setState(() {
-                    _selectedCategory = null;
-                    _isCreatingNew = false;
-                  }),
-                  onNewActivity: _showNewActivityForm,
-                  onStart: () => _startActivity(_nameController.text),
-                  onSuggestionSelected: _startActivity,
-                ),
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(context).bottom,
         ),
-      ),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: screenHeight * 0.75),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 22),
+            child: _selectedCategory == null
+                ? _CategoryStep(onSelected: _selectCategory)
+                : _ActivityStep(
+                    category: _selectedCategory!,
+                    isCreatingNew: _isCreatingNew,
+                    isStarting: _isStarting,
+                    nameController: _nameController,
+                    nameFocusNode: _nameFocusNode,
+                    onBack: () => setState(() {
+                      _selectedCategory = null;
+                      _isCreatingNew = false;
+                    }),
+                    onNewActivity: _showNewActivityForm,
+                    onStart: () => _startActivity(_nameController.text),
+                    onSuggestionSelected: _startActivity,
+                  ),
+          ),
+        ),
       ),
     );
   }
@@ -120,7 +125,16 @@ class _CategoryStep extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const _DragHandle(),
-        const SizedBox(height: 18),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const SizedBox(width: 40),
+            const SizedBox.shrink(),
+            const PickerHelpButton(),
+          ],
+        ),
+        const SizedBox(height: 4),
         const Text(
           'Чем занимаешься?',
           style: TextStyle(
@@ -132,7 +146,10 @@ class _CategoryStep extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           'Выбери категорию',
-          style: TextStyle(color: Colors.white.withValues(alpha: 0.48), fontSize: 14),
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.48),
+            fontSize: 14,
+          ),
         ),
         const SizedBox(height: 22),
         CategorySelectionGrid(onSelected: onSelected),
@@ -166,7 +183,9 @@ class _ActivityStep extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final suggestions = ref.watch(activitySuggestionsProvider(category.storageKey));
+    final suggestions = ref.watch(
+      activitySuggestionsProvider(category.storageKey),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,7 +204,10 @@ class _ActivityStep extends ConsumerWidget {
             Container(
               width: 9,
               height: 9,
-              decoration: BoxDecoration(color: category.color, shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: category.color,
+                shape: BoxShape.circle,
+              ),
             ),
             const SizedBox(width: 8),
             Text(
@@ -212,23 +234,22 @@ class _ActivityStep extends ConsumerWidget {
                   loading: () => Center(
                     child: CircularProgressIndicator(color: category.color),
                   ),
-                  error: (_, _) => _SuggestionsError(onNewActivity: onNewActivity),
-                  data: (items) => ListView(
-                    children: [
-                      if (items.isEmpty)
-                        _NoSuggestions(onNewActivity: onNewActivity)
-                      else ...[
-                        ActivitySuggestionsList(
-                          suggestions: items,
-                          onSelected: onSuggestionSelected,
+                  error: (_, _) => _SuggestionsErrorText(),
+                  data: (items) => items.isEmpty
+                      ? _NoSuggestionsText()
+                      : SingleChildScrollView(
+                          child: ActivitySuggestionsList(
+                            suggestions: items,
+                            categoryColor: category.color,
+                            onSelected: onSuggestionSelected,
+                          ),
                         ),
-                        const SizedBox(height: 16),
-                        _NewActivityButton(onTap: onNewActivity),
-                      ],
-                    ],
-                  ),
                 ),
         ),
+        if (!isCreatingNew) ...[
+          const SizedBox(height: 12),
+          _NewActivityButton(onTap: onNewActivity),
+        ],
         if (isStarting)
           Padding(
             padding: const EdgeInsets.only(top: 10),
@@ -257,42 +278,55 @@ class _DragHandle extends StatelessWidget {
 class _NewActivityButton extends StatelessWidget {
   const _NewActivityButton({required this.onTap});
   final VoidCallback onTap;
-  @override
-  Widget build(BuildContext context) => TextButton.icon(
-    onPressed: onTap,
-    icon: const Icon(Icons.add, size: 19),
-    label: const Text('Новая активность'),
-    style: TextButton.styleFrom(
-      foregroundColor: Colors.white70,
-      minimumSize: const Size.fromHeight(48),
-      alignment: Alignment.centerLeft,
-    ),
-  );
-}
 
-class _NoSuggestions extends StatelessWidget {
-  const _NoSuggestions({required this.onNewActivity});
-  final VoidCallback onNewActivity;
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 20),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context) => GlassPillButton(
+    onTap: onTap,
+    height: 52,
+    child: const Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        Icon(Icons.add, color: Colors.white, size: 20),
+        SizedBox(width: 8),
         Text(
-          'Здесь пока нет сохранённых активностей.',
-          style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 14),
+          'Новая активность',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
         ),
-        const SizedBox(height: 12),
-        _NewActivityButton(onTap: onNewActivity),
       ],
     ),
   );
 }
 
-class _SuggestionsError extends StatelessWidget {
-  const _SuggestionsError({required this.onNewActivity});
-  final VoidCallback onNewActivity;
+class _NoSuggestionsText extends StatelessWidget {
+  const _NoSuggestionsText();
   @override
-  Widget build(BuildContext context) => _NoSuggestions(onNewActivity: onNewActivity);
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 20),
+    child: Text(
+      'Здесь пока нет сохранённых активностей.',
+      style: TextStyle(
+        color: Colors.white.withValues(alpha: 0.5),
+        fontSize: 14,
+      ),
+    ),
+  );
+}
+
+class _SuggestionsErrorText extends StatelessWidget {
+  const _SuggestionsErrorText();
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 20),
+    child: Text(
+      'Не удалось загрузить подсказки.',
+      style: TextStyle(
+        color: Colors.white.withValues(alpha: 0.5),
+        fontSize: 14,
+      ),
+    ),
+  );
 }

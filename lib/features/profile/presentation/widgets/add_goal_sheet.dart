@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/activity_category.dart';
+import '../../../timer/application/timer_provider.dart';
 import '../../application/profile_provider.dart';
 
-/// Форма создания цели: категория → целевые часы → период.
+/// Конструктор новой цели: категория → выбор активности → целевые часы → период.
 class AddGoalSheet extends ConsumerStatefulWidget {
   const AddGoalSheet({super.key});
 
@@ -26,11 +27,16 @@ class AddGoalSheet extends ConsumerStatefulWidget {
 
 class _AddGoalSheetState extends ConsumerState<AddGoalSheet> {
   ActivityCategory? _selectedCategory;
-  final _hoursController = TextEditingController();
+  bool _isSpecificActivity = false;
+  String? _selectedActivityName;
+  final _customActivityController = TextEditingController();
+
+  final _hoursController = TextEditingController(text: '5');
   String _selectedPeriod = 'week';
 
   @override
   void dispose() {
+    _customActivityController.dispose();
     _hoursController.dispose();
     super.dispose();
   }
@@ -39,20 +45,33 @@ class _AddGoalSheetState extends ConsumerState<AddGoalSheet> {
     final hours = double.tryParse(_hoursController.text.trim());
     if (_selectedCategory == null || hours == null || hours <= 0) return;
 
-    await ref
-        .read(goalsControllerProvider)
-        .addGoal(
-          categoryKey: _selectedCategory!.storageKey,
-          targetSeconds: (hours * 3600).round(),
-          periodType: _selectedPeriod,
-        );
+    String? finalActivityName;
+    if (_isSpecificActivity) {
+      if (_selectedActivityName != null && _selectedActivityName!.isNotEmpty) {
+        finalActivityName = _selectedActivityName;
+      } else if (_customActivityController.text.trim().isNotEmpty) {
+        finalActivityName = _customActivityController.text.trim();
+      }
+    }
+
+    await ref.read(goalsControllerProvider).addGoal(
+      categoryKey: _selectedCategory!.storageKey,
+      activityName: finalActivityName,
+      targetSeconds: (hours * 3600).round(),
+      periodType: _selectedPeriod,
+    );
 
     if (mounted) Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    final category = _selectedCategory;
+    final suggestionsAsync = category != null
+        ? ref.watch(activitySuggestionsProvider(category.storageKey))
+        : null;
+
+    return SingleChildScrollView(
       padding: EdgeInsets.only(
         left: 20,
         right: 20,
@@ -63,37 +82,58 @@ class _AddGoalSheetState extends ConsumerState<AddGoalSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'Новая цель',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
-            textAlign: TextAlign.center,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Новая цель',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+              IconButton(
+                onPressed: () => Navigator.of(context).pop(),
+                icon: const Icon(Icons.close, color: Colors.white54, size: 20),
+              ),
+            ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
 
+          // 1. Выбор категории
+          const Text(
+            '1. Категория',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.white54,
+            ),
+          ),
+          const SizedBox(height: 8),
           GridView.count(
             crossAxisCount: 3,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 10,
-            crossAxisSpacing: 10,
-            childAspectRatio: 1.25,
-            children: ActivityCategory.values.map((category) {
-              final isSelected = _selectedCategory == category;
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: 1.3,
+            children: ActivityCategory.values.map((cat) {
+              final isSelected = _selectedCategory == cat;
               return InkWell(
-                onTap: () => setState(() => _selectedCategory = category),
-                borderRadius: BorderRadius.circular(16),
+                onTap: () => setState(() {
+                  _selectedCategory = cat;
+                  _selectedActivityName = null;
+                }),
+                borderRadius: BorderRadius.circular(14),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: category.color.withValues(
+                    color: cat.color.withValues(
                       alpha: isSelected ? 0.18 : 0.05,
                     ),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: category.color.withValues(
+                      color: cat.color.withValues(
                         alpha: isSelected ? 0.9 : 0.18,
                       ),
                       width: isSelected ? 1.5 : 1,
@@ -101,15 +141,11 @@ class _AddGoalSheetState extends ConsumerState<AddGoalSheet> {
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
                     children: [
+                      Text(cat.emoji, style: const TextStyle(fontSize: 18)),
+                      const SizedBox(height: 3),
                       Text(
-                        category.emoji,
-                        style: const TextStyle(fontSize: 19),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        category.label,
+                        cat.label,
                         textAlign: TextAlign.center,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -117,7 +153,7 @@ class _AddGoalSheetState extends ConsumerState<AddGoalSheet> {
                           color: isSelected ? Colors.white : Colors.white70,
                           fontWeight: isSelected
                               ? FontWeight.w700
-                              : FontWeight.w600,
+                              : FontWeight.w500,
                           fontSize: 11,
                         ),
                       ),
@@ -128,54 +164,264 @@ class _AddGoalSheetState extends ConsumerState<AddGoalSheet> {
             }).toList(),
           ),
 
-          const SizedBox(height: 16),
-          TextField(
-            controller: _hoursController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            style: const TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              hintText: 'Часов',
-              filled: true,
-              fillColor: const Color(0xFF1F1F1F),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide.none,
+          if (category != null) ...[
+            const SizedBox(height: 16),
+            // 2. Тип цели: на всю категорию или на конкретную активность
+            const Text(
+              '2. Область цели',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.white54,
               ),
             ),
-          ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                _ModeTab(
+                  label: 'Вся категория',
+                  isSelected: !_isSpecificActivity,
+                  onTap: () => setState(() => _isSpecificActivity = false),
+                ),
+                const SizedBox(width: 8),
+                _ModeTab(
+                  label: 'Конкретная активность',
+                  isSelected: _isSpecificActivity,
+                  onTap: () => setState(() => _isSpecificActivity = true),
+                ),
+              ],
+            ),
+
+            if (_isSpecificActivity) ...[
+              const SizedBox(height: 12),
+              suggestionsAsync?.when(
+                    data: (items) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (items.isNotEmpty) ...[
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 6,
+                              children: [
+                                for (final item in items)
+                                  ChoiceChip(
+                                    label: Text(item.name),
+                                    selected: _selectedActivityName == item.name,
+                                    onSelected: (selected) {
+                                      setState(() {
+                                        _selectedActivityName = selected ? item.name : null;
+                                        _customActivityController.clear();
+                                      });
+                                    },
+                                    selectedColor: category.color.withValues(alpha: 0.3),
+                                    backgroundColor: const Color(0xFF1F1F1F),
+                                    labelStyle: TextStyle(
+                                      color: _selectedActivityName == item.name
+                                          ? category.color
+                                          : Colors.white70,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                          ],
+                          TextField(
+                            controller: _customActivityController,
+                            style: const TextStyle(color: Colors.white, fontSize: 13),
+                            onChanged: (_) {
+                              if (_selectedActivityName != null) {
+                                setState(() => _selectedActivityName = null);
+                              }
+                            },
+                            decoration: InputDecoration(
+                              hintText: items.isNotEmpty
+                                  ? 'Или введите другое название...'
+                                  : 'Введите название (напр. Таджвид, Английский)...',
+                              hintStyle: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.35),
+                                fontSize: 13,
+                              ),
+                              filled: true,
+                              fillColor: const Color(0xFF1F1F1F),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, _) => const SizedBox.shrink(),
+                  ) ??
+                  const SizedBox.shrink(),
+            ],
+          ],
 
           const SizedBox(height: 16),
+          // 3. Период цели (Неделя / Месяц)
+          const Text(
+            '3. Период',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.white54,
+            ),
+          ),
+          const SizedBox(height: 8),
           Row(
             children: [
               _PeriodChip(
-                label: 'Неделя',
+                label: '📅 На неделю',
                 selected: _selectedPeriod == 'week',
                 onTap: () => setState(() => _selectedPeriod = 'week'),
               ),
               const SizedBox(width: 8),
               _PeriodChip(
-                label: 'Месяц',
+                label: '🗓️ На месяц',
                 selected: _selectedPeriod == 'month',
                 onTap: () => setState(() => _selectedPeriod = 'month'),
-              ),
-              const SizedBox(width: 8),
-              _PeriodChip(
-                label: 'Всё время',
-                selected: _selectedPeriod == 'all',
-                onTap: () => setState(() => _selectedPeriod = 'all'),
               ),
             ],
           ),
 
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: _create,
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 14),
+          const SizedBox(height: 16),
+          // 4. Целевое время
+          const Text(
+            '4. Целевое время (часов)',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.white54,
             ),
-            child: const Text('Создать цель'),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              for (final h in [2, 5, 10, 15, 20])
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: InkWell(
+                    onTap: () => setState(() => _hoursController.text = '$h'),
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _hoursController.text == '$h'
+                            ? const Color(0xFF06B6D4).withValues(alpha: 0.25)
+                            : const Color(0xFF1F1F1F),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: _hoursController.text == '$h'
+                              ? const Color(0xFF06B6D4)
+                              : Colors.transparent,
+                        ),
+                      ),
+                      child: Text(
+                        '$hч',
+                        style: TextStyle(
+                          color: _hoursController.text == '$h'
+                              ? Colors.white
+                              : Colors.white70,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _hoursController,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: 'Введите количество часов',
+              suffixText: 'ч / ${_selectedPeriod == "week" ? "неделю" : "месяц"}',
+              suffixStyle: TextStyle(
+                color: Colors.white.withValues(alpha: 0.4),
+              ),
+              filled: true,
+              fillColor: const Color(0xFF1F1F1F),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 22),
+          ElevatedButton(
+            onPressed: _selectedCategory == null ? null : _create,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF06B6D4),
+              foregroundColor: Colors.black,
+              minimumSize: const Size.fromHeight(50),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
+            ),
+            child: const Text(
+              'Сохранить цель',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ModeTab extends StatelessWidget {
+  const _ModeTab({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(vertical: 9),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? Colors.white.withValues(alpha: 0.12)
+                : const Color(0xFF1F1F1F),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? Colors.white54 : Colors.transparent,
+            ),
+          ),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.white54,
+              fontSize: 12,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -197,16 +443,16 @@ class _PeriodChip extends StatelessWidget {
     return Expanded(
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
             color: selected
-                ? Colors.white.withValues(alpha: 0.12)
+                ? const Color(0xFF06B6D4).withValues(alpha: 0.2)
                 : const Color(0xFF1F1F1F),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: selected ? Colors.white54 : Colors.transparent,
+              color: selected ? const Color(0xFF06B6D4) : Colors.transparent,
             ),
           ),
           child: Text(
@@ -215,6 +461,7 @@ class _PeriodChip extends StatelessWidget {
             style: TextStyle(
               color: selected ? Colors.white : Colors.white54,
               fontSize: 13,
+              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
             ),
           ),
         ),

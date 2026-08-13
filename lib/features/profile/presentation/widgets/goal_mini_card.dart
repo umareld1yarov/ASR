@@ -5,28 +5,16 @@ import '../../../../core/constants/activity_category.dart';
 import '../../application/profile_provider.dart';
 import '../../domain/models/goal.dart';
 
-/// Компактная карточка цели для превью на главном экране Профиля —
-/// только название категории и прогресс-бар, без действий (удалить/архив).
+/// Компактная карточка цели для превью в Профиле.
 class GoalMiniCard extends ConsumerWidget {
   const GoalMiniCard({super.key, required this.goal});
 
   final Goal goal;
 
-  String _periodLabel(String type) {
-    switch (type) {
-      case 'week':
-        return 'неделя';
-      case 'month':
-        return 'месяц';
-      default:
-        return 'всё время';
-    }
-  }
-
   String _formatHours(int seconds) {
     final h = seconds ~/ 3600;
     final m = (seconds % 3600) ~/ 60;
-    if (h > 0) return '$hч $mм';
+    if (h > 0) return '$hч ${m > 0 ? "$mм" : ""}';
     return '$mм';
   }
 
@@ -35,17 +23,26 @@ class GoalMiniCard extends ConsumerWidget {
     final category = ActivityCategory.fromStorageKey(goal.categoryKey);
     final progressAsync = ref.watch(goalProgressProvider(goal));
 
+    final titleText = goal.activityName != null && goal.activityName!.isNotEmpty
+        ? '${category.label} · ${goal.activityName}'
+        : category.label;
+
     return progressAsync.when(
       data: (currentSeconds) {
         final ratio = (currentSeconds / goal.targetSeconds).clamp(0.0, 1.0);
+        final isDone = currentSeconds >= goal.targetSeconds;
 
         return Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
           decoration: BoxDecoration(
             color: category.color.withValues(alpha: 0.06),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: category.color.withValues(alpha: 0.18)),
+            border: Border.all(
+              color: isDone
+                  ? const Color(0xFF22C55E).withValues(alpha: 0.5)
+                  : category.color.withValues(alpha: 0.2),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -56,7 +53,9 @@ class GoalMiniCard extends ConsumerWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      '${category.label} · ${_periodLabel(goal.periodType)}',
+                      titleText,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -65,10 +64,11 @@ class GoalMiniCard extends ConsumerWidget {
                     ),
                   ),
                   Text(
-                    '${_formatHours(currentSeconds)}/${_formatHours(goal.targetSeconds)}',
-                    style: const TextStyle(
+                    '${_formatHours(currentSeconds)} / ${_formatHours(goal.targetSeconds)}',
+                    style: TextStyle(
                       fontSize: 11.5,
-                      color: Colors.white54,
+                      fontWeight: isDone ? FontWeight.w700 : FontWeight.w500,
+                      color: isDone ? const Color(0xFF22C55E) : Colors.white60,
                     ),
                   ),
                 ],
@@ -80,14 +80,14 @@ class GoalMiniCard extends ConsumerWidget {
                   value: ratio,
                   minHeight: 6,
                   backgroundColor: Colors.white.withValues(alpha: 0.08),
-                  color: category.color,
+                  color: isDone ? const Color(0xFF22C55E) : category.color,
                 ),
               ),
             ],
           ),
         );
       },
-      loading: () => const SizedBox(height: 60),
+      loading: () => const SizedBox(height: 54),
       error: (_, _) => const SizedBox.shrink(),
     );
   }

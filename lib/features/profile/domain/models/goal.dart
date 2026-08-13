@@ -11,6 +11,10 @@ class Goal {
 
   late String categoryKey;
 
+  /// Название конкретной активности (например, "Таджвид" или "Английский").
+  /// Если null — цель привязана ко всей категории.
+  String? activityName;
+
   /// Целевая длительность в секундах.
   late int targetSeconds;
 

@@ -57,7 +57,9 @@ class StatsRepository {
 
   /// Записи за диапазон дат включительно. Если [startDateKey] == null —
   /// диапазон не ограничен снизу (режим "всё время").
-  Future<List<ActivityEntry>> _getEntriesInRange({
+  /// Записи за диапазон дат включительно. Если [startDateKey] == null —
+  /// диапазон не ограничен снизу (режим "всё время").
+  Future<List<ActivityEntry>> getEntriesInRange({
     required String? startDateKey,
     required String endDateKey,
   }) {
@@ -83,7 +85,7 @@ class StatsRepository {
     required String? startDateKey,
     required String endDateKey,
   }) async {
-    final entries = await _getEntriesInRange(
+    final entries = await getEntriesInRange(
       startDateKey: startDateKey,
       endDateKey: endDateKey,
     );
@@ -124,7 +126,7 @@ class StatsRepository {
     required String startDateKey,
     required String endDateKey,
   }) async {
-    final entries = await _getEntriesInRange(
+    final entries = await getEntriesInRange(
       startDateKey: startDateKey,
       endDateKey: endDateKey,
     );

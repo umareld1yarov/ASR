@@ -1,6 +1,7 @@
 import 'package:isar_community/isar.dart';
 
 import '../../../core/utils/date_utils.dart' as du;
+import '../../profile/domain/models/goal.dart';
 import '../domain/models/activity_entry.dart';
 import '../domain/models/activity_suggestion.dart';
 import '../domain/models/current_activity.dart';
@@ -92,6 +93,18 @@ class TimerRepository {
     final currentActivity = await getCurrent();
     if (currentActivity?.categoryKey == categoryKey) {
       addName(currentActivity!.name, currentActivity.startedAt);
+    }
+
+    // Цели с указанным названием активности также становятся подсказками
+    final goals = await _isar.goals
+        .filter()
+        .categoryKeyEqualTo(categoryKey)
+        .isArchivedEqualTo(false)
+        .findAll();
+    for (final goal in goals) {
+      if (goal.activityName != null && goal.activityName!.trim().isNotEmpty) {
+        addName(goal.activityName!, goal.createdAt);
+      }
     }
 
     final suggestions = grouped.values

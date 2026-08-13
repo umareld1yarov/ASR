@@ -2,12 +2,13 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/services/audio_service.dart';
 import '../../../core/utils/date_utils.dart' as du;
 import '../../../data/isar_service.dart';
 import '../data/timer_repository.dart';
-import '../domain/models/current_activity.dart';
 import '../domain/models/activity_entry.dart';
 import '../domain/models/activity_suggestion.dart';
+import '../domain/models/current_activity.dart';
 
 /// Провайдер репозитория — единая точка доступа к данным таймера.
 final timerRepositoryProvider = Provider<TimerRepository>((ref) {
@@ -90,6 +91,9 @@ class TimerController {
       reviewObstacles: reviewObstacles,
       reviewNextExperiment: reviewNextExperiment,
     );
+
+    // Проигрываем звук переключения активности
+    unawaited(AudioService.playSwitchSound());
 
     // Оповещаем зависимые провайдеры, что данные изменились
     _ref.invalidate(currentActivityProvider);

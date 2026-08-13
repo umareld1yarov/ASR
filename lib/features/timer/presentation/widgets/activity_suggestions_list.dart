@@ -7,10 +7,12 @@ class ActivitySuggestionsList extends StatelessWidget {
     super.key,
     required this.suggestions,
     required this.onSelected,
+    this.categoryColor,
   });
 
   final List<ActivitySuggestion> suggestions;
   final ValueChanged<String> onSelected;
+  final Color? categoryColor;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +27,8 @@ class ActivitySuggestionsList extends StatelessWidget {
           ...frequent.map(
             (suggestion) => _ActivityRow(
               suggestion: suggestion,
-              onTap: () => onSelected(suggestion.name),
+              onSelected: onSelected,
+              categoryColor: categoryColor,
             ),
           ),
         ],
@@ -35,7 +38,8 @@ class ActivitySuggestionsList extends StatelessWidget {
           ...others.map(
             (suggestion) => _ActivityRow(
               suggestion: suggestion,
-              onTap: () => onSelected(suggestion.name),
+              onSelected: onSelected,
+              categoryColor: categoryColor,
             ),
           ),
         ],
@@ -64,36 +68,63 @@ class _SectionLabel extends StatelessWidget {
 }
 
 class _ActivityRow extends StatelessWidget {
-  const _ActivityRow({required this.suggestion, required this.onTap});
+  const _ActivityRow({
+    required this.suggestion,
+    required this.onSelected,
+    this.categoryColor,
+  });
+
   final ActivitySuggestion suggestion;
-  final VoidCallback onTap;
+  final ValueChanged<String> onSelected;
+  final Color? categoryColor;
 
   @override
-  Widget build(BuildContext context) => Material(
-    color: Colors.transparent,
-    child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: SizedBox(
-        height: 54,
-        child: Row(
-          children: [
-            Icon(Icons.play_circle_outline, color: Colors.white.withValues(alpha: 0.56)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                suggestion.name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+  Widget build(BuildContext context) {
+    final color = categoryColor ?? Colors.white;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: color.withValues(alpha: 0.35),
+            width: 1.2,
+          ),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => onSelected(suggestion.name),
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.play_circle_outline,
+                    color: color.withValues(alpha: 0.9),
+                    size: 22,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      suggestion.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        height: 1.3,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            Icon(Icons.chevron_right, color: Colors.white.withValues(alpha: 0.28)),
-          ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }

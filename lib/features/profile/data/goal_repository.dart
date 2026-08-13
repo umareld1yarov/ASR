@@ -20,11 +20,15 @@ class GoalRepository {
 
   Future<void> addGoal({
     required String categoryKey,
+    String? activityName,
     required int targetSeconds,
     required String periodType,
   }) async {
     final goal = Goal()
       ..categoryKey = categoryKey
+      ..activityName = (activityName != null && activityName.trim().isNotEmpty)
+          ? activityName.trim()
+          : null
       ..targetSeconds = targetSeconds
       ..periodType = periodType
       ..createdAt = DateTime.now().millisecondsSinceEpoch;

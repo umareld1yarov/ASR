@@ -17,28 +17,33 @@ const GoalSchema = CollectionSchema(
   name: r'Goal',
   id: 4693499363663894908,
   properties: {
-    r'categoryKey': PropertySchema(
+    r'activityName': PropertySchema(
       id: 0,
+      name: r'activityName',
+      type: IsarType.string,
+    ),
+    r'categoryKey': PropertySchema(
+      id: 1,
       name: r'categoryKey',
       type: IsarType.string,
     ),
     r'createdAt': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'createdAt',
       type: IsarType.long,
     ),
     r'isArchived': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'isArchived',
       type: IsarType.bool,
     ),
     r'periodType': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'periodType',
       type: IsarType.string,
     ),
     r'targetSeconds': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'targetSeconds',
       type: IsarType.long,
     ),
@@ -65,6 +70,12 @@ int _goalEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  {
+    final value = object.activityName;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.categoryKey.length * 3;
   bytesCount += 3 + object.periodType.length * 3;
   return bytesCount;
@@ -76,11 +87,12 @@ void _goalSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.categoryKey);
-  writer.writeLong(offsets[1], object.createdAt);
-  writer.writeBool(offsets[2], object.isArchived);
-  writer.writeString(offsets[3], object.periodType);
-  writer.writeLong(offsets[4], object.targetSeconds);
+  writer.writeString(offsets[0], object.activityName);
+  writer.writeString(offsets[1], object.categoryKey);
+  writer.writeLong(offsets[2], object.createdAt);
+  writer.writeBool(offsets[3], object.isArchived);
+  writer.writeString(offsets[4], object.periodType);
+  writer.writeLong(offsets[5], object.targetSeconds);
 }
 
 Goal _goalDeserialize(
@@ -90,12 +102,13 @@ Goal _goalDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Goal();
-  object.categoryKey = reader.readString(offsets[0]);
-  object.createdAt = reader.readLong(offsets[1]);
+  object.activityName = reader.readStringOrNull(offsets[0]);
+  object.categoryKey = reader.readString(offsets[1]);
+  object.createdAt = reader.readLong(offsets[2]);
   object.id = id;
-  object.isArchived = reader.readBool(offsets[2]);
-  object.periodType = reader.readString(offsets[3]);
-  object.targetSeconds = reader.readLong(offsets[4]);
+  object.isArchived = reader.readBool(offsets[3]);
+  object.periodType = reader.readString(offsets[4]);
+  object.targetSeconds = reader.readLong(offsets[5]);
   return object;
 }
 
@@ -107,14 +120,16 @@ P _goalDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 1:
-      return (reader.readLong(offset)) as P;
-    case 2:
-      return (reader.readBool(offset)) as P;
-    case 3:
       return (reader.readString(offset)) as P;
+    case 2:
+      return (reader.readLong(offset)) as P;
+    case 3:
+      return (reader.readBool(offset)) as P;
     case 4:
+      return (reader.readString(offset)) as P;
+    case 5:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -212,6 +227,168 @@ extension GoalQueryWhere on QueryBuilder<Goal, Goal, QWhereClause> {
 }
 
 extension GoalQueryFilter on QueryBuilder<Goal, Goal, QFilterCondition> {
+  QueryBuilder<Goal, Goal, QAfterFilterCondition> activityNameIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'activityName'),
+      );
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterFilterCondition> activityNameIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'activityName'),
+      );
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterFilterCondition> activityNameEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'activityName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterFilterCondition> activityNameGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'activityName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterFilterCondition> activityNameLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'activityName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterFilterCondition> activityNameBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'activityName',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterFilterCondition> activityNameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'activityName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterFilterCondition> activityNameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'activityName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterFilterCondition> activityNameContains(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'activityName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterFilterCondition> activityNameMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'activityName',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterFilterCondition> activityNameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'activityName', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterFilterCondition> activityNameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'activityName', value: ''),
+      );
+    });
+  }
+
   QueryBuilder<Goal, Goal, QAfterFilterCondition> categoryKeyEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -693,6 +870,18 @@ extension GoalQueryObject on QueryBuilder<Goal, Goal, QFilterCondition> {}
 extension GoalQueryLinks on QueryBuilder<Goal, Goal, QFilterCondition> {}
 
 extension GoalQuerySortBy on QueryBuilder<Goal, Goal, QSortBy> {
+  QueryBuilder<Goal, Goal, QAfterSortBy> sortByActivityName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'activityName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterSortBy> sortByActivityNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'activityName', Sort.desc);
+    });
+  }
+
   QueryBuilder<Goal, Goal, QAfterSortBy> sortByCategoryKey() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'categoryKey', Sort.asc);
@@ -755,6 +944,18 @@ extension GoalQuerySortBy on QueryBuilder<Goal, Goal, QSortBy> {
 }
 
 extension GoalQuerySortThenBy on QueryBuilder<Goal, Goal, QSortThenBy> {
+  QueryBuilder<Goal, Goal, QAfterSortBy> thenByActivityName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'activityName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Goal, Goal, QAfterSortBy> thenByActivityNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'activityName', Sort.desc);
+    });
+  }
+
   QueryBuilder<Goal, Goal, QAfterSortBy> thenByCategoryKey() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'categoryKey', Sort.asc);
@@ -829,6 +1030,14 @@ extension GoalQuerySortThenBy on QueryBuilder<Goal, Goal, QSortThenBy> {
 }
 
 extension GoalQueryWhereDistinct on QueryBuilder<Goal, Goal, QDistinct> {
+  QueryBuilder<Goal, Goal, QDistinct> distinctByActivityName({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'activityName', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Goal, Goal, QDistinct> distinctByCategoryKey({
     bool caseSensitive = true,
   }) {
@@ -868,6 +1077,12 @@ extension GoalQueryProperty on QueryBuilder<Goal, Goal, QQueryProperty> {
   QueryBuilder<Goal, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<Goal, String?, QQueryOperations> activityNameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'activityName');
     });
   }
 

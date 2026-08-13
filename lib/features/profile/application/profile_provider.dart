@@ -78,8 +78,7 @@ final goalsProvider = FutureProvider<List<Goal>>((ref) async {
   return repo.getAllGoals();
 });
 
-/// Прогресс одной цели: секунды, накопленные за её период, из тех же
-/// данных, что уже считает StatsRepository — никакой отдельной агрегации.
+/// Прогресс одной цели: секунды, накопленные за её период (неделя/месяц).
 final goalProgressProvider = FutureProvider.family<int, Goal>((
   ref,
   goal,
@@ -96,15 +95,26 @@ final goalProgressProvider = FutureProvider.family<int, Goal>((
       startKey = du.DateUtils.dateKey(du.DateUtils.startOfWeek(now));
       break;
     case 'month':
+    default:
       startKey = du.DateUtils.dateKey(du.DateUtils.startOfMonth(now));
       break;
-    case 'all':
-    default:
-      final breakdown = await repo.getCategoryBreakdown(
-        startDateKey: null,
-        endDateKey: endKey,
-      );
-      return breakdown[goal.categoryKey] ?? 0;
+  }
+
+  if (goal.activityName != null && goal.activityName!.trim().isNotEmpty) {
+    final targetName = goal.activityName!.trim().toLowerCase();
+    final rangeEntries = await repo.getEntriesInRange(
+      startDateKey: startKey,
+      endDateKey: endKey,
+    );
+
+    int totalSec = 0;
+    for (final e in rangeEntries) {
+      if (e.categoryKey == goal.categoryKey &&
+          e.name.trim().toLowerCase() == targetName) {
+        totalSec += e.durationSeconds;
+      }
+    }
+    return totalSec;
   }
 
   final breakdown = await repo.getCategoryBreakdown(
@@ -121,6 +131,7 @@ class GoalsController {
 
   Future<void> addGoal({
     required String categoryKey,
+    String? activityName,
     required int targetSeconds,
     required String periodType,
   }) async {
@@ -128,6 +139,7 @@ class GoalsController {
         .read(goalRepositoryProvider)
         .addGoal(
           categoryKey: categoryKey,
+          activityName: activityName,
           targetSeconds: targetSeconds,
           periodType: periodType,
         );
