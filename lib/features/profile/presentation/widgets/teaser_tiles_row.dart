@@ -1,117 +1,116 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../application/milestones_provider.dart';
 import '../../application/profile_provider.dart';
-import '../screens/journey_screen.dart';
-import '../screens/records_screen.dart';
+import '../screens/journey_records_screen.dart';
 
-/// Две тизер-плитки рядом — "Рекорды" и "Мой путь". Только иконка и короткая
-/// подпись, тап открывает соответствующий полный экран.
+/// Единый премиум-баннер "Мой путь & Личные рекорды" на экране Профиля.
 class TeaserTilesRow extends ConsumerWidget {
   const TeaserTilesRow({super.key});
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final recordsAsync = ref.watch(personalRecordsProvider);
-    final journeyAsync = ref.watch(lifetimeJourneyStatsProvider);
-
-    final recordsCount = recordsAsync.valueOrNull == null
-        ? 0
-        : [
-            recordsAsync.valueOrNull!.longestSessionSeconds != null,
-            recordsAsync.valueOrNull!.bestDaySeconds != null,
-            recordsAsync.valueOrNull!.longestOverallStreakDays > 0,
-            recordsAsync.valueOrNull!.longestNoWasteStreakDays > 0,
-          ].where((v) => v).length;
-
-    final daysWithApp = journeyAsync.valueOrNull?.daysSinceStart ?? 0;
-
-    return Row(
-      children: [
-        Expanded(
-          child: _TeaserTile(
-            emoji: '🏆',
-            title: 'Личные рекорды',
-            subtitle: recordsCount > 0
-                ? '$recordsCount ${_achievementsWord(recordsCount)} →'
-                : 'Смотреть →',
-            onTap: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const RecordsScreen())),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _TeaserTile(
-            emoji: '📖',
-            title: 'Мой путь',
-            subtitle: daysWithApp > 0
-                ? '$daysWithApp ${_daysWord(daysWithApp)} с тобой →'
-                : 'Смотреть →',
-            onTap: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const JourneyScreen())),
-          ),
-        ),
-      ],
-    );
-  }
-
   String _daysWord(int n) {
+    if (n % 10 == 1 && n % 100 != 11) return 'день';
+    if ([2, 3, 4].contains(n % 10) && ![12, 13, 14].contains(n % 100)) {
+      return 'дня';
+    }
     return 'дней';
   }
 
-  String _achievementsWord(int n) {
-    if (n % 10 == 1 && n % 100 != 11) return 'достижение';
-    if ([2, 3, 4].contains(n % 10) && ![12, 13, 14].contains(n % 100)) {
-      return 'достижения';
-    }
-    return 'достижений';
-  }
-}
-
-class _TeaserTile extends StatelessWidget {
-  const _TeaserTile({
-    required this.emoji,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  final String emoji;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final journeyAsync = ref.watch(lifetimeJourneyStatsProvider);
+    final milestonesAsync = ref.watch(milestonesProvider);
+
+    final daysWithApp = journeyAsync.valueOrNull?.daysSinceStart ?? 0;
+    final totalHours = (journeyAsync.valueOrNull?.totalSeconds ?? 0) ~/ 3600;
+    final unlockedCount = milestonesAsync.valueOrNull
+            ?.where((m) => m.isUnlocked)
+            .length ??
+        0;
+
     return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      onTap: () => JourneyRecordsScreen.show(context),
+      borderRadius: BorderRadius.circular(20),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          gradient: LinearGradient(
+            colors: [
+              const Color(0xFF06B6D4).withValues(alpha: 0.15),
+              const Color(0xFFEAB308).withValues(alpha: 0.1),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: const Color(0xFF06B6D4).withValues(alpha: 0.3),
+          ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 22)),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: const Color(0xFFEAB308).withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFEAB308)),
+              ),
+              alignment: Alignment.center,
+              child: const Text('🏆', style: TextStyle(fontSize: 22)),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Мой путь & Рекорды',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    daysWithApp > 0
+                        ? 'ASR с Вами $daysWithApp ${_daysWord(daysWithApp)} · $totalHoursч фокуса'
+                        : 'Статистика Вашего пути и рекорды',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.white70,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 3),
-            Text(
-              subtitle,
-              style: const TextStyle(fontSize: 11.5, color: Colors.white54),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    '$unlockedCount вех',
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFFEAB308),
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  const Icon(
+                    Icons.chevron_right,
+                    size: 16,
+                    color: Colors.white54,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
