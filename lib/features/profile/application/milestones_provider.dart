@@ -29,24 +29,20 @@ class Milestone {
 }
 
 /// Провайдер вычисления достижений (вех развития) на основе всей истории.
+/// Каждая веха привязана к ОДНОЙ конкретной категории — без агрегатов,
+/// суммирующих разные категории в единый "балл продуктивности".
 final milestonesProvider = FutureProvider<List<Milestone>>((ref) async {
   final journeyStats = await ref.watch(lifetimeJourneyStatsProvider.future);
   final breakdown = await ref.watch(lifetimeBreakdownProvider.future);
   final records = await ref.watch(personalRecordsProvider.future);
 
-  // Категории продуктивного фокуса (созидание на 100%): Работа, Развитие, Религия, Спорт, Финансы
-  final productiveFocusSec = (breakdown[ActivityCategory.work.storageKey] ?? 0) +
-      (breakdown[ActivityCategory.growth.storageKey] ?? 0) +
-      (breakdown[ActivityCategory.religion.storageKey] ?? 0) +
-      (breakdown[ActivityCategory.sport.storageKey] ?? 0) +
-      (breakdown[ActivityCategory.finance.storageKey] ?? 0);
-
-  final productiveFocusHours = productiveFocusSec ~/ 3600;
-
-  final growthHours = (breakdown[ActivityCategory.growth.storageKey] ?? 0) ~/ 3600;
+  final growthHours =
+      (breakdown[ActivityCategory.growth.storageKey] ?? 0) ~/ 3600;
   final workHours = (breakdown[ActivityCategory.work.storageKey] ?? 0) ~/ 3600;
-  final sportHours = (breakdown[ActivityCategory.sport.storageKey] ?? 0) ~/ 3600;
-  final religionHours = (breakdown[ActivityCategory.religion.storageKey] ?? 0) ~/ 3600;
+  final sportHours =
+      (breakdown[ActivityCategory.sport.storageKey] ?? 0) ~/ 3600;
+  final religionHours =
+      (breakdown[ActivityCategory.religion.storageKey] ?? 0) ~/ 3600;
   final restHours = (breakdown[ActivityCategory.rest.storageKey] ?? 0) ~/ 3600;
   final noWasteDays = records.longestNoWasteStreakDays;
 
@@ -61,60 +57,44 @@ final milestonesProvider = FutureProvider<List<Milestone>>((ref) async {
       target: 1,
       unit: 'сессия',
     ),
+
+    // ── Развитие: 5ч → 25ч → 100ч ──
     Milestone(
-      id: 'focus_10h',
-      emoji: '⚡',
-      title: 'Инициация',
-      description: 'Накопить 10 часов Продуктивного фокуса (работа, учёба, спорт, духовность)',
-      isUnlocked: productiveFocusHours >= 10,
-      currentProgress: productiveFocusHours,
-      target: 10,
-      unit: 'ч фокуса',
-    ),
-    Milestone(
-      id: 'focus_50h',
-      emoji: '🔥',
-      title: 'Глубокое погружение',
-      description: 'Накопить 50 часов Продуктивного фокуса',
-      isUnlocked: productiveFocusHours >= 50,
-      currentProgress: productiveFocusHours,
-      target: 50,
-      unit: 'ч фокуса',
-    ),
-    Milestone(
-      id: 'focus_100h',
-      emoji: '🥇',
-      title: '100 часов Мастерства',
-      description: 'Достичь 100 часов Продуктивного фокуса в жизни',
-      isUnlocked: productiveFocusHours >= 100,
-      currentProgress: productiveFocusHours,
-      target: 100,
-      unit: 'ч фокуса',
-    ),
-    Milestone(
-      id: 'focus_500h',
-      emoji: '👑',
-      title: 'Легенда дисциплины',
-      description: 'Достичь 500 часов Продуктивного фокуса',
-      isUnlocked: productiveFocusHours >= 500,
-      currentProgress: productiveFocusHours,
-      target: 500,
-      unit: 'ч фокуса',
-    ),
-    Milestone(
-      id: 'growth_master',
-      emoji: '📚',
-      title: 'Жажда знаний',
-      description: 'Посвятить 10 часов категории «Развитие»',
-      isUnlocked: growthHours >= 10,
+      id: 'growth_5h',
+      emoji: '📖',
+      title: 'Первые страницы',
+      description: 'Посвятить 5 часов категории «Развитие»',
+      isUnlocked: growthHours >= 5,
       currentProgress: growthHours,
-      target: 10,
+      target: 5,
       unit: 'ч',
     ),
     Milestone(
-      id: 'work_master',
-      emoji: '💼',
-      title: 'Архитектор проектов',
+      id: 'growth_25h',
+      emoji: '📚',
+      title: 'Жажда знаний',
+      description: 'Посвятить 25 часов категории «Развитие»',
+      isUnlocked: growthHours >= 25,
+      currentProgress: growthHours,
+      target: 25,
+      unit: 'ч',
+    ),
+    Milestone(
+      id: 'growth_100h',
+      emoji: '🎓',
+      title: 'Путь мастерства',
+      description: 'Посвятить 100 часов категории «Развитие»',
+      isUnlocked: growthHours >= 100,
+      currentProgress: growthHours,
+      target: 100,
+      unit: 'ч',
+    ),
+
+    // ── Работа: 20ч → 100ч → 400ч ──
+    Milestone(
+      id: 'work_20h',
+      emoji: '🧭',
+      title: 'Первые шаги в деле',
       description: 'Посвятить 20 часов категории «Работа»',
       isUnlocked: workHours >= 20,
       currentProgress: workHours,
@@ -122,25 +102,91 @@ final milestonesProvider = FutureProvider<List<Milestone>>((ref) async {
       unit: 'ч',
     ),
     Milestone(
-      id: 'sport_master',
-      emoji: '💪',
-      title: 'Железная воля',
-      description: 'Посвятить 10 часов категории «Спорт»',
-      isUnlocked: sportHours >= 10,
-      currentProgress: sportHours,
-      target: 10,
+      id: 'work_100h',
+      emoji: '💼',
+      title: 'Архитектор проектов',
+      description: 'Посвятить 100 часов категории «Работа»',
+      isUnlocked: workHours >= 100,
+      currentProgress: workHours,
+      target: 100,
       unit: 'ч',
     ),
     Milestone(
-      id: 'religion_master',
-      emoji: '🕌',
-      title: 'Духовный рост',
-      description: 'Посвятить 10 часов категории «Религия»',
-      isUnlocked: religionHours >= 10,
-      currentProgress: religionHours,
-      target: 10,
+      id: 'work_400h',
+      emoji: '🏗️',
+      title: 'Строитель наследия',
+      description: 'Посвятить 400 часов категории «Работа»',
+      isUnlocked: workHours >= 400,
+      currentProgress: workHours,
+      target: 400,
       unit: 'ч',
     ),
+
+    // ── Спорт: 5ч → 20ч → 75ч ──
+    Milestone(
+      id: 'sport_5h',
+      emoji: '🏃',
+      title: 'Первый рывок',
+      description: 'Посвятить 5 часов категории «Спорт»',
+      isUnlocked: sportHours >= 5,
+      currentProgress: sportHours,
+      target: 5,
+      unit: 'ч',
+    ),
+    Milestone(
+      id: 'sport_20h',
+      emoji: '💪',
+      title: 'Железная воля',
+      description: 'Посвятить 20 часов категории «Спорт»',
+      isUnlocked: sportHours >= 20,
+      currentProgress: sportHours,
+      target: 20,
+      unit: 'ч',
+    ),
+    Milestone(
+      id: 'sport_75h',
+      emoji: '🏆',
+      title: 'Атлет дисциплины',
+      description: 'Посвятить 75 часов категории «Спорт»',
+      isUnlocked: sportHours >= 75,
+      currentProgress: sportHours,
+      target: 75,
+      unit: 'ч',
+    ),
+
+    // ── Религия: 5ч → 25ч → 100ч ──
+    Milestone(
+      id: 'religion_5h',
+      emoji: '🕌',
+      title: 'Первые шаги веры',
+      description: 'Посвятить 5 часов категории «Религия»',
+      isUnlocked: religionHours >= 5,
+      currentProgress: religionHours,
+      target: 5,
+      unit: 'ч',
+    ),
+    Milestone(
+      id: 'religion_25h',
+      emoji: '🌙',
+      title: 'Духовный рост',
+      description: 'Посвятить 25 часов категории «Религия»',
+      isUnlocked: religionHours >= 25,
+      currentProgress: religionHours,
+      target: 25,
+      unit: 'ч',
+    ),
+    Milestone(
+      id: 'religion_100h',
+      emoji: '✨',
+      title: 'Постоянство в вере',
+      description: 'Посвятить 100 часов категории «Религия»',
+      isUnlocked: religionHours >= 100,
+      currentProgress: religionHours,
+      target: 100,
+      unit: 'ч',
+    ),
+
+    // ── Отдых: один порог, это не про "достижение" в чистом виде ──
     Milestone(
       id: 'rest_master',
       emoji: '🌴',
@@ -151,6 +197,7 @@ final milestonesProvider = FutureProvider<List<Milestone>>((ref) async {
       target: 10,
       unit: 'ч',
     ),
+
     Milestone(
       id: 'no_waste_guard',
       emoji: '🛡️',
@@ -164,22 +211,24 @@ final milestonesProvider = FutureProvider<List<Milestone>>((ref) async {
   ];
 });
 
-/// Провайдер расчета вдохновляющей метафоры времени.
+/// Провайдер расчёта вдохновляющей метафоры времени — теперь считает
+/// от общего протрекано времени (все категории), без слова "фокус"
+/// и без противопоставления "продуктивного" и "непродуктивного".
 final timeMetaphorProvider = Provider.family<String, int>((ref, totalSeconds) {
   final hours = totalSeconds ~/ 3600;
   if (hours < 1) {
-    return 'Вы только начинаете свой путь — каждая сессия созидания приближает к высоким целям!';
+    return 'Вы только начинаете свой путь — каждая сессия приближает к вашим целям!';
   } else if (hours < 10) {
     final books = (hours * 0.5).toStringAsFixed(1);
-    return 'У Вас уже $hours ч Продуктивного фокуса — это равноценно прочтению около $books книг!';
+    return 'У вас уже $hours ч осознанного времени — это равноценно прочтению около $books книг!';
   } else if (hours < 50) {
     final books = (hours / 12 * 5).round();
-    return 'Вы отдали делу $hours ч Продуктивного фокуса — это как прочитать $books книг по 300 страниц!';
+    return 'Вы отдали делу $hours ч — это как прочитать $books книг по 300 страниц!';
   } else if (hours < 200) {
     final km = hours * 70;
-    return 'Ваш результат $hours ч Продуктивного фокуса — это как проехать $km км навстречу своей мечте!';
+    return 'Ваш результат $hours ч — это как проехать $km км навстречу своей мечте!';
   } else {
     final days = (hours / 24).toStringAsFixed(1);
-    return 'Потрясающе! $hours ч Продуктивного фокуса — это $days дней чистого созидания и работы на 100%!';
+    return 'Потрясающе! $hours ч — это $days дней осознанной, наполненной смыслом жизни!';
   }
 });

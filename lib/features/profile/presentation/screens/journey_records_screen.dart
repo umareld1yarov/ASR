@@ -14,9 +14,9 @@ class JourneyRecordsScreen extends ConsumerWidget {
   const JourneyRecordsScreen({super.key});
 
   static Future<void> show(BuildContext context) {
-    return Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const JourneyRecordsScreen()),
-    );
+    return Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const JourneyRecordsScreen()));
   }
 
   String _formatHours(int seconds) {
@@ -40,10 +40,8 @@ class JourneyRecordsScreen extends ConsumerWidget {
     final recordsAsync = ref.watch(personalRecordsProvider);
     final milestonesAsync = ref.watch(milestonesProvider);
 
-    final unlockedCount = milestonesAsync.valueOrNull
-            ?.where((m) => m.isUnlocked)
-            .length ??
-        0;
+    final unlockedCount =
+        milestonesAsync.valueOrNull?.where((m) => m.isUnlocked).length ?? 0;
     final totalMilestones = milestonesAsync.valueOrNull?.length ?? 10;
 
     return Scaffold(
@@ -142,7 +140,7 @@ class JourneyRecordsScreen extends ConsumerWidget {
                                         _StatPill(
                                           emoji: '⏱️',
                                           value: '$hoursч',
-                                          label: 'фокуса',
+                                          label: 'времени',
                                         ),
                                         const SizedBox(width: 8),
                                         _StatPill(
@@ -175,14 +173,14 @@ class JourneyRecordsScreen extends ConsumerWidget {
                                   vertical: 12,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF06B6D4).withValues(
-                                    alpha: 0.1,
-                                  ),
+                                  color: const Color(
+                                    0xFF06B6D4,
+                                  ).withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(14),
                                   border: Border.all(
-                                    color: const Color(0xFF06B6D4).withValues(
-                                      alpha: 0.3,
-                                    ),
+                                    color: const Color(
+                                      0xFF06B6D4,
+                                    ).withValues(alpha: 0.3),
                                   ),
                                 ),
                                 child: Row(
@@ -241,13 +239,14 @@ class JourneyRecordsScreen extends ConsumerWidget {
                                         records.longestSessionSeconds!,
                                       )
                                     : '—',
-                                subtitle: records.longestSessionName ?? 'Сессия',
+                                subtitle:
+                                    records.longestSessionName ?? 'Сессия',
                                 accentColor:
                                     records.longestSessionCategoryKey != null
-                                        ? ActivityCategory.fromStorageKey(
-                                            records.longestSessionCategoryKey!,
-                                          ).color
-                                        : const Color(0xFF06B6D4),
+                                    ? ActivityCategory.fromStorageKey(
+                                        records.longestSessionCategoryKey!,
+                                      ).color
+                                    : const Color(0xFF06B6D4),
                               ),
                               _RecordShareCard(
                                 emoji: '🏆',
@@ -264,10 +263,10 @@ class JourneyRecordsScreen extends ConsumerWidget {
                                     : 'За всё время',
                                 accentColor:
                                     records.bestCategoryKeyOfBestDay != null
-                                        ? ActivityCategory.fromStorageKey(
-                                            records.bestCategoryKeyOfBestDay!,
-                                          ).color
-                                        : const Color(0xFFEAB308),
+                                    ? ActivityCategory.fromStorageKey(
+                                        records.bestCategoryKeyOfBestDay!,
+                                      ).color
+                                    : const Color(0xFFEAB308),
                               ),
                               _RecordShareCard(
                                 emoji: '🔥',
@@ -325,16 +324,16 @@ class JourneyRecordsScreen extends ConsumerWidget {
                                 padding: const EdgeInsets.all(14),
                                 decoration: BoxDecoration(
                                   color: m.isUnlocked
-                                      ? const Color(0xFF22C55E).withValues(
-                                          alpha: 0.08,
-                                        )
+                                      ? const Color(
+                                          0xFF22C55E,
+                                        ).withValues(alpha: 0.08)
                                       : Colors.white.withValues(alpha: 0.04),
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
                                     color: m.isUnlocked
-                                        ? const Color(0xFF22C55E).withValues(
-                                            alpha: 0.35,
-                                          )
+                                        ? const Color(
+                                            0xFF22C55E,
+                                          ).withValues(alpha: 0.35)
                                         : Colors.white.withValues(alpha: 0.08),
                                   ),
                                 ),
@@ -345,10 +344,12 @@ class JourneyRecordsScreen extends ConsumerWidget {
                                       height: 44,
                                       decoration: BoxDecoration(
                                         color: m.isUnlocked
-                                            ? const Color(0xFF22C55E).withValues(
-                                                alpha: 0.15,
-                                              )
-                                            : Colors.white.withValues(alpha: 0.05),
+                                            ? const Color(
+                                                0xFF22C55E,
+                                              ).withValues(alpha: 0.15)
+                                            : Colors.white.withValues(
+                                                alpha: 0.05,
+                                              ),
                                         shape: BoxShape.circle,
                                       ),
                                       alignment: Alignment.center,
