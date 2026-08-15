@@ -1,4 +1,5 @@
 import 'package:asr/features/community/community_theme.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,8 +7,6 @@ import '../../../../shared/widgets/app_background.dart';
 import '../../application/community_provider.dart';
 import '../../domain/models/friendship.dart';
 
-/// Экран заявок в друзья: входящие (можно принять/отклонить)
-/// и исходящие (можно отменить, ожидают ответа).
 class FriendRequestsScreen extends ConsumerWidget {
   const FriendRequestsScreen({super.key});
 
@@ -30,9 +29,9 @@ class FriendRequestsScreen extends ConsumerWidget {
                     onPressed: () => Navigator.of(context).pop(),
                     icon: const Icon(Icons.arrow_back, color: Colors.white70),
                   ),
-                  const Text(
-                    'Заявки в друзья',
-                    style: TextStyle(
+                  Text(
+                    'community.friend_requests_title'.tr(),
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -45,12 +44,12 @@ class FriendRequestsScreen extends ConsumerWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
-                  _SectionLabel('Входящие'),
+                  _SectionLabel('community.incoming_requests'.tr()),
                   incomingAsync.when(
                     loading: () => const _Loading(),
                     error: (e, _) => const _ErrorText(),
                     data: (list) => list.isEmpty
-                        ? const _EmptyLine('Нет новых заявок')
+                        ? _EmptyLine('community.no_incoming_requests'.tr())
                         : Column(
                             children: list
                                 .map(
@@ -66,12 +65,12 @@ class FriendRequestsScreen extends ConsumerWidget {
                           ),
                   ),
                   const SizedBox(height: 20),
-                  _SectionLabel('Исходящие'),
+                  _SectionLabel('community.outgoing_requests'.tr()),
                   outgoingAsync.when(
                     loading: () => const _Loading(),
                     error: (e, _) => const _ErrorText(),
                     data: (list) => list.isEmpty
-                        ? const _EmptyLine('Нет ожидающих заявок')
+                        ? _EmptyLine('community.no_outgoing_requests'.tr())
                         : Column(
                             children: list
                                 .map(
@@ -184,7 +183,7 @@ class _OutgoingTile extends StatelessWidget {
             ),
           ),
           Text(
-            'Ожидание...',
+            'community.waiting_status'.tr(),
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.4),
               fontSize: 12.5,
@@ -217,7 +216,7 @@ class _ErrorText extends StatelessWidget {
   const _ErrorText();
   @override
   Widget build(BuildContext context) => Text(
-    'Ошибка загрузки',
+    'community.load_error'.tr(),
     style: TextStyle(color: Colors.white.withValues(alpha: 0.4)),
   );
 }

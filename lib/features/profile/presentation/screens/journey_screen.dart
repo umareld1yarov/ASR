@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../shared/widgets/app_background.dart';
@@ -22,9 +23,9 @@ class JourneyScreen extends StatelessWidget {
                       onPressed: () => Navigator.of(context).pop(),
                       icon: const Icon(Icons.arrow_back, color: Colors.white),
                     ),
-                    const Text(
-                      'Мой путь',
-                      style: TextStyle(
+                    Text(
+                      'profile.my_journey'.tr(),
+                      style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,

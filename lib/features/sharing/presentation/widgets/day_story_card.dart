@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -39,8 +40,8 @@ class DayStoryCard extends ConsumerWidget {
           ),
           error: (e, _) => Container(
             color: const Color(0xFF141414),
-            child: const Center(
-              child: Text('Ошибка', style: TextStyle(color: Colors.white54)),
+            child: Center(
+              child: Text('common.error'.tr(), style: const TextStyle(color: Colors.white54)),
             ),
           ),
           data: (data) {
@@ -84,7 +85,7 @@ class _JournalThemeCard extends ConsumerWidget {
       child: Column(
         children: [
           // Шапка карточки
-          _StoryHeader(dateKey: data.dateKey, themeLabel: 'ЖУРНАЛ ДНЯ'),
+          _StoryHeader(dateKey: data.dateKey, themeLabel: 'sharing.daily_journal'.tr()),
           const SizedBox(height: 12),
 
           // Статистика (если включена)
@@ -201,7 +202,7 @@ class _DarkFocusThemeCard extends ConsumerWidget {
               ],
             ),
             Text(
-              'общего осознанного времени',
+              'sharing.conscious_time'.tr(),
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.4),
                 fontSize: 12,
@@ -293,11 +294,13 @@ class _DarkFocusThemeCard extends ConsumerWidget {
                           )
                         else
                           Text(
-                            'День наполнен продуктивностью и движением вперед.',
+                            'sharing.day_summary_text'.tr(),
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.6),
-                              fontSize: 13,
+                              fontSize: 14,
+                              fontStyle: FontStyle.italic,
+                              height: 1.4,
+                              color: Colors.white.withValues(alpha: 0.8),
                             ),
                           ),
                       ],
@@ -323,7 +326,7 @@ class _MinimalQuoteThemeCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notes = data.entries.where((e) => (e.note ?? '').trim().isNotEmpty).toList();
-    final mainNote = notes.isNotEmpty ? notes.first.note!.trim() : 'День прошёл в балансе и фокусе.';
+    final mainNote = notes.isNotEmpty ? notes.first.note!.trim() : 'sharing.day_quote_fallback'.tr();
 
     return Container(
       decoration: const BoxDecoration(
@@ -382,12 +385,12 @@ class _MinimalQuoteThemeCard extends ConsumerWidget {
                   const Icon(Icons.timer_outlined, color: Colors.white70, size: 18),
                   const SizedBox(width: 8),
                   Text(
-                    'Фокус дня: ${_formatDuration(data.totalDurationSeconds)}',
+                    'sharing.day_focus'.tr(args: [_formatDuration(data.totalDurationSeconds)]),
                     style: const TextStyle(color: Colors.white, fontSize: 13),
                   ),
                   const Spacer(),
                   Text(
-                    '${data.entries.length} записей',
+                    'feed.entry_count'.plural(data.entries.length, args: ['${data.entries.length}']),
                     style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 12),
                   ),
                 ],
@@ -474,7 +477,7 @@ class _MiniStatsBar extends StatelessWidget {
       child: Row(
         children: [
           Text(
-            hours > 0 ? '$hoursч $mins мин' : '$mins мин',
+            hours > 0 ? '$hoursч $minsм' : '$minsм',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 13,
@@ -557,12 +560,12 @@ class _NoPhotosPlaceholder extends StatelessWidget {
             Icon(Icons.photo_library_outlined, color: Colors.white.withValues(alpha: 0.3), size: 40),
             const SizedBox(height: 12),
             Text(
-              'За этот день нет фотографий',
+              'sharing.no_photos_today'.tr(),
               style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 13),
             ),
             const SizedBox(height: 4),
             Text(
-              'Переключите шаблон на «Тёмный фокус» или «Минимализм» для идеального вида!',
+              'sharing.no_photos_hint'.tr(),
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white.withValues(alpha: 0.35), fontSize: 11),
             ),
@@ -730,7 +733,7 @@ class _PolaroidTile extends ConsumerWidget {
                         child: GestureDetector(
                           onTap: () => controller.toggleCaptionHidden(entry.entryId),
                           child: Text(
-                            captionHidden ? 'Скрыто' : '«${entry.note!.trim()}»',
+                            captionHidden ? 'sharing.hidden_item'.tr() : '«${entry.note!.trim()}»',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(

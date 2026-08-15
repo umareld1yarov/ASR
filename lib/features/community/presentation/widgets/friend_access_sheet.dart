@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../community_theme.dart';
@@ -40,9 +41,9 @@ class FriendAccessSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 18),
-            const Text(
-              'Кто видит вашу активность',
-              style: TextStyle(
+            Text(
+              'community.who_sees_activity'.tr(),
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -50,13 +51,13 @@ class FriendAccessSheet extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Доступ действует, когда у вас запущена активность.',
+              'community.access_note'.tr(),
               style: TextStyle(color: Colors.white.withValues(alpha: 0.45)),
             ),
             const SizedBox(height: 14),
             if (visibleFriends.isEmpty)
               Text(
-                'Никому не разрешено видеть вашу текущую активность.',
+                'community.no_one_sees'.tr(),
                 style: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
               )
             else
@@ -93,9 +94,9 @@ class FriendAccessSheet extends StatelessWidget {
 
   String _scopeLabel(SharingScope scope) {
     return switch (scope) {
-      SharingScope.none => 'Нет доступа',
-      SharingScope.category => 'Видит только категорию',
-      SharingScope.fullActivity => 'Видит полную активность',
+      SharingScope.none => 'community.no_access'.tr(),
+      SharingScope.category => 'community.sees_category_only'.tr(),
+      SharingScope.fullActivity => 'community.sees_full_activity'.tr(),
     };
   }
 }

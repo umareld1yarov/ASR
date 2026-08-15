@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,7 +8,6 @@ import '../../../../core/constants/activity_category.dart';
 import '../../application/timer_provider.dart';
 
 /// Карточка текущей активности в стеклянном (glassmorphism) стиле:
-/// категория (цветная) → название → большой таймер (тоже цветной).
 class TimerDisplay extends ConsumerWidget {
   const TimerDisplay({super.key});
 
@@ -72,7 +72,7 @@ class TimerDisplay extends ConsumerWidget {
                             ),
                             const SizedBox(width: 6),
                             _AutoFitText(
-                              category?.label.toUpperCase() ?? 'НЕТ АКТИВНОСТИ',
+                              category?.label.toUpperCase() ?? 'timer.no_activity'.tr(),
                               style: TextStyle(
                                 color: category?.color ?? Colors.white38,
                                 fontSize: width * 0.045,
@@ -84,7 +84,7 @@ class TimerDisplay extends ConsumerWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          current?.name ?? 'Нажми «Сменить активность»',
+                          current?.name ?? 'timer.tap_to_switch'.tr(),
                           textAlign: TextAlign.center,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -121,7 +121,7 @@ class TimerDisplay extends ConsumerWidget {
               vPad: vPad,
               child: const Center(child: CircularProgressIndicator()),
             ),
-            error: (e, _) => Text('Ошибка: $e'),
+            error: (e, _) => Text('${"common.error".tr()}: $e'),
           );
         },
       ),
@@ -129,7 +129,6 @@ class TimerDisplay extends ConsumerWidget {
   }
 }
 
-/// Стеклянная обёртка карточки — обводка, тень, размытие фона, блик.
 class _GlassCard extends StatelessWidget {
   const _GlassCard({
     required this.width,
@@ -221,7 +220,6 @@ class _GlassCard extends StatelessWidget {
   }
 }
 
-/// Автоматически уменьшает шрифт, если текст не помещается по ширине.
 class _AutoFitText extends StatelessWidget {
   const _AutoFitText(this.text, {required this.style});
 

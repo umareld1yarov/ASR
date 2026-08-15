@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,7 +6,6 @@ import '../../../../core/constants/activity_category.dart';
 import '../../application/profile_provider.dart';
 import '../../domain/models/goal.dart';
 
-/// Эстетичная карточка цели с процентом, оставшимися днями и бейджем выполнения.
 class GoalCard extends ConsumerWidget {
   const GoalCard({super.key, required this.goal});
 
@@ -14,24 +14,34 @@ class GoalCard extends ConsumerWidget {
   String _periodLabel(String type) {
     switch (type) {
       case 'week':
-        return 'Неделя';
+        return 'profile.week'.tr();
       case 'month':
       default:
-        return 'Месяц';
+        return 'profile.month'.tr();
     }
+  }
+
+  String _daysWord(int n) {
+    return 'profile.day_count'.plural(n);
   }
 
   String _remainingDaysLabel(String type) {
     final now = DateTime.now();
     if (type == 'week') {
       final daysUntilSunday = 7 - now.weekday;
-      if (daysUntilSunday == 0) return 'Последний день';
-      return 'Осталось $daysUntilSunday ${daysUntilSunday == 1 ? "день" : "дня"}';
+      if (daysUntilSunday == 0) return 'profile.last_day'.tr();
+      return 'profile.days_left'.tr(args: [
+        '$daysUntilSunday',
+        _daysWord(daysUntilSunday),
+      ]);
     } else {
       final lastDayOfMonth = DateTime(now.year, now.month + 1, 0).day;
       final daysLeft = lastDayOfMonth - now.day;
-      if (daysLeft == 0) return 'Последний день';
-      return 'Осталось $daysLeft ${daysLeft == 1 ? "день" : "дней"}';
+      if (daysLeft == 0) return 'profile.last_day'.tr();
+      return 'profile.days_left'.tr(args: [
+        '$daysLeft',
+        _daysWord(daysLeft),
+      ]);
     }
   }
 
@@ -47,19 +57,19 @@ class GoalCard extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1F1F1F),
-        title: const Text('Удалить цель?'),
-        content: const Text(
-          'Цель будет полностью удалена.',
-          style: TextStyle(color: Colors.white70),
+        title: Text('profile.delete_goal_title'.tr()),
+        content: Text(
+          'profile.delete_goal_desc'.tr(),
+          style: const TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Отмена'),
+            child: Text('common.cancel'.tr()),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Удалить', style: TextStyle(color: Colors.redAccent)),
+            child: Text('common.delete'.tr(), style: const TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),
@@ -135,13 +145,13 @@ class GoalCard extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: const Color(0xFF22C55E)),
                       ),
-                      child: const Row(
+                      child: Row(
                         children: [
-                          Icon(Icons.stars, color: Color(0xFF22C55E), size: 14),
-                          SizedBox(width: 4),
+                          const Icon(Icons.stars, color: Color(0xFF22C55E), size: 14),
+                          const SizedBox(width: 4),
                           Text(
-                            'Выполнено!',
-                            style: TextStyle(
+                            'profile.completed'.tr(),
+                            style: const TextStyle(
                               color: Color(0xFF22C55E),
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
@@ -173,7 +183,10 @@ class GoalCard extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${_formatHours(currentSeconds)} из ${_formatHours(goal.targetSeconds)}',
+                    'profile.progress_hours'.tr(args: [
+                      _formatHours(currentSeconds),
+                      _formatHours(goal.targetSeconds),
+                    ]),
                     style: const TextStyle(fontSize: 12, color: Colors.white70),
                   ),
                   Text(

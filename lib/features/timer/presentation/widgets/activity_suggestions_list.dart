@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../domain/models/activity_suggestion.dart';
@@ -23,7 +24,7 @@ class ActivitySuggestionsList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (frequent.isNotEmpty) ...[
-          const _SectionLabel('ЧАСТО ИСПОЛЬЗУЕМЫЕ'),
+          _SectionLabel('timer.frequent_activities'.tr()),
           ...frequent.map(
             (suggestion) => _ActivityRow(
               suggestion: suggestion,
@@ -34,7 +35,7 @@ class ActivitySuggestionsList extends StatelessWidget {
         ],
         if (others.isNotEmpty) ...[
           const SizedBox(height: 18),
-          const _SectionLabel('ВСЕ АКТИВНОСТИ'),
+          _SectionLabel('timer.all_activities'.tr()),
           ...others.map(
             (suggestion) => _ActivityRow(
               suggestion: suggestion,

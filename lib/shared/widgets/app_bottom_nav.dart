@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../features/community/presentation/screens/community_screen.dart';
@@ -7,10 +8,7 @@ import '../../features/stats/presentation/screens/stats_screen.dart';
 import '../../features/timer/presentation/screens/focus_screen.dart';
 
 /// Корневой экран с нижней навигацией между Фокусом, Лентой, Статистикой
-/// и Профилем. Кастомная панель (не Material NavigationBar) в духе Telegram:
-/// иконка + подпись, один акцентный цвет для выбранной вкладки, без "таблетки".
-/// Фон панели совпадает с нижним цветом градиента AppBackground — панель
-/// выглядит продолжением экрана, а не отдельным чёрным блоком.
+/// и Профилем.
 class AppBottomNav extends StatefulWidget {
   const AppBottomNav({super.key});
 
@@ -30,21 +28,18 @@ class _AppBottomNavState extends State<AppBottomNav> {
   ];
 
   static const _accentColor = Color(0xFF06B6D4);
-
-  // Тот же цвет, в который упирается градиент AppBackground внизу —
-  // см. app_background.dart. Держим значения синхронными.
   static const _navBackgroundColor = Color.fromARGB(255, 26, 25, 25);
-
-  static const _items = [
-    (Icons.radio_button_unchecked, Icons.radio_button_checked, 'Фокус'),
-    (Icons.list_alt_outlined, Icons.list_alt, 'Лента'),
-    (Icons.bar_chart_outlined, Icons.bar_chart, 'Статистика'),
-    (Icons.people_outline, Icons.people, 'Сообщества'),
-    (Icons.person_outline, Icons.person, 'Профиль'),
-  ];
 
   @override
   Widget build(BuildContext context) {
+    final items = [
+      (Icons.radio_button_unchecked, Icons.radio_button_checked, 'nav.focus'.tr()),
+      (Icons.list_alt_outlined, Icons.list_alt, 'nav.feed'.tr()),
+      (Icons.bar_chart_outlined, Icons.bar_chart, 'nav.stats'.tr()),
+      (Icons.people_outline, Icons.people, 'nav.community'.tr()),
+      (Icons.person_outline, Icons.person, 'nav.profile'.tr()),
+    ];
+
     return Scaffold(
       body: IndexedStack(index: _selectedIndex, children: _screens),
       bottomNavigationBar: ColoredBox(
@@ -55,12 +50,12 @@ class _AppBottomNavState extends State<AppBottomNav> {
             height: 58,
             child: Row(
               children: [
-                for (var i = 0; i < _items.length; i++)
+                for (var i = 0; i < items.length; i++)
                   Expanded(
                     child: _NavItem(
-                      outlineIcon: _items[i].$1,
-                      filledIcon: _items[i].$2,
-                      label: _items[i].$3,
+                      outlineIcon: items[i].$1,
+                      filledIcon: items[i].$2,
+                      label: items[i].$3,
                       isSelected: i == _selectedIndex,
                       accentColor: _accentColor,
                       onTap: () => setState(() => _selectedIndex = i),

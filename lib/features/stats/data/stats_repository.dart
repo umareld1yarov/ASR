@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:isar_community/isar.dart';
 
 import '../../../core/constants/activity_category.dart';
@@ -394,36 +395,9 @@ class StatsRepository {
 
   // ── Хронологический Аудит времени (Текстовый экспорт) ──
 
-  static const _weekDaysGenitive = [
-    'Понедельник',
-    'Вторник',
-    'Среда',
-    'Четверг',
-    'Пятница',
-    'Суббота',
-    'Воскресенье',
-  ];
-
-  static const _monthsGenitive = [
-    'Января',
-    'Февраля',
-    'Марта',
-    'Апреля',
-    'Мая',
-    'Июня',
-    'Июля',
-    'Августа',
-    'Сентября',
-    'Октября',
-    'Ноября',
-    'Декабря',
-  ];
-
   String _formatTimeHHmm(int millisSinceEpoch) {
     final dt = DateTime.fromMillisecondsSinceEpoch(millisSinceEpoch);
-    final h = dt.hour.toString().padLeft(2, '0');
-    final m = dt.minute.toString().padLeft(2, '0');
-    return '$h:$m';
+    return DateFormat('HH:mm').format(dt);
   }
 
   String _formatDurationBrief(int seconds) {
@@ -441,17 +415,14 @@ class StatsRepository {
     );
 
     final date = du.DateUtils.dateKeyToDate(dateKey);
-    final dayOfWeek = _weekDaysGenitive[date.weekday - 1];
-    final dayNum = date.day.toString().padLeft(2, '0');
-    final monthNum = date.month.toString().padLeft(2, '0');
-    final monthName = _monthsGenitive[date.month - 1];
+    final dateStr = DateFormat('EEEE, dd.MM.yyyy (d MMMM yyyy)').format(date);
 
     final buffer = StringBuffer();
-    buffer.writeln('▼ Аудит за $dayOfWeek, $dayNum.$monthNum.${date.year} (${date.day} $monthName ${date.year}):');
+    buffer.writeln('stats.audit_header'.tr(namedArgs: {'date': dateStr}));
     buffer.writeln();
 
     if (entries.isEmpty) {
-      buffer.writeln('  (Записи за этот день отсутствуют)');
+      buffer.writeln('stats.no_entries_period'.tr());
     } else {
       final categoryTotals = <String, int>{};
 
@@ -466,12 +437,12 @@ class StatsRepository {
 
         buffer.writeln('  $startStr - $endStr [${cat.label}]: $nameStr ($durationStr)');
         if (e.note != null && e.note!.trim().isNotEmpty) {
-          buffer.writeln('    └─ Заметка: ${e.note!.trim()}');
+          buffer.writeln('stats.note'.tr(args: [e.note!.trim()]));
         }
       }
 
       buffer.writeln();
-      buffer.writeln('● ИТОГ ДНЯ:');
+      buffer.writeln('stats.day_summary'.tr());
       final activeCatStrings = <String>[];
       for (final cat in ActivityCategory.values) {
         final sec = categoryTotals[cat.storageKey] ?? 0;
@@ -483,7 +454,7 @@ class StatsRepository {
     }
 
     buffer.writeln('──────────────────────────────────────────');
-    buffer.writeln('— Сгенерировано в ASR Focus Journal');
+    buffer.writeln('stats.audit_generated_by'.tr());
     return buffer.toString();
   }
 
@@ -499,12 +470,12 @@ class StatsRepository {
     );
 
     final buffer = StringBuffer();
-    buffer.writeln('▼ Аудит периода: $periodLabel');
-    buffer.writeln('  (Интервал: $startDateKey — $endDateKey)');
+    buffer.writeln('stats.audit_period'.tr(args: [periodLabel]));
+    buffer.writeln('stats.interval'.tr(args: [startDateKey, endDateKey]));
     buffer.writeln();
 
     if (entries.isEmpty) {
-      buffer.writeln('  (Записи за этот период отсутствуют)');
+      buffer.writeln('stats.no_entries_period'.tr());
     } else {
       final entriesByDate = <String, List<ActivityEntry>>{};
       final categoryTotals = <String, int>{};
@@ -520,12 +491,9 @@ class StatsRepository {
 
       for (final dKey in sortedDateKeys) {
         final date = du.DateUtils.dateKeyToDate(dKey);
-        final dayOfWeek = _weekDaysGenitive[date.weekday - 1];
-        final dayNum = date.day.toString().padLeft(2, '0');
-        final monthNum = date.month.toString().padLeft(2, '0');
-        final monthName = _monthsGenitive[date.month - 1];
+        final dateHeader = DateFormat('EEEE, dd.MM.yyyy (d MMMM)').format(date);
 
-        buffer.writeln('📅 $dayOfWeek, $dayNum.$monthNum.${date.year} (${date.day} $monthName):');
+        buffer.writeln('📅 $dateHeader:');
 
         final dayEntries = entriesByDate[dKey]!;
         for (final e in dayEntries) {
@@ -537,13 +505,13 @@ class StatsRepository {
 
           buffer.writeln('  $startStr - $endStr [${cat.label}]: $nameStr ($durationStr)');
           if (e.note != null && e.note!.trim().isNotEmpty) {
-            buffer.writeln('    └─ Заметка: ${e.note!.trim()}');
+            buffer.writeln('stats.note'.tr(args: [e.note!.trim()]));
           }
         }
         buffer.writeln();
       }
 
-      buffer.writeln('● ИТОГ ПЕРИОДА (Всего: ${_formatDurationBrief(overallTotalSec)}):');
+      buffer.writeln('stats.period_summary'.tr(args: [_formatDurationBrief(overallTotalSec)]));
       final activeCatStrings = <String>[];
       for (final cat in ActivityCategory.values) {
         final sec = categoryTotals[cat.storageKey] ?? 0;
@@ -555,7 +523,7 @@ class StatsRepository {
     }
 
     buffer.writeln('──────────────────────────────────────────');
-    buffer.writeln('— Сгенерировано в ASR Focus Journal');
+    buffer.writeln('stats.audit_generated_by'.tr());
     return buffer.toString();
   }
 }

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,7 +8,6 @@ import '../../application/profile_provider.dart';
 import '../widgets/add_goal_sheet.dart';
 import '../widgets/goal_card.dart';
 
-/// Полноэкранный центр управления целями с фильтрами периода и категорий.
 class GoalsScreen extends ConsumerStatefulWidget {
   const GoalsScreen({super.key});
 
@@ -16,7 +16,7 @@ class GoalsScreen extends ConsumerStatefulWidget {
 }
 
 class _GoalsScreenState extends ConsumerState<GoalsScreen> {
-  String _selectedPeriodFilter = 'all'; // 'all', 'week', 'month'
+  String _selectedPeriodFilter = 'all';
   ActivityCategory? _selectedCategoryFilter;
 
   @override
@@ -29,7 +29,6 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Верхняя панель навигации
               Padding(
                 padding: const EdgeInsets.fromLTRB(12, 12, 16, 8),
                 child: Row(
@@ -38,10 +37,10 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                       onPressed: () => Navigator.of(context).pop(),
                       icon: const Icon(Icons.arrow_back, color: Colors.white),
                     ),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        'Мои цели',
-                        style: TextStyle(
+                        'profile.my_goals'.tr(),
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
@@ -62,9 +61,9 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                         ),
                       ),
                       icon: const Icon(Icons.add, size: 18),
-                      label: const Text(
-                        'Цель',
-                        style: TextStyle(
+                      label: Text(
+                        'profile.goal'.tr(),
+                        style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
@@ -74,25 +73,24 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                 ),
               ),
 
-              // 1. Фильтр периода (Все / Неделя / Месяц)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                 child: Row(
                   children: [
                     _PeriodFilterTab(
-                      label: 'Все периоды',
+                      label: 'profile.all_periods'.tr(),
                       isSelected: _selectedPeriodFilter == 'all',
                       onTap: () => setState(() => _selectedPeriodFilter = 'all'),
                     ),
                     const SizedBox(width: 8),
                     _PeriodFilterTab(
-                      label: '📅 Неделя',
+                      label: 'profile.for_week'.tr(),
                       isSelected: _selectedPeriodFilter == 'week',
                       onTap: () => setState(() => _selectedPeriodFilter = 'week'),
                     ),
                     const SizedBox(width: 8),
                     _PeriodFilterTab(
-                      label: '🗓️ Месяц',
+                      label: 'profile.for_month'.tr(),
                       isSelected: _selectedPeriodFilter == 'month',
                       onTap: () => setState(() => _selectedPeriodFilter = 'month'),
                     ),
@@ -101,14 +99,13 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
               ),
               const SizedBox(height: 8),
 
-              // 2. Горизонтальный фильтр по категориям
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
                     _CategoryFilterChip(
-                      label: 'Все категории',
+                      label: 'profile.all_categories'.tr(),
                       isSelected: _selectedCategoryFilter == null,
                       onTap: () => setState(() => _selectedCategoryFilter = null),
                     ),
@@ -126,11 +123,9 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
               ),
               const SizedBox(height: 12),
 
-              // Список целей
               Expanded(
                 child: goalsAsync.when(
                   data: (goals) {
-                    // Применяем фильтры
                     final filtered = goals.where((g) {
                       if (_selectedPeriodFilter != 'all' && g.periodType != _selectedPeriodFilter) {
                         return false;
@@ -156,8 +151,8 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                               const SizedBox(height: 12),
                               Text(
                                 goals.isEmpty
-                                    ? 'У вас пока нет активных целей'
-                                    : 'По выбранным фильтрам целей не найдено',
+                                    ? 'profile.no_active_goals'.tr()
+                                    : 'profile.no_matching_goals'.tr(),
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.6),
                                   fontSize: 14,
@@ -171,7 +166,7 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                                   side: const BorderSide(color: Color(0xFF06B6D4)),
                                 ),
                                 icon: const Icon(Icons.add),
-                                label: const Text('Поставить первую цель'),
+                                label: Text('profile.set_first_goal'.tr()),
                               ),
                             ],
                           ),
@@ -191,7 +186,7 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                     child: CircularProgressIndicator(color: Color(0xFF06B6D4)),
                   ),
                   error: (e, _) => Center(
-                    child: Text('Ошибка загрузки целей: $e', style: const TextStyle(color: Colors.white54)),
+                    child: Text('${"common.error".tr()}: $e', style: const TextStyle(color: Colors.white54)),
                   ),
                 ),
               ),

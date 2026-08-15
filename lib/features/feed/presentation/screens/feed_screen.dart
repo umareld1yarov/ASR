@@ -1,19 +1,18 @@
-import 'package:asr/shared/widgets/app_background.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/constants/activity_category.dart';
 import '../../../../core/utils/date_utils.dart' as du;
+import '../../../../shared/widgets/app_background.dart';
 import '../../../sharing/presentation/screens/day_story_preview_screen.dart';
+import '../../../timer/domain/models/activity_entry.dart';
 import '../../application/feed_provider.dart';
+import '../screens/entry_detail_screen.dart';
 import '../widgets/day_navigator_bar.dart';
 import '../widgets/log_item_tile.dart';
-import '../../../timer/domain/models/activity_entry.dart';
-import '../screens/entry_detail_screen.dart';
-import '../../../../core/constants/activity_category.dart';
 import '../widgets/timeline_entry.dart';
 
-/// Экран 2 — Лента. Хронологическая история активностей за выбранный день.
-/// Аналог #screen-log из index.html (PWA).
 class FeedScreen extends ConsumerWidget {
   const FeedScreen({super.key});
 
@@ -55,10 +54,10 @@ class FeedScreen extends ConsumerWidget {
                 child: entriesAsync.when(
                   data: (entries) {
                     if (entries.isEmpty) {
-                      return const Center(
+                      return Center(
                         child: Text(
-                          'Записей за этот день нет',
-                          style: TextStyle(color: Colors.white38),
+                          'feed.no_entries'.tr(),
+                          style: const TextStyle(color: Colors.white38),
                         ),
                       );
                     }
@@ -84,7 +83,7 @@ class FeedScreen extends ConsumerWidget {
                   },
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
-                  error: (e, _) => Center(child: Text('Ошибка: $e')),
+                  error: (e, _) => Center(child: Text('${"common.error".tr()}: $e')),
                 ),
               ),
             ],

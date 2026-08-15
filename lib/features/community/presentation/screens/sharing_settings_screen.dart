@@ -1,4 +1,5 @@
 import 'package:asr/features/community/community_theme.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,8 +8,6 @@ import '../../application/community_provider.dart';
 import '../../domain/models/friendship.dart';
 import '../../domain/models/sharing_permission.dart';
 
-/// Настройка того, что Я разрешаю видеть КОНКРЕТНОМУ другу.
-/// Настройка индивидуального доступа друга к текущей активности.
 class SharingSettingsScreen extends ConsumerStatefulWidget {
   const SharingSettingsScreen({super.key, required this.friendship});
 
@@ -48,7 +47,7 @@ class _SharingSettingsScreenState extends ConsumerState<SharingSettingsScreen> {
                   ),
                   Expanded(
                     child: Text(
-                      'Доступ к активности',
+                      'community.activity_access_title'.tr(),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -65,22 +64,20 @@ class _SharingSettingsScreenState extends ConsumerState<SharingSettingsScreen> {
                 padding: const EdgeInsets.all(16),
                 children: [
                   _ScopeOption(
-                    title: 'Ничего не показывать',
-                    subtitle: 'Друг не увидит, чем вы занимаетесь сейчас',
+                    title: 'community.show_nothing'.tr(),
+                    subtitle: 'community.show_nothing_desc'.tr(),
                     selected: _scope == SharingScope.none,
                     onTap: () => setState(() => _scope = SharingScope.none),
                   ),
                   _ScopeOption(
-                    title: 'Только категория',
-                    subtitle:
-                        'Видны категория и время с начала, без названия дела',
+                    title: 'community.category_only'.tr(),
+                    subtitle: 'community.category_only_desc'.tr(),
                     selected: _scope == SharingScope.category,
                     onTap: () => setState(() => _scope = SharingScope.category),
                   ),
                   _ScopeOption(
-                    title: 'Полная активность',
-                    subtitle:
-                        'Видны категория, название дела и время с начала',
+                    title: 'community.full_activity'.tr(),
+                    subtitle: 'community.full_activity_desc'.tr(),
                     selected: _scope == SharingScope.fullActivity,
                     onTap: () =>
                         setState(() => _scope = SharingScope.fullActivity),
@@ -109,9 +106,9 @@ class _SharingSettingsScreenState extends ConsumerState<SharingSettingsScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'Сохранить',
-                    style: TextStyle(
+                  child: Text(
+                    'common.save'.tr(),
+                    style: const TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.w700,
                     ),

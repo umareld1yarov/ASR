@@ -1,4 +1,5 @@
 import 'package:asr/features/community/community_theme.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,11 +10,6 @@ import 'sharing_settings_screen.dart';
 import '../widgets/community_avatar.dart';
 import '../widgets/activity_status_pill.dart';
 
-/// Профиль друга: показывает live-статус (если он разрешил) и даёт доступ
-/// к настройке того, что Я разрешаю видеть ЕМУ.
-/// Важно: то, что видно НА этом экране (статус друга) — это ЕГО permission
-/// для меня. Кнопка "Настроить доступ" ведёт к МОЕМУ permission для него.
-/// Это две разные вещи, и путать их нельзя.
 class FriendProfileScreen extends ConsumerWidget {
   const FriendProfileScreen({super.key, required this.friendship});
 
@@ -78,13 +74,13 @@ class FriendProfileScreen extends ConsumerWidget {
                   ),
                 ),
                 error: (e, _) => _InfoCard(
-                  text: 'Не удалось загрузить статус',
+                  text: 'community.failed_load_status'.tr(),
                   color: Colors.white38,
                 ),
                 data: (status) {
                   if (status == null) {
-                    return const _InfoCard(
-                      text: 'Сейчас не делится тем, чем занят',
+                    return _InfoCard(
+                      text: 'community.not_sharing'.tr(),
                       color: Colors.white38,
                     );
                   }
@@ -118,9 +114,9 @@ class FriendProfileScreen extends ConsumerWidget {
                         color: CommunityTheme.accentColor,
                         size: 18,
                       ),
-                      label: const Text(
-                        'Настроить доступ',
-                        style: TextStyle(color: CommunityTheme.accentColor),
+                      label: Text(
+                        'community.configure_access'.tr(),
+                        style: const TextStyle(color: CommunityTheme.accentColor),
                       ),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
@@ -140,12 +136,12 @@ class FriendProfileScreen extends ConsumerWidget {
                         context: context,
                         builder: (dialogContext) => AlertDialog(
                           backgroundColor: const Color(0xFF242323),
-                          title: const Text(
-                            'Удалить из друзей?',
-                            style: TextStyle(color: Colors.white),
+                          title: Text(
+                            'community.remove_friend_title'.tr(),
+                            style: const TextStyle(color: Colors.white),
                           ),
                           content: Text(
-                            '${friendship.friend.displayName} больше не сможет видеть вашу активность, а вы — его.',
+                            'community.remove_friend_desc'.tr(args: [friendship.friend.displayName]),
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.7),
                             ),
@@ -153,14 +149,14 @@ class FriendProfileScreen extends ConsumerWidget {
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.of(dialogContext).pop(false),
-                              child: const Text('Отмена'),
+                              child: Text('common.cancel'.tr()),
                             ),
                             TextButton(
                               onPressed: () => Navigator.of(dialogContext).pop(true),
                               style: TextButton.styleFrom(
                                 foregroundColor: Colors.redAccent,
                               ),
-                              child: const Text('Удалить'),
+                              child: Text('common.delete'.tr()),
                             ),
                           ],
                         ),
@@ -172,7 +168,7 @@ class FriendProfileScreen extends ConsumerWidget {
                       if (context.mounted) Navigator.of(context).pop();
                     },
                     style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
-                    child: const Text('Удалить из друзей'),
+                    child: Text('community.remove_friend_button'.tr()),
                   ),
                 ],
               ),

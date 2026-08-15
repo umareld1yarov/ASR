@@ -100,7 +100,7 @@ class MyActivityPreviewCard extends ConsumerWidget {
               Row(
                 children: [
                   CommunityAvatar(
-                    name: 'Вы',
+                    name: 'community.you'.tr(),
                     radius: 16,
                     showOnlineDot: true,
                     isOnline: isLive,

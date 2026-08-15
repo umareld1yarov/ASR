@@ -1,9 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../application/profile_provider.dart';
 
-/// Карточка общего стрика — сколько дней подряд ведётся журнал.
 class StreakCard extends ConsumerWidget {
   const StreakCard({super.key});
 
@@ -31,16 +31,16 @@ class StreakCard extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '$streak ${_daysWord(streak)} подряд',
+                    'insights.streak_active'.tr(args: ['ASR', '$streak']),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
                     ),
                   ),
-                  const Text(
-                    'Ты ведёшь журнал каждый день',
-                    style: TextStyle(fontSize: 12, color: Colors.white54),
+                  Text(
+                    'profile.streak_active_text'.tr(),
+                    style: const TextStyle(fontSize: 12, color: Colors.white54),
                   ),
                 ],
               ),
@@ -51,13 +51,5 @@ class StreakCard extends ConsumerWidget {
       loading: () => const SizedBox.shrink(),
       error: (_, _) => const SizedBox.shrink(),
     );
-  }
-
-  String _daysWord(int n) {
-    if (n % 10 == 1 && n % 100 != 11) return 'день';
-    if ([2, 3, 4].contains(n % 10) && ![12, 13, 14].contains(n % 100)) {
-      return 'дня';
-    }
-    return 'дней';
   }
 }

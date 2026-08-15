@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/utils/date_utils.dart' as du;
@@ -318,63 +319,27 @@ final canGoPreviousProvider = Provider<bool>((ref) {
 
 // ── Подпись периода для UI ───────────────────────────
 
-const _monthsGenitive = [
-  'января',
-  'февраля',
-  'марта',
-  'апреля',
-  'мая',
-  'июня',
-  'июля',
-  'августа',
-  'сентября',
-  'октября',
-  'ноября',
-  'декабря',
-];
-const _monthsNominative = [
-  'Январь',
-  'Февраль',
-  'Март',
-  'Апрель',
-  'Май',
-  'Июнь',
-  'Июль',
-  'Август',
-  'Сентябрь',
-  'Октябрь',
-  'Ноябрь',
-  'Декабрь',
-];
-
 String formatPeriodLabel(StatsPeriodType type, StatsPeriodRange range) {
   final isCurrent = range.start == _startOfPeriod(type, DateTime.now());
 
   switch (type) {
     case StatsPeriodType.day:
-      if (isCurrent) return 'Сегодня';
+      if (isCurrent) return 'feed.today'.tr();
       final d = range.start;
-      return '${d.day} ${_monthsGenitive[d.month - 1]} ${d.year}';
+      return DateFormat('d MMMM yyyy').format(d);
 
     case StatsPeriodType.week:
-      if (isCurrent) return 'Эта неделя';
+      if (isCurrent) return 'stats.this_week'.tr();
       final s = range.start;
       final e = range.end;
-      if (s.month == e.month) {
-        return '${s.day}–${e.day} ${_monthsGenitive[s.month - 1]}';
-      } else if (s.year == e.year) {
-        return '${s.day} ${_monthsGenitive[s.month - 1]} – '
-            '${e.day} ${_monthsGenitive[e.month - 1]}';
-      }
-      return '${s.day} ${_monthsGenitive[s.month - 1]} ${s.year} – '
-          '${e.day} ${_monthsGenitive[e.month - 1]} ${e.year}';
+      return '${DateFormat("d MMM").format(s)} – ${DateFormat("d MMM yyyy").format(e)}';
 
     case StatsPeriodType.month:
-      if (isCurrent) return 'Этот месяц';
-      return '${_monthsNominative[range.start.month - 1]} ${range.start.year}';
+      if (isCurrent) return 'stats.this_month'.tr();
+      return DateFormat('MMMM yyyy').format(range.start);
 
     case StatsPeriodType.year:
-      if (isCurrent) return 'Этот год';
+      if (isCurrent) return 'stats.this_year'.tr();
       return '${range.start.year}';
   }
 }

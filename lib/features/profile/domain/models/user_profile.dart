@@ -8,7 +8,7 @@ part 'user_profile.g.dart';
 class UserProfile {
   Id id = 0;
 
-  String name = 'Пользователь';
+  String name = 'User';
 
   /// Путь к файлу аватара на диске (та же папка, что и фото записей).
   String? avatarPath;

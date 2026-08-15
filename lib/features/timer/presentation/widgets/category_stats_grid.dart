@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -48,7 +49,7 @@ class CategoryStatsGrid extends ConsumerWidget {
         height: 100,
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (e, _) => Text('Ошибка: $e'),
+      error: (e, _) => Text('${"common.error".tr()}: $e'),
     );
   }
 }

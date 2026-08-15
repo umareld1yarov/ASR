@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class NewActivityForm extends StatelessWidget {
@@ -16,9 +17,9 @@ class NewActivityForm extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      const Text(
-        'НОВАЯ АКТИВНОСТЬ',
-        style: TextStyle(
+      Text(
+        'timer.new_activity_title'.tr(),
+        style: const TextStyle(
           color: Colors.white54,
           fontSize: 12,
           fontWeight: FontWeight.w700,
@@ -34,7 +35,7 @@ class NewActivityForm extends StatelessWidget {
         onSubmitted: (_) => onStart(),
         style: const TextStyle(color: Colors.white, fontSize: 16),
         decoration: InputDecoration(
-          hintText: 'Например, математика',
+          hintText: 'timer.example_math'.tr(),
           hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
           counterStyle: TextStyle(color: Colors.white.withValues(alpha: 0.35)),
           filled: true,
@@ -54,7 +55,7 @@ class NewActivityForm extends StatelessWidget {
           minimumSize: const Size.fromHeight(52),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
-        child: const Text('Начать →', style: TextStyle(fontWeight: FontWeight.w700)),
+        child: Text('timer.start_button'.tr(), style: const TextStyle(fontWeight: FontWeight.w700)),
       ),
     ],
   );

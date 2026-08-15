@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -11,9 +12,6 @@ import '../../application/feed_provider.dart';
 import '../../data/photo_service.dart';
 import 'photo_viewer_screen.dart';
 
-/// Полноэкранная страница деталей записи. Саму запись удалить нельзя —
-/// журнал непрерывный, можно только редактировать название/категорию,
-/// управлять прикреплёнными фото и оставлять заметку.
 class EntryDetailScreen extends ConsumerStatefulWidget {
   const EntryDetailScreen({super.key, required this.entry});
 
@@ -102,9 +100,9 @@ class _EntryDetailScreenState extends ConsumerState<EntryDetailScreen> {
     if (!mounted) return;
     setState(() => _isEditingNote = false);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Сохранено'),
-        duration: Duration(seconds: 1),
+      SnackBar(
+        content: Text('common.saved'.tr()),
+        duration: const Duration(seconds: 1),
       ),
     );
   }
@@ -140,9 +138,9 @@ class _EntryDetailScreenState extends ConsumerState<EntryDetailScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.photo_camera, color: Colors.white70),
-              title: const Text(
-                'Камера',
-                style: TextStyle(color: Colors.white),
+              title: Text(
+                'common.camera'.tr(),
+                style: const TextStyle(color: Colors.white),
               ),
               onTap: () {
                 Navigator.of(ctx).pop();
@@ -151,9 +149,9 @@ class _EntryDetailScreenState extends ConsumerState<EntryDetailScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library, color: Colors.white70),
-              title: const Text(
-                'Галерея',
-                style: TextStyle(color: Colors.white),
+              title: Text(
+                'common.gallery'.tr(),
+                style: const TextStyle(color: Colors.white),
               ),
               onTap: () {
                 Navigator.of(ctx).pop();
@@ -294,7 +292,7 @@ class _EntryDetailScreenState extends ConsumerState<EntryDetailScreen> {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'Добавить фото',
+                    'timer.photo_add'.tr(),
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.5),
                       fontSize: 13,
@@ -362,9 +360,9 @@ class _EntryDetailScreenState extends ConsumerState<EntryDetailScreen> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'Заметка',
-            style: TextStyle(
+          Text(
+            'feed.note'.tr(),
+            style: const TextStyle(
               color: Colors.white54,
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -379,7 +377,7 @@ class _EntryDetailScreenState extends ConsumerState<EntryDetailScreen> {
             minLines: 2,
             style: const TextStyle(color: Colors.white, fontSize: 14),
             decoration: InputDecoration(
-              hintText: 'Например: 4 подхода по 12, дочитал до стр. 340...',
+              hintText: 'feed.note_hint'.tr(),
               hintStyle: TextStyle(
                 color: Colors.white.withValues(alpha: 0.3),
                 fontSize: 13,
@@ -397,7 +395,7 @@ class _EntryDetailScreenState extends ConsumerState<EntryDetailScreen> {
             alignment: Alignment.centerRight,
             child: TextButton(
               onPressed: _saveNote,
-              child: const Text('Готово'),
+              child: Text('common.done'.tr()),
             ),
           ),
         ],
@@ -413,9 +411,9 @@ class _EntryDetailScreenState extends ConsumerState<EntryDetailScreen> {
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(
           children: [
-            const Text(
-              'Заметка',
-              style: TextStyle(
+            Text(
+              'feed.note'.tr(),
+              style: const TextStyle(
                 color: Colors.white54,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -424,7 +422,7 @@ class _EntryDetailScreenState extends ConsumerState<EntryDetailScreen> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                hasNote ? _noteController.text.trim() : 'Добавить заметку...',
+                hasNote ? _noteController.text.trim() : 'feed.add_note'.tr(),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -450,10 +448,10 @@ class _EntryDetailScreenState extends ConsumerState<EntryDetailScreen> {
         TextField(
           controller: _nameController,
           style: const TextStyle(color: Colors.white),
-          decoration: const InputDecoration(
-            labelText: 'Название',
-            labelStyle: TextStyle(color: Colors.white54),
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: 'feed.name_label'.tr(),
+            labelStyle: const TextStyle(color: Colors.white54),
+            border: const OutlineInputBorder(),
           ),
         ),
         const SizedBox(height: 16),
@@ -471,7 +469,7 @@ class _EntryDetailScreenState extends ConsumerState<EntryDetailScreen> {
           }).toList(),
         ),
         const SizedBox(height: 24),
-        ElevatedButton(onPressed: _save, child: const Text('Сохранить')),
+        ElevatedButton(onPressed: _save, child: Text('common.save'.tr())),
         const SizedBox(height: 24),
       ],
     );

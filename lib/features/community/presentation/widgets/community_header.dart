@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../community_theme.dart';
@@ -20,9 +21,9 @@ class CommunityHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       child: Row(
         children: [
-          const Text(
-            'Сообщество',
-            style: TextStyle(
+          Text(
+            'community.title'.tr(),
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 22,
               fontWeight: FontWeight.w700,
@@ -32,13 +33,13 @@ class CommunityHeader extends StatelessWidget {
           _HeaderAction(
             icon: Icons.group_outlined,
             badgeCount: incomingRequestsCount,
-            tooltip: 'Заявки в друзья',
+            tooltip: 'community.friend_requests'.tr(),
             onTap: onRequestsTap,
           ),
           const SizedBox(width: 8),
           _HeaderAction(
             icon: Icons.person_add_alt_1_outlined,
-            tooltip: 'Добавить друга',
+            tooltip: 'community.add_friend'.tr(),
             onTap: onAddFriendTap,
           ),
         ],

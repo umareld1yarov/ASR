@@ -1,13 +1,15 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../application/profile_provider.dart';
 
-/// "Мой путь" — пожизненная статистика в цифрах: сколько дней ASR с тобой,
-/// сколько часов, активностей, заметок и фото накопилось. Никаких категорий
-/// и процентов — это зона Статистики, здесь только масштаб пути.
 class LifetimeStatsSection extends ConsumerWidget {
   const LifetimeStatsSection({super.key});
+
+  String _daysWord(int n) {
+    return 'profile.day_count'.plural(n);
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -20,7 +22,7 @@ class LifetimeStatsSection extends ConsumerWidget {
         height: 140,
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (e, _) => Text('Ошибка: $e'),
+      error: (e, _) => Text('${"common.error".tr()}: $e'),
       data: (stats) {
         if (stats.totalActivities == 0) return const SizedBox.shrink();
 
@@ -30,8 +32,10 @@ class LifetimeStatsSection extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'ASR с тобой ${stats.daysSinceStart} '
-              '${_daysWord(stats.daysSinceStart)}',
+              'profile.days_with_asr'.tr(args: [
+                '${stats.daysSinceStart}',
+                _daysWord(stats.daysSinceStart),
+              ]),
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 16,
@@ -48,21 +52,25 @@ class LifetimeStatsSection extends ConsumerWidget {
               crossAxisSpacing: 10,
               childAspectRatio: 1.7,
               children: [
-                _JourneyStatCard(emoji: '⏱️', value: '$hours', label: 'часов'),
+                _JourneyStatCard(
+                  emoji: '⏱️',
+                  value: '$hours',
+                  label: 'common.time'.tr(),
+                ),
                 _JourneyStatCard(
                   emoji: '📋',
                   value: '${stats.totalActivities}',
-                  label: 'активностей',
+                  label: 'common.sessions'.tr(),
                 ),
                 _JourneyStatCard(
                   emoji: '📝',
                   value: '${stats.totalNotes}',
-                  label: 'заметок',
+                  label: 'feed.note'.tr(),
                 ),
                 _JourneyStatCard(
                   emoji: '📷',
                   value: '${stats.totalPhotos}',
-                  label: 'фото',
+                  label: 'common.photos'.tr(),
                 ),
               ],
             ),
@@ -71,14 +79,6 @@ class LifetimeStatsSection extends ConsumerWidget {
       },
     );
   }
-}
-
-String _daysWord(int n) {
-  if (n % 10 == 1 && n % 100 != 11) return 'день';
-  if ([2, 3, 4].contains(n % 10) && ![12, 13, 14].contains(n % 100)) {
-    return 'дня';
-  }
-  return 'дней';
 }
 
 class _JourneyStatCard extends StatelessWidget {

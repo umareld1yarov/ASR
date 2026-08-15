@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -137,11 +138,11 @@ class _CategoryStatRowState extends ConsumerState<CategoryStatRow> {
                   activitiesAsync?.when(
                         data: (items) {
                           if (items.isEmpty) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 6),
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 6),
                               child: Text(
-                                'Нет индивидуальных записей за этот период',
-                                style: TextStyle(
+                                'stats.no_custom_entries'.tr(),
+                                style: const TextStyle(
                                   fontSize: 11.5,
                                   color: Colors.white38,
                                   fontStyle: FontStyle.italic,

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,7 +6,6 @@ import '../../../../core/constants/activity_category.dart';
 import '../../../timer/application/timer_provider.dart';
 import '../../application/profile_provider.dart';
 
-/// Конструктор новой цели: категория → выбор активности → целевые часы → период.
 class AddGoalSheet extends ConsumerStatefulWidget {
   const AddGoalSheet({super.key});
 
@@ -85,9 +85,9 @@ class _AddGoalSheetState extends ConsumerState<AddGoalSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Новая цель',
-                style: TextStyle(
+              Text(
+                'profile.new_goal'.tr(),
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
@@ -102,9 +102,9 @@ class _AddGoalSheetState extends ConsumerState<AddGoalSheet> {
           const SizedBox(height: 12),
 
           // 1. Выбор категории
-          const Text(
-            '1. Категория',
-            style: TextStyle(
+          Text(
+            'profile.step_1_category'.tr(),
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: Colors.white54,
@@ -166,10 +166,9 @@ class _AddGoalSheetState extends ConsumerState<AddGoalSheet> {
 
           if (category != null) ...[
             const SizedBox(height: 16),
-            // 2. Тип цели: на всю категорию или на конкретную активность
-            const Text(
-              '2. Область цели',
-              style: TextStyle(
+            Text(
+              'profile.step_2_scope'.tr(),
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: Colors.white54,
@@ -179,13 +178,13 @@ class _AddGoalSheetState extends ConsumerState<AddGoalSheet> {
             Row(
               children: [
                 _ModeTab(
-                  label: 'Вся категория',
+                  label: 'profile.entire_category'.tr(),
                   isSelected: !_isSpecificActivity,
                   onTap: () => setState(() => _isSpecificActivity = false),
                 ),
                 const SizedBox(width: 8),
                 _ModeTab(
-                  label: 'Конкретная активность',
+                  label: 'profile.specific_activity'.tr(),
                   isSelected: _isSpecificActivity,
                   onTap: () => setState(() => _isSpecificActivity = true),
                 ),
@@ -237,8 +236,8 @@ class _AddGoalSheetState extends ConsumerState<AddGoalSheet> {
                             },
                             decoration: InputDecoration(
                               hintText: items.isNotEmpty
-                                  ? 'Или введите другое название...'
-                                  : 'Введите название (напр. Таджвид, Английский)...',
+                                  ? 'profile.or_type_custom'.tr()
+                                  : 'profile.type_custom_hint'.tr(),
                               hintStyle: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.35),
                                 fontSize: 13,
@@ -266,10 +265,9 @@ class _AddGoalSheetState extends ConsumerState<AddGoalSheet> {
           ],
 
           const SizedBox(height: 16),
-          // 3. Период цели (Неделя / Месяц)
-          const Text(
-            '3. Период',
-            style: TextStyle(
+          Text(
+            'profile.step_3_period'.tr(),
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: Colors.white54,
@@ -279,13 +277,13 @@ class _AddGoalSheetState extends ConsumerState<AddGoalSheet> {
           Row(
             children: [
               _PeriodChip(
-                label: '📅 На неделю',
+                label: 'profile.for_week'.tr(),
                 selected: _selectedPeriod == 'week',
                 onTap: () => setState(() => _selectedPeriod = 'week'),
               ),
               const SizedBox(width: 8),
               _PeriodChip(
-                label: '🗓️ На месяц',
+                label: 'profile.for_month'.tr(),
                 selected: _selectedPeriod == 'month',
                 onTap: () => setState(() => _selectedPeriod = 'month'),
               ),
@@ -293,10 +291,9 @@ class _AddGoalSheetState extends ConsumerState<AddGoalSheet> {
           ),
 
           const SizedBox(height: 16),
-          // 4. Целевое время
-          const Text(
-            '4. Целевое время (часов)',
-            style: TextStyle(
+          Text(
+            'profile.step_4_target'.tr(),
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: Colors.white54,
@@ -348,8 +345,10 @@ class _AddGoalSheetState extends ConsumerState<AddGoalSheet> {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
-              hintText: 'Введите количество часов',
-              suffixText: 'ч / ${_selectedPeriod == "week" ? "неделю" : "месяц"}',
+              hintText: 'profile.type_hours_hint'.tr(),
+              suffixText: 'profile.hours_per_period'.tr(args: [
+                _selectedPeriod == "week" ? "profile.week".tr() : "profile.month".tr(),
+              ]),
               suffixStyle: TextStyle(
                 color: Colors.white.withValues(alpha: 0.4),
               ),
@@ -373,9 +372,9 @@ class _AddGoalSheetState extends ConsumerState<AddGoalSheet> {
                 borderRadius: BorderRadius.circular(25),
               ),
             ),
-            child: const Text(
-              'Сохранить цель',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+            child: Text(
+              'profile.save_goal'.tr(),
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
             ),
           ),
         ],

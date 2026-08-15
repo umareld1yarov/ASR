@@ -284,14 +284,14 @@ class _NewActivityButton extends StatelessWidget {
   Widget build(BuildContext context) => GlassPillButton(
     onTap: onTap,
     height: 52,
-    child: const Row(
+    child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(Icons.add, color: Colors.white, size: 20),
-        SizedBox(width: 8),
+        const Icon(Icons.add, color: Colors.white, size: 20),
+        const SizedBox(width: 8),
         Text(
-          'Новая активность',
-          style: TextStyle(
+          'timer.new_activity'.tr(),
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 15,
             fontWeight: FontWeight.w600,
@@ -308,7 +308,7 @@ class _NoSuggestionsText extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(top: 20),
     child: Text(
-      'Здесь пока нет сохранённых активностей.',
+      'timer.no_saved_activities'.tr(),
       style: TextStyle(
         color: Colors.white.withValues(alpha: 0.5),
         fontSize: 14,

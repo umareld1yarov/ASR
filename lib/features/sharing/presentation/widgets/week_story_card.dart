@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/activity_category.dart';
@@ -50,7 +51,6 @@ class WeekStoryCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Верхняя шапка
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -63,13 +63,13 @@ class WeekStoryCard extends StatelessWidget {
                       color: const Color(0xFF06B6D4).withValues(alpha: 0.3),
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.auto_awesome, size: 12, color: Color(0xFF06B6D4)),
-                      SizedBox(width: 4),
+                      const Icon(Icons.auto_awesome, size: 12, color: Color(0xFF06B6D4)),
+                      const SizedBox(width: 4),
                       Text(
-                        'ИТОГИ НЕДЕЛИ',
-                        style: TextStyle(
+                        'sharing.week_summary_title'.tr(),
+                        style: const TextStyle(
                           color: Color(0xFF06B6D4),
                           fontSize: 10,
                           fontWeight: FontWeight.w800,
@@ -92,7 +92,6 @@ class WeekStoryCard extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // Главный счетчик недели
             Text(
               _formatDuration(totalSec),
               textAlign: TextAlign.center,
@@ -104,10 +103,10 @@ class WeekStoryCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 2),
-            const Text(
-              'время в зачёте за неделю',
+            Text(
+              'sharing.week_accounted_time'.tr(),
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 color: Colors.white54,
                 fontWeight: FontWeight.w500,
@@ -115,7 +114,6 @@ class WeekStoryCard extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // Главное занятие недели (если есть)
             if (topActivity != null) ...[
               Container(
                 padding: const EdgeInsets.all(14),
@@ -141,9 +139,9 @@ class WeekStoryCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Главное дело недели',
-                            style: TextStyle(fontSize: 10.5, color: Colors.white54),
+                          Text(
+                            'sharing.top_activity_week'.tr(),
+                            style: const TextStyle(fontSize: 10.5, color: Colors.white54),
                           ),
                           Text(
                             topActivity.name,
@@ -170,10 +168,9 @@ class WeekStoryCard extends StatelessWidget {
               const SizedBox(height: 20),
             ],
 
-            // Раскладка по категориям
-            const Text(
-              'Распределение по категориям',
-              style: TextStyle(
+            Text(
+              'sharing.category_distribution'.tr(),
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: Colors.white70,
@@ -183,10 +180,10 @@ class WeekStoryCard extends StatelessWidget {
 
             Expanded(
               child: activeCategories.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Text(
-                        'Нет данных за эту неделю',
-                        style: TextStyle(color: Colors.white38, fontSize: 12),
+                        'sharing.no_data_week'.tr(),
+                        style: const TextStyle(color: Colors.white38, fontSize: 12),
                       ),
                     )
                   : ListView.builder(
@@ -246,7 +243,6 @@ class WeekStoryCard extends StatelessWidget {
                     ),
             ),
 
-            // Водяной знак
             const Center(
               child: Text(
                 'ASR · Focus & Life Journal',

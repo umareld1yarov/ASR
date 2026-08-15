@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,9 +19,9 @@ class GoalsSection extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Цели',
-              style: TextStyle(
+            Text(
+              'profile.goals_title'.tr(),
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
@@ -36,11 +37,11 @@ class GoalsSection extends ConsumerWidget {
         goalsAsync.when(
           data: (goals) {
             if (goals.isEmpty) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 12),
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Text(
-                  'Пока нет целей — добавь первую',
-                  style: TextStyle(color: Colors.white38, fontSize: 13),
+                  'profile.no_goals'.tr(),
+                  style: const TextStyle(color: Colors.white38, fontSize: 13),
                 ),
               );
             }
@@ -49,7 +50,7 @@ class GoalsSection extends ConsumerWidget {
             );
           },
           loading: () => const SizedBox(height: 60),
-          error: (e, _) => Text('Ошибка: $e'),
+          error: (e, _) => Text('${"common.error".tr()}: $e'),
         ),
       ],
     );

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/activity_category.dart';
@@ -50,7 +51,6 @@ class YearStoryCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Шапка
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -63,12 +63,12 @@ class YearStoryCard extends StatelessWidget {
                       color: const Color(0xFFF59E0B).withValues(alpha: 0.4),
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Text('🏆 ', style: TextStyle(fontSize: 10)),
+                      const Text('🏆 ', style: TextStyle(fontSize: 10)),
                       Text(
-                        'ИТОГИ ГОДА',
-                        style: TextStyle(
+                        'sharing.year_summary_title'.tr(),
+                        style: const TextStyle(
                           color: Color(0xFFFBBF24),
                           fontSize: 10,
                           fontWeight: FontWeight.w800,
@@ -91,7 +91,6 @@ class YearStoryCard extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // Монументальный счетчик
             Text(
               _formatDuration(totalSec),
               textAlign: TextAlign.center,
@@ -103,10 +102,10 @@ class YearStoryCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 2),
-            const Text(
-              'полезного времени за весь год',
+            Text(
+              'sharing.year_useful_time'.tr(),
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 color: Colors.white54,
                 fontWeight: FontWeight.w500,
@@ -114,11 +113,10 @@ class YearStoryCard extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // Топ-3 сохраненных дел года
             if (topActivities.isNotEmpty) ...[
-              const Text(
-                'Главные достижения года',
-                style: TextStyle(
+              Text(
+                'sharing.year_top_achievements'.tr(),
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: Colors.white70,
@@ -176,10 +174,9 @@ class YearStoryCard extends StatelessWidget {
               const SizedBox(height: 20),
             ],
 
-            // Категории года
-            const Text(
-              'Годовое распределение',
-              style: TextStyle(
+            Text(
+              'sharing.year_distribution'.tr(),
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: Colors.white70,
@@ -238,7 +235,6 @@ class YearStoryCard extends StatelessWidget {
               ),
             ),
 
-            // Водяной знак
             const Center(
               child: Text(
                 'ASR · Focus & Life Journal',

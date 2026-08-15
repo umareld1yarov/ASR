@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,8 +8,6 @@ import 'package:image_picker/image_picker.dart';
 import '../../../feed/data/photo_service.dart';
 import '../../application/profile_provider.dart';
 
-/// Шапка профиля — аватар (тап меняет фото), имя + стрик в одной строке
-/// (тап по имени открывает редактирование), личная миссия под ними.
 class ProfileHeader extends ConsumerWidget {
   const ProfileHeader({super.key});
 
@@ -38,7 +37,7 @@ class ProfileHeader extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1F1F1F),
-        title: const Text('Имя'),
+        title: Text('profile.name'.tr()),
         content: TextField(
           controller: controller,
           autofocus: true,
@@ -48,11 +47,11 @@ class ProfileHeader extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Отмена'),
+            child: Text('common.cancel'.tr()),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(controller.text.trim()),
-            child: const Text('Сохранить'),
+            child: Text('common.save'.tr()),
           ),
         ],
       ),
@@ -73,26 +72,26 @@ class ProfileHeader extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1F1F1F),
-        title: const Text('Личная миссия'),
+        title: Text('profile.mission_title'.tr()),
         content: TextField(
           controller: controller,
           autofocus: true,
           maxLength: 60,
           style: const TextStyle(color: Colors.white),
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            hintText: 'Например: Стать тем, кем я хочу быть',
-            hintStyle: TextStyle(color: Colors.white38),
+          decoration: InputDecoration(
+            border: const OutlineInputBorder(),
+            hintText: 'profile.mission_hint'.tr(),
+            hintStyle: const TextStyle(color: Colors.white38),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Отмена'),
+            child: Text('common.cancel'.tr()),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(controller.text.trim()),
-            child: const Text('Сохранить'),
+            child: Text('common.save'.tr()),
           ),
         ],
       ),
@@ -168,7 +167,7 @@ class ProfileHeader extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Text(
                   (profile.missionStatement ?? '').isEmpty
-                      ? 'Добавь личную миссию…'
+                      ? 'profile.add_mission'.tr()
                       : profile.missionStatement!,
                   textAlign: TextAlign.center,
                   maxLines: 2,
@@ -187,7 +186,7 @@ class ProfileHeader extends ConsumerWidget {
         );
       },
       loading: () => const SizedBox(height: 120),
-      error: (e, _) => Text('Ошибка: $e'),
+      error: (e, _) => Text('${"common.error".tr()}: $e'),
     );
   }
 }

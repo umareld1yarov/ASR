@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,9 +6,7 @@ import '../../../../core/constants/activity_category.dart';
 import '../../application/timer_provider.dart';
 import '../../domain/focus_review_obstacles.dart';
 
-/// Шторка рефлексии после сессии в категориях с включённым Focus Review
-/// (Работа, Развитие, Спорт, Религия). Показывается ПЕРЕД переключением
-/// на новую активность — само переключение происходит из этой шторки.
+/// Шторка рефлексии после сессии в категориях с включённым Focus Review.
 class FocusReviewSheet extends ConsumerStatefulWidget {
   const FocusReviewSheet({
     super.key,
@@ -99,7 +98,7 @@ class _FocusReviewSheetState extends ConsumerState<FocusReviewSheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Как прошло: ${widget.previousActivityName}?',
+            'timer.how_was_it'.tr(args: [widget.previousActivityName]),
             style: const TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
@@ -109,45 +108,43 @@ class _FocusReviewSheetState extends ConsumerState<FocusReviewSheet> {
           ),
           const SizedBox(height: 20),
 
-          // ── Кнопки настроения ──
           Row(
             children: [
               _MoodButton(
                 emoji: '🔥',
-                label: 'Огонь',
+                label: 'timer.fire_mood'.tr(),
                 selected: _mood == 'fire',
                 onTap: () => setState(() => _mood = 'fire'),
               ),
               const SizedBox(width: 8),
               _MoodButton(
                 emoji: '👍',
-                label: 'Хорошо',
+                label: 'timer.good_mood'.tr(),
                 selected: _mood == 'good',
                 onTap: () => setState(() => _mood = 'good'),
               ),
               const SizedBox(width: 8),
               _MoodButton(
                 emoji: '😐',
-                label: 'Так себе',
+                label: 'timer.so_so_mood'.tr(),
                 selected: _mood == 'meh',
                 onTap: () => setState(() => _mood = 'meh'),
               ),
               const SizedBox(width: 8),
               _MoodButton(
                 emoji: '😞',
-                label: 'Провал',
+                label: 'timer.fail_mood'.tr(),
                 selected: _mood == 'bad',
                 onTap: () => setState(() => _mood = 'bad'),
               ),
             ],
           ),
 
-          // ── Теги "что помешало" — только для meh/bad ──
           if (_needsObstacles) ...[
             const SizedBox(height: 20),
-            const Text(
-              'Что помешало?',
-              style: TextStyle(color: Colors.white70, fontSize: 14),
+            Text(
+              'timer.what_hindered'.tr(),
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
             ),
             const SizedBox(height: 10),
             Wrap(
@@ -172,18 +169,17 @@ class _FocusReviewSheetState extends ConsumerState<FocusReviewSheet> {
             ),
           ],
 
-          // ── Следующий эксперимент — только для bad ──
           if (_needsExperiment) ...[
             const SizedBox(height: 20),
-            const Text(
-              'Что попробуешь в следующий раз?',
-              style: TextStyle(color: Colors.white70, fontSize: 14),
+            Text(
+              'timer.next_experiment_question'.tr(),
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _experimentController,
               decoration: InputDecoration(
-                hintText: 'Необязательно...',
+                hintText: 'common.optional'.tr(),
                 filled: true,
                 fillColor: const Color(0xFF1F1F1F),
                 border: OutlineInputBorder(
@@ -201,7 +197,7 @@ class _FocusReviewSheetState extends ConsumerState<FocusReviewSheet> {
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 14),
             ),
-            child: const Text('Готово →'),
+            child: Text('timer.done_arrow'.tr()),
           ),
         ],
       ),

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,12 +17,6 @@ import 'find_friends_screen.dart';
 import 'friend_profile_screen.dart';
 import 'friend_requests_screen.dart';
 
-/// Флагманский экран Сообщества.
-/// Показывает:
-/// 1. Верхний заголовок с уведомлениями и добавлением в друзья.
-/// 2. Карусель аватаров друзей "В фокусе прямо сейчас".
-/// 3. Плашку собственного статуса и настроек приватности.
-/// 4. Список карточек друзей с тихими эмодзи-реакциями поддержки (🔥 🤲 👏 💪).
 class CommunityScreen extends ConsumerWidget {
   const CommunityScreen({super.key});
 
@@ -77,21 +72,19 @@ class CommunityScreen extends ConsumerWidget {
                 ),
                 error: (_, _) => Center(
                   child: Text(
-                    'Не удалось загрузить список друзей',
+                    'common.error'.tr(),
                     style: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
                   ),
                 ),
                 data: (friendships) => ListView(
                   padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
                   children: [
-                    // Карусель друзей в прямом эфире фокуса (если есть)
                     LiveFocusBar(
                       friendships: friendships,
                       onFriendTap: openFriend,
                     ),
                     const SizedBox(height: 12),
 
-                    // Собственный статус и настройки приватности
                     MyActivityPreviewCard(
                       visibleFriendsCount: friendships
                           .where(
@@ -104,7 +97,6 @@ class CommunityScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 18),
 
-                    // Список активности друзей или пустое состояние
                     if (friendships.isEmpty)
                       EmptyFriendsState(onAddFriendTap: openAddFriend)
                     else

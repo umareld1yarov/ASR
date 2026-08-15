@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,10 +6,12 @@ import '../../application/profile_provider.dart';
 import '../screens/journey_screen.dart';
 import '../screens/records_screen.dart';
 
-/// Две тизер-плитки рядом — "Рекорды" и "Мой путь". Только иконка и короткая
-/// подпись, тап открывает соответствующий полный экран.
 class TeaserTilesRow extends ConsumerWidget {
   const TeaserTilesRow({super.key});
+
+  String _daysWord(int n) {
+    return 'profile.day_count'.plural(n);
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,10 +34,10 @@ class TeaserTilesRow extends ConsumerWidget {
         Expanded(
           child: _TeaserTile(
             emoji: '🏆',
-            title: 'Личные рекорды',
+            title: 'profile.longest_streak'.tr(),
             subtitle: recordsCount > 0
-                ? '$recordsCount ${_achievementsWord(recordsCount)} →'
-                : 'Смотреть →',
+                ? 'profile.achievements_count'.plural(recordsCount, args: ['$recordsCount'])
+                : 'profile.watch_arrow'.tr(),
             onTap: () => Navigator.of(
               context,
             ).push(MaterialPageRoute(builder: (_) => const RecordsScreen())),
@@ -44,10 +47,10 @@ class TeaserTilesRow extends ConsumerWidget {
         Expanded(
           child: _TeaserTile(
             emoji: '📖',
-            title: 'Мой путь',
+            title: 'profile.my_journey'.tr(),
             subtitle: daysWithApp > 0
-                ? '$daysWithApp ${_daysWord(daysWithApp)} с тобой →'
-                : 'Смотреть →',
+                ? 'profile.with_you_arrow'.tr(args: ['$daysWithApp', _daysWord(daysWithApp)])
+                : 'profile.watch_arrow'.tr(),
             onTap: () => Navigator.of(
               context,
             ).push(MaterialPageRoute(builder: (_) => const JourneyScreen())),
@@ -55,22 +58,6 @@ class TeaserTilesRow extends ConsumerWidget {
         ),
       ],
     );
-  }
-
-  String _daysWord(int n) {
-    if (n % 10 == 1 && n % 100 != 11) return 'дней';
-    if ([2, 3, 4].contains(n % 10) && ![12, 13, 14].contains(n % 100)) {
-      return 'дней';
-    }
-    return 'дней';
-  }
-
-  String _achievementsWord(int n) {
-    if (n % 10 == 1 && n % 100 != 11) return 'достижение';
-    if ([2, 3, 4].contains(n % 10) && ![12, 13, 14].contains(n % 100)) {
-      return 'достижения';
-    }
-    return 'достижений';
   }
 }
 

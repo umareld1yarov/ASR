@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,8 +6,6 @@ import '../../application/profile_provider.dart';
 import '../screens/goals_screen.dart';
 import 'goal_mini_card.dart';
 
-/// Превью целей на главном экране Профиля — макс 3 компактные карточки
-/// + ссылка "Все →" на полный экран управления целями.
 class GoalsPreviewSection extends ConsumerWidget {
   const GoalsPreviewSection({super.key});
 
@@ -20,9 +19,9 @@ class GoalsPreviewSection extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Цели',
-              style: TextStyle(
+            Text(
+              'profile.goals_title'.tr(),
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
@@ -32,9 +31,9 @@ class GoalsPreviewSection extends ConsumerWidget {
               onTap: () => Navigator.of(
                 context,
               ).push(MaterialPageRoute(builder: (_) => const GoalsScreen())),
-              child: const Text(
-                'Все →',
-                style: TextStyle(fontSize: 13, color: Colors.white54),
+              child: Text(
+                'profile.all_arrow'.tr(),
+                style: const TextStyle(fontSize: 13, color: Colors.white54),
               ),
             ),
           ],
@@ -44,18 +43,18 @@ class GoalsPreviewSection extends ConsumerWidget {
           skipLoadingOnReload: true,
           skipLoadingOnRefresh: true,
           loading: () => const SizedBox(height: 60),
-          error: (e, _) => Text('Ошибка: $e'),
+          error: (e, _) => Text('${"common.error".tr()}: $e'),
           data: (goals) {
             if (goals.isEmpty) {
               return GestureDetector(
                 onTap: () => Navigator.of(
                   context,
                 ).push(MaterialPageRoute(builder: (_) => const GoalsScreen())),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                   child: Text(
-                    'Пока нет целей — добавь первую',
-                    style: TextStyle(color: Colors.white38, fontSize: 13),
+                    'profile.no_goals'.tr(),
+                    style: const TextStyle(color: Colors.white38, fontSize: 13),
                   ),
                 ),
               );

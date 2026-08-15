@@ -1,11 +1,8 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
-/// Полноэкранный просмотр фото записи — перелистывание свайпом,
-/// приближение жестом, счётчик "N / M" сверху.
-/// Удаление доступно только отсюда (с подтверждением) — намеренно,
-/// чтобы фото не терялось случайным тапом.
 class PhotoViewerScreen extends StatefulWidget {
   const PhotoViewerScreen({
     super.key,
@@ -17,7 +14,6 @@ class PhotoViewerScreen extends StatefulWidget {
   final List<String> photoPaths;
   final int initialIndex;
 
-  /// Вызывается при подтверждённом удалении с путём удалённого фото.
   final Future<void> Function(String path)? onDelete;
 
   @override
@@ -48,16 +44,16 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1F1F1F),
-        title: const Text('Удалить фото?'),
-        content: const Text('Это действие нельзя отменить.'),
+        title: Text('feed.delete_photo_title'.tr()),
+        content: Text('feed.cannot_undo'.tr()),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Отмена'),
+            child: Text('common.cancel'.tr()),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Удалить', style: TextStyle(color: Colors.red)),
+            child: Text('common.delete'.tr(), style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),

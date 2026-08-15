@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -34,7 +35,7 @@ class MemoriesScreen extends ConsumerWidget {
         child: SafeArea(
           child: entriesAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('Ошибка: $e')),
+            error: (e, _) => Center(child: Text('${"common.error".tr()}: $e')),
             data: (entries) {
               final photos = <_MemoryPhoto>[
                 for (final e in entries)
@@ -61,9 +62,9 @@ class MemoriesScreen extends ConsumerWidget {
                             color: Colors.white,
                           ),
                         ),
-                        const Text(
-                          'Воспоминания',
-                          style: TextStyle(
+                        Text(
+                          'profile.memories_title'.tr(),
+                          style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w800,
                             color: Colors.white,
@@ -74,10 +75,10 @@ class MemoriesScreen extends ConsumerWidget {
                     const SizedBox(height: 8),
                     Expanded(
                       child: photos.isEmpty
-                          ? const Center(
+                          ? Center(
                               child: Text(
-                                'Пока нет фото — добавь их к записям в Ленте',
-                                style: TextStyle(color: Colors.white38),
+                                'profile.no_memories'.tr(),
+                                style: const TextStyle(color: Colors.white38),
                                 textAlign: TextAlign.center,
                               ),
                             )

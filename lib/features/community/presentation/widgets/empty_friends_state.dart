@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../community_theme.dart';
@@ -25,9 +26,9 @@ class EmptyFriendsState extends StatelessWidget {
             color: Colors.white.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Пока нет друзей',
-            style: TextStyle(
+          Text(
+            'community.no_friends_title'.tr(),
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -35,7 +36,7 @@ class EmptyFriendsState extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Добавьте друга по username, чтобы видеть, чем он занят сейчас.',
+            'community.no_friends_desc'.tr(),
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.white.withValues(alpha: 0.45)),
           ),
@@ -43,7 +44,7 @@ class EmptyFriendsState extends StatelessWidget {
           TextButton.icon(
             onPressed: onAddFriendTap,
             icon: const Icon(Icons.person_add_alt_1, size: 18),
-            label: const Text('Добавить друга'),
+            label: Text('community.add_friend'.tr()),
             style: TextButton.styleFrom(
               foregroundColor: CommunityTheme.accentColor,
             ),

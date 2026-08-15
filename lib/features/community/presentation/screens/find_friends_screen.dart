@@ -1,4 +1,5 @@
 import 'package:asr/features/community/community_theme.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,7 +7,6 @@ import '../../../../shared/widgets/app_background.dart';
 import '../../application/community_provider.dart';
 import '../widgets/user_tile.dart';
 
-/// Экран поиска пользователей по username и отправки заявок в друзья.
 class FindFriendsScreen extends ConsumerStatefulWidget {
   const FindFriendsScreen({super.key});
 
@@ -47,7 +47,7 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
                       autofocus: true,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
-                        hintText: 'Введите @username',
+                        hintText: 'community.enter_username_hint'.tr(),
                         hintStyle: TextStyle(
                           color: Colors.white.withValues(alpha: 0.3),
                         ),
@@ -72,7 +72,7 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
               child: _query.isEmpty
                   ? Center(
                       child: Text(
-                        'Введите username друга',
+                        'community.enter_username_prompt'.tr(),
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.35),
                         ),
@@ -86,7 +86,7 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
                       ),
                       error: (e, _) => Center(
                         child: Text(
-                          'Ошибка поиска',
+                          'community.search_error'.tr(),
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.4),
                           ),
@@ -95,7 +95,7 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
                       data: (users) => users.isEmpty
                           ? Center(
                               child: Text(
-                                'Никого не найдено',
+                                'community.no_users_found'.tr(),
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.35),
                                 ),

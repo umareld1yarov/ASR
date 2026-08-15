@@ -8,8 +8,6 @@ import '../../../../shared/widgets/app_background.dart';
 import '../../application/milestones_provider.dart';
 import '../../application/profile_provider.dart';
 
-/// Флагманский экран «Мой путь & Личные рекорды» — интеграция личной
-/// хронологии, рекордов с возможностью экспорта в Сторис и вех развития.
 class JourneyRecordsScreen extends ConsumerWidget {
   const JourneyRecordsScreen({super.key});
 
@@ -27,11 +25,7 @@ class JourneyRecordsScreen extends ConsumerWidget {
   }
 
   String _daysWord(int n) {
-    if (n % 10 == 1 && n % 100 != 11) return 'день';
-    if ([2, 3, 4].contains(n % 10) && ![12, 13, 14].contains(n % 100)) {
-      return 'дня';
-    }
-    return 'дней';
+    return 'profile.day_count'.plural(n);
   }
 
   @override
@@ -49,7 +43,6 @@ class JourneyRecordsScreen extends ConsumerWidget {
         child: SafeArea(
           child: Column(
             children: [
-              // Навигационная панель
               Padding(
                 padding: const EdgeInsets.fromLTRB(12, 12, 16, 8),
                 child: Row(
@@ -58,10 +51,10 @@ class JourneyRecordsScreen extends ConsumerWidget {
                       onPressed: () => Navigator.of(context).pop(),
                       icon: const Icon(Icons.arrow_back, color: Colors.white),
                     ),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        'Мой путь & Рекорды',
-                        style: TextStyle(
+                        'profile.journey_records'.tr(),
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
@@ -104,7 +97,6 @@ class JourneyRecordsScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // ── СЕКЦИЯ 1: МАШТАБ ПУТИ ─────────────────────────────
                       journeyAsync.when(
                         data: (stats) {
                           final hours = stats.totalSeconds ~/ 3600;
@@ -127,7 +119,7 @@ class JourneyRecordsScreen extends ConsumerWidget {
                                 child: Column(
                                   children: [
                                     Text(
-                                      'ASR с Вами ${stats.daysSinceStart} ${_daysWord(stats.daysSinceStart)}',
+                                      'profile.days_with_asr'.tr(args: ['${stats.daysSinceStart}', _daysWord(stats.daysSinceStart)]),
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w800,
@@ -140,25 +132,25 @@ class JourneyRecordsScreen extends ConsumerWidget {
                                         _StatPill(
                                           emoji: '⏱️',
                                           value: '$hoursч',
-                                          label: 'времени',
+                                          label: 'common.time'.tr(),
                                         ),
                                         const SizedBox(width: 8),
                                         _StatPill(
                                           emoji: '📋',
                                           value: '${stats.totalActivities}',
-                                          label: 'сессий',
+                                          label: 'common.sessions'.tr(),
                                         ),
                                         const SizedBox(width: 8),
                                         _StatPill(
                                           emoji: '📝',
                                           value: '${stats.totalNotes}',
-                                          label: 'заметок',
+                                          label: 'feed.note'.tr(),
                                         ),
                                         const SizedBox(width: 8),
                                         _StatPill(
                                           emoji: '📷',
                                           value: '${stats.totalPhotos}',
-                                          label: 'фото',
+                                          label: 'common.photos'.tr(),
                                         ),
                                       ],
                                     ),
@@ -166,7 +158,6 @@ class JourneyRecordsScreen extends ConsumerWidget {
                                 ),
                               ),
                               const SizedBox(height: 12),
-                              // Метафора времени
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 14,
@@ -211,7 +202,6 @@ class JourneyRecordsScreen extends ConsumerWidget {
 
                       const SizedBox(height: 24),
 
-                      // ── СЕКЦИЯ 2: 🏆 ЛИЧНЫЕ РЕКОРДЫ С КНОПКОЙ ШЕРИНГА ─────
                       Row(
                         children: [
                           Text(
@@ -299,19 +289,18 @@ class JourneyRecordsScreen extends ConsumerWidget {
 
                       const SizedBox(height: 24),
 
-                      // ── СЕКЦИЯ 3: 🏅 ВЕХИ РАЗВИТИЯ (MILESTONES) ─────────────
-                      const Text(
-                        '🏅 Вехи развития',
-                        style: TextStyle(
+                      Text(
+                        'milestones.title'.tr(),
+                        style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
                         ),
                       ),
                       const SizedBox(height: 4),
-                      const Text(
-                        'Достижения разблокируются автоматически по мере вашего продвижения',
-                        style: TextStyle(fontSize: 12, color: Colors.white54),
+                      Text(
+                        'milestones.subtitle'.tr(),
+                        style: const TextStyle(fontSize: 12, color: Colors.white54),
                       ),
                       const SizedBox(height: 12),
 
@@ -384,7 +373,7 @@ class JourneyRecordsScreen extends ConsumerWidget {
                                               ),
                                               Text(
                                                 m.isUnlocked
-                                                    ? '✅ Разблокировано'
+                                                    ? 'milestones.unlocked'.tr()
                                                     : '${m.currentProgress}/${m.target} ${m.unit}',
                                                 style: TextStyle(
                                                   fontSize: 11,
@@ -434,7 +423,7 @@ class JourneyRecordsScreen extends ConsumerWidget {
                           ),
                         ),
                         error: (e, _) => Text(
-                          'Ошибка вех: $e',
+                          'milestones.error'.tr(args: ['$e']),
                           style: const TextStyle(color: Colors.white54),
                         ),
                       ),

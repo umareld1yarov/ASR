@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/activity_category.dart';
@@ -51,7 +52,6 @@ class MonthStoryCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Шапка
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -64,12 +64,12 @@ class MonthStoryCard extends StatelessWidget {
                       color: const Color(0xFF6366F1).withValues(alpha: 0.4),
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Text('🗓️ ', style: TextStyle(fontSize: 10)),
+                      const Text('🗓️ ', style: TextStyle(fontSize: 10)),
                       Text(
-                        'ИТОГИ МЕСЯЦА',
-                        style: TextStyle(
+                        'sharing.month_summary_title'.tr(),
+                        style: const TextStyle(
                           color: Color(0xFFA5B4FC),
                           fontSize: 10,
                           fontWeight: FontWeight.w800,
@@ -92,7 +92,6 @@ class MonthStoryCard extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Месячный счетчик
             Text(
               _formatDuration(totalSec),
               textAlign: TextAlign.center,
@@ -104,10 +103,10 @@ class MonthStoryCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 2),
-            const Text(
-              'накоплено фокуса за месяц',
+            Text(
+              'sharing.month_accumulated_time'.tr(),
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 color: Colors.white54,
                 fontWeight: FontWeight.w500,
@@ -115,11 +114,10 @@ class MonthStoryCard extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Топ-3 сохраненных дел месяца
             if (topActivities.isNotEmpty) ...[
-              const Text(
-                'Топ-3 дел месяца',
-                style: TextStyle(
+              Text(
+                'sharing.top_3_month'.tr(),
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: Colors.white70,
@@ -179,7 +177,6 @@ class MonthStoryCard extends StatelessWidget {
               const SizedBox(height: 16),
             ],
 
-            // Плашка лучшего дня
             if (data.bestDaySeconds != null && data.bestDaySeconds! > 0) ...[
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -193,13 +190,13 @@ class MonthStoryCard extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Icon(Icons.bolt, color: Color(0xFF22C55E), size: 16),
-                        SizedBox(width: 6),
+                        const Icon(Icons.bolt, color: Color(0xFF22C55E), size: 16),
+                        const SizedBox(width: 6),
                         Text(
-                          'Пиковый день месяца',
-                          style: TextStyle(
+                          'sharing.peak_day_month'.tr(),
+                          style: const TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
@@ -221,7 +218,6 @@ class MonthStoryCard extends StatelessWidget {
               const SizedBox(height: 16),
             ],
 
-            // Категории
             Expanded(
               child: ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
@@ -261,7 +257,6 @@ class MonthStoryCard extends StatelessWidget {
               ),
             ),
 
-            // Водяной знак
             const Center(
               child: Text(
                 'ASR · Focus & Life Journal',

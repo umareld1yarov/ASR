@@ -1,12 +1,10 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/activity_category.dart';
 
-/// Compact live-activity layout shared by the user's preview and friend cards.
-/// A title is intentionally allowed to wrap: the input limit (50 characters)
-/// belongs to the product, not to the layout.
 class ActivityStatusPill extends StatelessWidget {
   const ActivityStatusPill({
     super.key,
@@ -119,7 +117,7 @@ class _ElapsedTimeState extends State<_ElapsedTime> {
     final startedAt = widget.startedAt;
     if (startedAt == null) {
       return Text(
-        'Сейчас',
+        'community.now_status'.tr(),
         style: TextStyle(color: widget.color, fontSize: 14, fontWeight: FontWeight.w500),
       );
     }
@@ -134,7 +132,7 @@ class _ElapsedTimeState extends State<_ElapsedTime> {
         '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
 
     return Text(
-      'Идёт $formatted',
+      'community.ongoing_duration'.tr(args: [formatted]),
       style: TextStyle(color: widget.color, fontSize: 14, fontWeight: FontWeight.w500),
     );
   }

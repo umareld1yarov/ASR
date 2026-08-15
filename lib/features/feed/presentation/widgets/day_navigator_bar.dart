@@ -1,37 +1,23 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../application/feed_provider.dart';
 
-/// Панель навигации ← дата → над лентой.
-/// Аналог .calendar-nav из index.html (PWA).
 class DayNavigatorBar extends ConsumerWidget {
   const DayNavigatorBar({super.key});
 
-  String _label(DateTime date) {
-    const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-    const months = [
-      'янв',
-      'фев',
-      'мар',
-      'апр',
-      'май',
-      'июн',
-      'июл',
-      'авг',
-      'сен',
-      'окт',
-      'ноя',
-      'дек',
-    ];
+  String _label(BuildContext context, DateTime date) {
+    final localeStr = context.locale.toString();
+    final dayName = DateFormat('E', localeStr).format(date);
+    final monthName = DateFormat('MMM', localeStr).format(date);
     final today = DateTime.now();
     final isToday =
         date.year == today.year &&
         date.month == today.month &&
         date.day == today.day;
-    final base =
-        '${days[date.weekday - 1]}, ${date.day} ${months[date.month - 1]}';
-    return isToday ? '$base (сегодня)' : base;
+    final base = '$dayName, ${date.day} $monthName';
+    return isToday ? '$base (${"feed.today".tr().toLowerCase()})' : base;
   }
 
   @override
@@ -60,7 +46,7 @@ class DayNavigatorBar extends ConsumerWidget {
           onPressed: isAtEarliest ? null : controller.goToPreviousDay,
         ),
         Text(
-          _label(selectedDate),
+          _label(context, selectedDate),
           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
         IconButton(

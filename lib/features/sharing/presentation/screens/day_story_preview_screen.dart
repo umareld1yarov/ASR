@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -87,11 +88,11 @@ class _DayStoryPreviewScreenState
                     onPressed: () => Navigator.of(context).pop(),
                     icon: const Icon(Icons.close, color: Colors.white),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Поделиться в Сторис',
+                      'sharing.story_preview_title'.tr(),
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -112,19 +113,19 @@ class _DayStoryPreviewScreenState
                   child: Row(
                     children: [
                       _ThemeChip(
-                        label: '📖 Дневник',
+                        label: 'sharing.theme_journal'.tr(),
                         isSelected: selection.theme == DayStoryTheme.journal,
                         onTap: () => controller.setTheme(DayStoryTheme.journal),
                       ),
                       const SizedBox(width: 8),
                       _ThemeChip(
-                        label: '⚡ Тёмный фокус',
+                        label: 'sharing.theme_dark_focus'.tr(),
                         isSelected: selection.theme == DayStoryTheme.darkFocus,
                         onTap: () => controller.setTheme(DayStoryTheme.darkFocus),
                       ),
                       const SizedBox(width: 8),
                       _ThemeChip(
-                        label: '✨ Минимализм',
+                        label: 'sharing.theme_minimal'.tr(),
                         isSelected: selection.theme == DayStoryTheme.minimalQuote,
                         onTap: () => controller.setTheme(DayStoryTheme.minimalQuote),
                       ),
@@ -139,14 +140,14 @@ class _DayStoryPreviewScreenState
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _ToggleFilterChip(
-                      label: 'Статистика',
+                      label: 'nav.stats'.tr(),
                       icon: Icons.bar_chart_outlined,
                       isActive: selection.showStats,
                       onTap: controller.toggleShowStats,
                     ),
                     const SizedBox(width: 10),
                     _ToggleFilterChip(
-                      label: 'Заметки',
+                      label: 'feed.note'.tr(),
                       icon: Icons.edit_note,
                       isActive: selection.showNotes,
                       onTap: controller.toggleShowNotes,
@@ -196,7 +197,7 @@ class _DayStoryPreviewScreenState
                         )
                       : const Icon(Icons.ios_share, size: 20),
                   label: Text(
-                    _isSharing ? 'Готовим открытку...' : 'Поделиться в Сторис (9:16)',
+                    _isSharing ? 'sharing.preparing_story'.tr() : 'sharing.share_story'.tr(),
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -230,7 +231,7 @@ class _DayStoryPreviewScreenState
         height: 640,
         child: Center(
           child: Text(
-            'Ошибка загрузки данных: $e',
+            '${"common.error".tr()}: $e',
             style: const TextStyle(color: Colors.white54),
           ),
         ),

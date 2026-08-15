@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import 'language_selector_sheet.dart';
 
-/// Настройки — выбор языка приложения и справочная информация.
 class SettingsSection extends StatelessWidget {
   const SettingsSection({super.key});
 
@@ -21,14 +20,13 @@ class SettingsSection extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1F1F1F),
-        title: const Text(
-          'О приложении',
-          style: TextStyle(color: Colors.white),
+        title: Text(
+          'profile.about_title'.tr(),
+          style: const TextStyle(color: Colors.white),
         ),
-        content: const Text(
-          'ASR — трекер активности и времени, который помогает не терять время '
-          'впустую, видеть свой путь и честно понимать, на что уходят дни.',
-          style: TextStyle(color: Colors.white70, height: 1.4),
+        content: Text(
+          'profile.about_desc'.tr(),
+          style: const TextStyle(color: Colors.white70, height: 1.4),
         ),
         actions: [
           TextButton(
@@ -85,19 +83,19 @@ class SettingsSection extends StatelessWidget {
               const Divider(color: Colors.white12, height: 1),
               _SettingsTile(
                 icon: Icons.info_outline,
-                label: 'О приложении',
+                label: 'profile.about_title'.tr(),
                 onTap: () => _showAbout(context),
               ),
               const Divider(color: Colors.white12, height: 1),
-              const _SettingsTile(
+              _SettingsTile(
                 icon: Icons.download_outlined,
-                label: 'Экспорт данных',
+                label: 'profile.export_data'.tr(),
                 comingSoon: true,
               ),
               const Divider(color: Colors.white12, height: 1),
-              const _SettingsTile(
+              _SettingsTile(
                 icon: Icons.notifications_outlined,
-                label: 'Напоминания',
+                label: 'profile.reminders'.tr(),
                 comingSoon: true,
                 isLast: true,
               ),
@@ -145,9 +143,9 @@ class _SettingsTile extends StatelessWidget {
       ),
       trailing: trailingWidget ??
           (comingSoon
-              ? const Text(
-                  'скоро',
-                  style: TextStyle(fontSize: 11.5, color: Colors.white24),
+              ? Text(
+                  'profile.coming_soon'.tr(),
+                  style: const TextStyle(fontSize: 11.5, color: Colors.white24),
                 )
               : const Icon(Icons.chevron_right, size: 18, color: Colors.white38)),
       shape: isLast

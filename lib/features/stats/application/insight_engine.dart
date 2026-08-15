@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import '../../../core/constants/activity_category.dart';
 
 /// Тон инсайта — влияет на цвет/иконку в UI.
@@ -11,7 +12,6 @@ class Insight {
   final InsightTone tone;
 }
 
-/// Категории, которые считаются "созидательными/продуктивными".
 const _productiveKeys = {
   'religion',
   'work',
@@ -22,8 +22,6 @@ const _productiveKeys = {
 };
 
 const _wasteKey = 'waste';
-
-/// Минимальный порог в секундах (10 минут)
 const _noiseThresholdSeconds = 600;
 
 String _formatDuration(int seconds) {
@@ -37,8 +35,6 @@ String _categoryLabel(String key) {
   return ActivityCategory.fromStorageKey(key).label;
 }
 
-/// Умный движок инсайтов. Генерирует НЕ очевидные факты (которые и так видны
-/// на экране), а глубокие тренды, длинные стрики и скрытую динамику.
 List<Insight> buildInsights({
   required Map<String, int> current,
   required Map<String, int> previous,
@@ -47,13 +43,11 @@ List<Insight> buildInsights({
 }) {
   final candidates = <Insight>[];
 
-  // 1. Однодневный режим (День)
   if (periodDaysCount <= 1) {
     _addDaySpecificInsights(candidates, current);
     return candidates.take(2).toList();
   }
 
-  // 2. Длинные периоды (Неделя, Месяц, Год)
   _addBalanceInsight(candidates, current);
   _addDeltaInsights(candidates, current, previous);
   _addStreakInsight(candidates, dailyByCategory);
@@ -62,52 +56,45 @@ List<Insight> buildInsights({
   return candidates.take(3).toList();
 }
 
-// ── Специальные инсайты для ДНЯ (без ложных тревог) ──
-
 void _addDaySpecificInsights(List<Insight> out, Map<String, int> current) {
   final totalSec = current.values.fold(0, (a, b) => a + b);
   if (totalSec == 0) return;
 
   final wasteTotal = current[_wasteKey] ?? 0;
 
-  // 1. Нуль потерь за день
   if (wasteTotal == 0 && totalSec >= 1800) {
     out.add(
-      const Insight(
+      Insight(
         emoji: '🌿',
-        text: 'Чистый день без единой минуты в «Потери». Отличный самоконтроль!',
+        text: 'insights.clean_day'.tr(),
         tone: InsightTone.positive,
       ),
     );
   } else if (wasteTotal >= 1800) {
-    // Высокие потери
     out.add(
       Insight(
         emoji: '⏳',
-        text: 'На Потери ушло ${_formatDuration(wasteTotal)}. Попробуйте сделать осознанную паузу.',
+        text: 'insights.waste_warning'.tr(args: [_formatDuration(wasteTotal)]),
         tone: InsightTone.warning,
       ),
     );
   }
 
-  // 2. Выдающийся продуктивный объем
   int productiveSec = 0;
   for (final k in _productiveKeys) {
     productiveSec += current[k] ?? 0;
   }
 
-  if (productiveSec >= 10800) { // ≥ 3 часов
+  if (productiveSec >= 10800) {
     out.add(
       Insight(
         emoji: '⚡',
-        text: 'Высокий день созидания: ${_formatDuration(productiveSec)} продуктивной работы!',
+        text: 'insights.high_productive_day'.tr(args: [_formatDuration(productiveSec)]),
         tone: InsightTone.positive,
       ),
     );
   }
 }
-
-// ── Баланс продуктив/потери для НЕДЕЛИ/МЕСЯЦА ──────────
 
 void _addBalanceInsight(List<Insight> out, Map<String, int> current) {
   final trackedTotal = current.values.fold(0, (a, b) => a + b);
@@ -117,28 +104,23 @@ void _addBalanceInsight(List<Insight> out, Map<String, int> current) {
   final wasteShare = wasteTotal / trackedTotal;
 
   if (wasteTotal >= _noiseThresholdSeconds && wasteShare >= 0.25) {
-    final percent = (wasteShare * 100).round();
     out.add(
       Insight(
         emoji: '⏳',
-        text:
-            '$percent% времени периода ушло в Потери (${_formatDuration(wasteTotal)}). '
-            'Попробуйте проанализировать эти моменты.',
+        text: 'insights.waste_warning'.tr(args: [_formatDuration(wasteTotal)]),
         tone: InsightTone.warning,
       ),
     );
   } else if (trackedTotal >= 3600 && wasteShare < 0.10) {
     out.add(
-      const Insight(
+      Insight(
         emoji: '🔥',
-        text: 'Высокая дисциплина периода — Потери составляют менее 10% времени!',
+        text: 'insights.discipline_high'.tr(),
         tone: InsightTone.positive,
       ),
     );
   }
 }
-
-// ── Сравнение с прошлым периодом ─────────────────────
 
 void _addDeltaInsights(
   List<Insight> out,
@@ -155,24 +137,24 @@ void _addDeltaInsights(
     }
   }
 
-  if (bestKey != null && bestDelta >= 1800) { // хотя бы +30 мин роста
+  if (bestKey != null && bestDelta >= 1800) {
     final prevValue = previous[bestKey] ?? 0;
     if (prevValue > 0) {
       final percent = ((bestDelta / prevValue) * 100).round();
       out.add(
         Insight(
           emoji: '📈',
-          text:
-              'Сфера «${_categoryLabel(bestKey)}» выросла на $percent% '
-              '(+${_formatDuration(bestDelta)}) к прошлому периоду.',
+          text: 'insights.category_growth'.tr(args: [
+            _categoryLabel(bestKey),
+            '$percent',
+            _formatDuration(bestDelta),
+          ]),
           tone: InsightTone.positive,
         ),
       );
     }
   }
 }
-
-// ── Стрики и серии ────────────────────────────────────
 
 void _addStreakInsight(
   List<Insight> out,
@@ -189,7 +171,7 @@ void _addStreakInsight(
     int streak = 0;
     for (var i = sortedDays.length - 1; i >= 0; i--) {
       final seconds = dailyByCategory[sortedDays[i]]?[category] ?? 0;
-      if (seconds >= 600) { // хотя бы 10 минут в день
+      if (seconds >= 600) {
         streak++;
       } else {
         break;
@@ -205,23 +187,15 @@ void _addStreakInsight(
     out.add(
       Insight(
         emoji: '🔥',
-        text:
-            'Серия «${_categoryLabel(bestKey)}»: $bestStreak ${_daysWord(bestStreak)} подряд!',
+        text: 'insights.streak_active'.tr(args: [
+          _categoryLabel(bestKey),
+          '$bestStreak',
+        ]),
         tone: InsightTone.positive,
       ),
     );
   }
 }
-
-String _daysWord(int n) {
-  if (n % 10 == 1 && n % 100 != 11) return 'день';
-  if ([2, 3, 4].contains(n % 10) && ![12, 13, 14].contains(n % 100)) {
-    return 'дня';
-  }
-  return 'дней';
-}
-
-// ── Заметные просадки (только для долгосрока) ─────────
 
 void _addDropOffInsight(
   List<Insight> out,
@@ -229,7 +203,6 @@ void _addDropOffInsight(
   Map<String, int> previous,
   int periodDaysCount,
 ) {
-  // На коротких отрезках (≤ 3 дней) просадки не считаем — это естественный отдых
   if (periodDaysCount <= 3) return;
 
   String? bestKey;
@@ -239,8 +212,8 @@ void _addDropOffInsight(
     final avgPrev = (previous[category] ?? 0) ~/ periodDaysCount;
     final avgCurr = (current[category] ?? 0) ~/ periodDaysCount;
 
-    final significantBefore = avgPrev >= 1200; // было ≥20 мин/день
-    final droppedHard = avgCurr <= avgPrev * 0.25; // упало на 75%+
+    final significantBefore = avgPrev >= 1200;
+    final droppedHard = avgCurr <= avgPrev * 0.25;
 
     if (significantBefore && droppedHard && avgPrev > bestAvgPrev) {
       bestAvgPrev = avgPrev;
@@ -252,9 +225,7 @@ void _addDropOffInsight(
     out.add(
       Insight(
         emoji: '📉',
-        text:
-            'Категория «${_categoryLabel(bestKey)}» просела за этот период. '
-            'В прошлом было в среднем ${_formatDuration(bestAvgPrev)}/день.',
+        text: 'insights.drop_off'.tr(args: [_categoryLabel(bestKey)]),
         tone: InsightTone.warning,
       ),
     );

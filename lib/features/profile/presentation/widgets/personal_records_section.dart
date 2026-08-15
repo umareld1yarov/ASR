@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,9 +6,6 @@ import '../../../../core/constants/activity_category.dart';
 import '../../../../core/utils/date_utils.dart' as du;
 import '../../application/profile_provider.dart';
 
-/// Личные рекорды — 4 карточки 2×2: самая длинная сессия, лучший день,
-/// рекордный стрик, рекордная серия без "Потерь". Не про категории/проценты
-/// (это Статистика) — здесь про пиковые моменты пути.
 class PersonalRecordsSection extends ConsumerWidget {
   const PersonalRecordsSection({super.key});
 
@@ -19,11 +17,7 @@ class PersonalRecordsSection extends ConsumerWidget {
   }
 
   String _daysWord(int n) {
-    if (n % 10 == 1 && n % 100 != 11) return 'день';
-    if ([2, 3, 4].contains(n % 10) && ![12, 13, 14].contains(n % 100)) {
-      return 'дня';
-    }
-    return 'дней';
+    return 'profile.day_count'.plural(n);
   }
 
   @override
@@ -37,7 +31,7 @@ class PersonalRecordsSection extends ConsumerWidget {
         height: 140,
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (e, _) => Text('Ошибка: $e'),
+      error: (e, _) => Text('${"common.error".tr()}: $e'),
       data: (records) {
         final hasAnyRecord =
             records.longestSessionSeconds != null ||
@@ -47,9 +41,9 @@ class PersonalRecordsSection extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Личные рекорды',
-              style: TextStyle(
+            Text(
+              'profile.journey_records'.tr(),
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
@@ -66,7 +60,7 @@ class PersonalRecordsSection extends ConsumerWidget {
               children: [
                 _RecordCard(
                   emoji: '⚡',
-                  title: 'Самая длинная сессия',
+                  title: 'profile.longest_session'.tr(),
                   value: records.longestSessionSeconds != null
                       ? _formatDuration(records.longestSessionSeconds!)
                       : '—',
@@ -79,7 +73,7 @@ class PersonalRecordsSection extends ConsumerWidget {
                 ),
                 _RecordCard(
                   emoji: '🏆',
-                  title: 'Лучший день',
+                  title: 'profile.best_day'.tr(),
                   value: records.bestDaySeconds != null
                       ? _formatDuration(records.bestDaySeconds!)
                       : '—',
@@ -96,14 +90,14 @@ class PersonalRecordsSection extends ConsumerWidget {
                 ),
                 _RecordCard(
                   emoji: '🔥',
-                  title: 'Рекордный стрик',
+                  title: 'profile.longest_streak'.tr(),
                   value: '${records.longestOverallStreakDays}',
                   subtitle: _daysWord(records.longestOverallStreakDays),
                   accentColor: const Color(0xFF22C55E),
                 ),
                 _RecordCard(
                   emoji: '✨',
-                  title: 'Без Потерь подряд',
+                  title: 'profile.no_waste'.tr(),
                   value: '${records.longestNoWasteStreakDays}',
                   subtitle: _daysWord(records.longestNoWasteStreakDays),
                   accentColor: const Color(0xFF06B6D4),

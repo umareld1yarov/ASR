@@ -1,8 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../application/community_provider.dart';
-import '../../community_theme.dart';
 import '../../domain/models/friendship.dart';
 import 'friend_status_card.dart';
 
@@ -18,7 +18,7 @@ class FriendsActivitySection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'ДРУЗЬЯ СЕЙЧАС',
+          'community.friends_now'.tr(),
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.4),
             fontSize: 12,

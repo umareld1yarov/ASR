@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,16 +6,11 @@ import '../../application/milestones_provider.dart';
 import '../../application/profile_provider.dart';
 import '../screens/journey_records_screen.dart';
 
-/// Единый премиум-баннер "Мой путь & Личные рекорды" на экране Профиля.
 class TeaserTilesRow extends ConsumerWidget {
   const TeaserTilesRow({super.key});
 
   String _daysWord(int n) {
-    if (n % 10 == 1 && n % 100 != 11) return 'день';
-    if ([2, 3, 4].contains(n % 10) && ![12, 13, 14].contains(n % 100)) {
-      return 'дня';
-    }
-    return 'дней';
+    return 'profile.day_count'.plural(n);
   }
 
   @override
@@ -66,9 +62,9 @@ class TeaserTilesRow extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Мой путь & Рекорды',
-                    style: TextStyle(
+                  Text(
+                    'profile.journey_records'.tr(),
+                    style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
@@ -77,8 +73,12 @@ class TeaserTilesRow extends ConsumerWidget {
                   const SizedBox(height: 3),
                   Text(
                     daysWithApp > 0
-                        ? 'ASR с Вами $daysWithApp ${_daysWord(daysWithApp)} · $totalHoursч фокуса'
-                        : 'Статистика Вашего пути и рекорды',
+                        ? 'profile.journey_subtitle'.tr(args: [
+                            '$daysWithApp',
+                            _daysWord(daysWithApp),
+                            '$totalHours',
+                          ])
+                        : 'profile.journey_desc'.tr(),
                     style: const TextStyle(
                       fontSize: 12,
                       color: Colors.white70,
@@ -96,7 +96,7 @@ class TeaserTilesRow extends ConsumerWidget {
               child: Row(
                 children: [
                   Text(
-                    '$unlockedCount вех',
+                    'profile.milestones_count'.tr(args: ['$unlockedCount']),
                     style: const TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w700,

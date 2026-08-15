@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -81,7 +82,7 @@ class _CategoryHeader extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'За сегодня',
+                  'timer.for_today'.tr(),
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.48),
                     fontSize: 13,
@@ -155,7 +156,7 @@ class _TotalDurationCard extends StatelessWidget {
           Icon(Icons.timer_outlined, color: Colors.white.withValues(alpha: 0.6)),
           const SizedBox(width: 9),
           Text(
-            'Всего за сегодня',
+            'timer.total_for_today'.tr(),
             style: TextStyle(color: Colors.white.withValues(alpha: 0.62)),
           ),
           const Spacer(),
@@ -168,7 +169,7 @@ class _TotalDurationCard extends StatelessWidget {
             ),
           ),
           Text(
-            ' · $entriesCount ${_entriesWord(entriesCount)}',
+            ' · ${'feed.entry_count'.plural(entriesCount, args: ['$entriesCount'])}',
             style: TextStyle(color: Colors.white.withValues(alpha: 0.42)),
           ),
         ],
@@ -179,17 +180,8 @@ class _TotalDurationCard extends StatelessWidget {
   String _formatDuration(int seconds) {
     final hours = seconds ~/ 3600;
     final minutes = (seconds % 3600) ~/ 60;
-    if (hours > 0) return '$hours ч $minutes мин';
-    return '$minutes мин';
-  }
-
-  String _entriesWord(int count) {
-    final lastTwoDigits = count % 100;
-    final lastDigit = count % 10;
-    if (lastTwoDigits >= 11 && lastTwoDigits <= 14) return 'записей';
-    if (lastDigit == 1) return 'запись';
-    if (lastDigit >= 2 && lastDigit <= 4) return 'записи';
-    return 'записей';
+    if (hours > 0) return '$hoursч $minutesм';
+    return '$minutesм';
   }
 }
 
@@ -209,7 +201,7 @@ class _EmptyCategoryState extends StatelessWidget {
             Text(category.emoji, style: const TextStyle(fontSize: 34)),
             const SizedBox(height: 12),
             Text(
-              'Пока нет записей',
+              'feed.no_entries'.tr(),
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 17,
@@ -218,7 +210,7 @@ class _EmptyCategoryState extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'Сегодня в категории «${category.label}» ещё нет завершённых активностей.',
+              'timer.no_entries_in_category'.tr(),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.48),
@@ -243,7 +235,7 @@ class _ErrorState extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Text(
-          'Не удалось загрузить записи\n$error',
+          '${"timer.failed_load_entries".tr()}\n$error',
           textAlign: TextAlign.center,
           style: TextStyle(color: Colors.white.withValues(alpha: 0.55)),
         ),
