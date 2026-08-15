@@ -44,6 +44,9 @@ abstract class CommunityRepository {
   /// null внутри полей означает "не разрешено видеть".
   /// Возвращает null целиком, если друг сейчас не в сети / нет активности.
   Future<FriendActivityStatus?> getFriendActivityStatus(String friendId);
+
+  /// Отправить тихую эмодзи-реакцию другу в поддержку его текущего фокуса.
+  Future<void> sendReaction({required String friendId, required String emoji});
 }
 
 /// Проекция того, что мне разрешено видеть о текущей активности друга.

@@ -77,11 +77,11 @@ DateTime _shiftAnchor(StatsPeriodType type, DateTime anchor, int steps) {
 // ── Состояние: тип периода + якорная дата ───────────
 
 final statsPeriodTypeProvider = StateProvider<StatsPeriodType>((ref) {
-  return StatsPeriodType.week;
+  return StatsPeriodType.day;
 });
 
 final statsAnchorDateProvider = StateProvider<DateTime>((ref) {
-  return _startOfPeriod(StatsPeriodType.week, DateTime.now());
+  return _startOfPeriod(StatsPeriodType.day, DateTime.now());
 });
 
 /// Вычисленный диапазон текущего периода.
@@ -115,6 +115,60 @@ final categoryBreakdownProvider = FutureProvider<Map<String, int>>((ref) async {
     endDateKey: range.endKey,
   );
 });
+
+/// Модель элемента статистики по конкретной активности (делу/тегу).
+class ActivityStatItem {
+  const ActivityStatItem({
+    required this.name,
+    required this.seconds,
+    required this.ratio,
+  });
+
+  final String name;
+  final int seconds;
+  final double ratio;
+}
+
+/// Раскладка по конкретным делам внутри одной категории за текущий период.
+final activityBreakdownProvider =
+    FutureProvider.family<List<ActivityStatItem>, String>((
+      ref,
+      categoryKey,
+    ) async {
+      ref.watch(entriesChangedProvider);
+      final repo = ref.watch(statsRepositoryProvider);
+      final range = ref.watch(statsPeriodRangeProvider);
+
+      final breakdownMap = await repo.getActivityBreakdownForCategory(
+        categoryKey: categoryKey,
+        startDateKey: range.startKey,
+        endDateKey: range.endKey,
+      );
+
+      final categoryTotals = await ref.watch(categoryBreakdownProvider.future);
+      final categorySec = categoryTotals[categoryKey] ?? 0;
+
+      final items = <ActivityStatItem>[];
+      breakdownMap.forEach((name, sec) {
+        final ratio = categorySec > 0 ? sec / categorySec : 0.0;
+        items.add(ActivityStatItem(name: name, seconds: sec, ratio: ratio));
+      });
+
+      return items;
+    });
+
+/// Суммарные сессии и среднее время сессии за текущий период.
+final periodSessionSummaryProvider =
+    FutureProvider<({int totalSessions, int averageSeconds})>((ref) async {
+      ref.watch(entriesChangedProvider);
+      final repo = ref.watch(statsRepositoryProvider);
+      final range = ref.watch(statsPeriodRangeProvider);
+
+      return repo.getPeriodSessionSummary(
+        startDateKey: range.startKey,
+        endDateKey: range.endKey,
+      );
+    });
 
 /// Входит ли сегодняшний день в выбранный период — дешёвая синхронная
 /// проверка, чтобы не добавлять live-время, когда смотрим прошлое.

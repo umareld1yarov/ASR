@@ -1,7 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 /// Девять фиксированных категорий активности.
-/// Список захардкожен намеренно — редактируемость не нужна.
 enum ActivityCategory {
   religion,
   work,
@@ -13,29 +13,8 @@ enum ActivityCategory {
   waste,
   base;
 
-  /// Название на русском для UI
-  String get label {
-    switch (this) {
-      case ActivityCategory.religion:
-        return 'Религия';
-      case ActivityCategory.work:
-        return 'Работа';
-      case ActivityCategory.growth:
-        return 'Развитие';
-      case ActivityCategory.finance:
-        return 'Финансы';
-      case ActivityCategory.sport:
-        return 'Спорт';
-      case ActivityCategory.family:
-        return 'Семья/Друзья';
-      case ActivityCategory.rest:
-        return 'Отдых';
-      case ActivityCategory.waste:
-        return 'Потери';
-      case ActivityCategory.base:
-        return 'Базовые';
-    }
-  }
+  /// Локализованное название категории для UI
+  String get label => tr('categories.$name');
 
   /// Цвет категории — используется в таймере, статах, ленте
   Color get color {
@@ -61,7 +40,6 @@ enum ActivityCategory {
     }
   }
 
-  /// Иконка категории — используется в плитках статистики и пикере.
   /// Эмодзи категории — используется в плитках статистики и пикере.
   String get emoji {
     switch (this) {

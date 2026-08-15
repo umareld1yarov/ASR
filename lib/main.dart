@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,12 +8,9 @@ import 'shared/widgets/app_bottom_nav.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
   await IsarService.open();
 
-  // Красим системную навигацию (кнопки назад/домой или жестовую полосу)
-  // в тот же тёмный цвет, что и фон приложения — иначе на новых версиях
-  // Android эта зона рисуется системой отдельно и выглядит как чёрная
-  // полоса/чужеродный элемент поверх нашего UI.
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       systemNavigationBarColor: Color(0xFF0A0A0A),
@@ -22,7 +20,23 @@ void main() async {
     ),
   );
 
-  runApp(const ProviderScope(child: AsrApp()));
+  runApp(
+    EasyLocalization(
+      supportedLocales: const [
+        Locale('ru'),
+        Locale('ky'),
+        Locale('en'),
+        Locale('ar'),
+        Locale('tr'),
+        Locale('de'),
+        Locale('es'),
+        Locale('pt'),
+      ],
+      path: 'assets/translations',
+      fallbackLocale: const Locale('ru'),
+      child: const ProviderScope(child: AsrApp()),
+    ),
+  );
 }
 
 class AsrApp extends StatelessWidget {
@@ -33,6 +47,9 @@ class AsrApp extends StatelessWidget {
     return MaterialApp(
       title: 'ASR',
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
       theme: ThemeData.dark(
         useMaterial3: true,
       ).copyWith(scaffoldBackgroundColor: const Color(0xFF0A0A0A)),

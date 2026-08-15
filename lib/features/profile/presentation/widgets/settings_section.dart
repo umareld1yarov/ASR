@@ -1,10 +1,20 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
-/// Настройки — минимальный список для v1. "О приложении" уже работает,
-/// остальные пункты — задел на будущее (нет ни экспорта, ни уведомлений,
-/// ни политики конфиденциальности) — показаны неактивными с пометкой "скоро".
+import 'language_selector_sheet.dart';
+
+/// Настройки — выбор языка приложения и справочная информация.
 class SettingsSection extends StatelessWidget {
   const SettingsSection({super.key});
+
+  void _showLanguageSelector(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const LanguageSelectorSheet(),
+    );
+  }
 
   void _showAbout(BuildContext context) {
     showDialog(
@@ -23,7 +33,7 @@ class SettingsSection extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Закрыть'),
+            child: Text('common.done'.tr()),
           ),
         ],
       ),
@@ -35,9 +45,9 @@ class SettingsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-          'Настройки',
-          style: TextStyle(
+        Text(
+          'profile.settings'.tr(),
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
             color: Colors.white,
@@ -52,6 +62,27 @@ class SettingsSection extends StatelessWidget {
           ),
           child: Column(
             children: [
+              _SettingsTile(
+                icon: Icons.language,
+                label: 'profile.language'.tr(),
+                trailingWidget: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      context.locale.languageCode.toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF06B6D4),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.chevron_right, size: 18, color: Colors.white38),
+                  ],
+                ),
+                onTap: () => _showLanguageSelector(context),
+              ),
+              const Divider(color: Colors.white12, height: 1),
               _SettingsTile(
                 icon: Icons.info_outline,
                 label: 'О приложении',
@@ -68,12 +99,6 @@ class SettingsSection extends StatelessWidget {
                 icon: Icons.notifications_outlined,
                 label: 'Напоминания',
                 comingSoon: true,
-              ),
-              const Divider(color: Colors.white12, height: 1),
-              const _SettingsTile(
-                icon: Icons.lock_outline,
-                label: 'Конфиденциальность',
-                comingSoon: true,
                 isLast: true,
               ),
             ],
@@ -89,6 +114,7 @@ class _SettingsTile extends StatelessWidget {
     required this.icon,
     required this.label,
     this.onTap,
+    this.trailingWidget,
     this.comingSoon = false,
     this.isLast = false,
   });
@@ -96,6 +122,7 @@ class _SettingsTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback? onTap;
+  final Widget? trailingWidget;
   final bool comingSoon;
   final bool isLast;
 
@@ -116,12 +143,13 @@ class _SettingsTile extends StatelessWidget {
           color: comingSoon ? Colors.white38 : Colors.white,
         ),
       ),
-      trailing: comingSoon
-          ? const Text(
-              'скоро',
-              style: TextStyle(fontSize: 11.5, color: Colors.white24),
-            )
-          : const Icon(Icons.chevron_right, size: 18, color: Colors.white38),
+      trailing: trailingWidget ??
+          (comingSoon
+              ? const Text(
+                  'скоро',
+                  style: TextStyle(fontSize: 11.5, color: Colors.white24),
+                )
+              : const Icon(Icons.chevron_right, size: 18, color: Colors.white38)),
       shape: isLast
           ? const RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),

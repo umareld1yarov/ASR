@@ -1,10 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/activity_category.dart';
 import '../../../../core/utils/date_utils.dart' as du;
 import '../../../../shared/widgets/app_background.dart';
-import '../../../sharing/presentation/screens/day_story_preview_screen.dart';
 import '../../application/milestones_provider.dart';
 import '../../application/profile_provider.dart';
 
@@ -212,13 +212,17 @@ class JourneyRecordsScreen extends ConsumerWidget {
                       const SizedBox(height: 24),
 
                       // ── СЕКЦИЯ 2: 🏆 ЛИЧНЫЕ РЕКОРДЫ С КНОПКОЙ ШЕРИНГА ─────
-                      const Text(
-                        '🏆 Личные рекорды',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            'profile.journey_records'.tr(),
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 10),
                       recordsAsync.when(
@@ -233,14 +237,14 @@ class JourneyRecordsScreen extends ConsumerWidget {
                             children: [
                               _RecordShareCard(
                                 emoji: '⚡',
-                                title: 'Макс. сессия',
+                                title: 'profile.longest_session'.tr(),
                                 value: records.longestSessionSeconds != null
                                     ? _formatHours(
                                         records.longestSessionSeconds!,
                                       )
                                     : '—',
                                 subtitle:
-                                    records.longestSessionName ?? 'Сессия',
+                                    records.longestSessionName ?? '—',
                                 accentColor:
                                     records.longestSessionCategoryKey != null
                                     ? ActivityCategory.fromStorageKey(
@@ -250,7 +254,7 @@ class JourneyRecordsScreen extends ConsumerWidget {
                               ),
                               _RecordShareCard(
                                 emoji: '🏆',
-                                title: 'Лучший день',
+                                title: 'profile.best_day'.tr(),
                                 value: records.bestDaySeconds != null
                                     ? _formatHours(records.bestDaySeconds!)
                                     : '—',
@@ -260,7 +264,7 @@ class JourneyRecordsScreen extends ConsumerWidget {
                                           records.bestDayDateKey!,
                                         ),
                                       )
-                                    : 'За всё время',
+                                    : '—',
                                 accentColor:
                                     records.bestCategoryKeyOfBestDay != null
                                     ? ActivityCategory.fromStorageKey(
@@ -270,7 +274,7 @@ class JourneyRecordsScreen extends ConsumerWidget {
                               ),
                               _RecordShareCard(
                                 emoji: '🔥',
-                                title: 'Рекордный стрик',
+                                title: 'profile.longest_streak'.tr(),
                                 value: '${records.longestOverallStreakDays}',
                                 subtitle: _daysWord(
                                   records.longestOverallStreakDays,
@@ -279,7 +283,7 @@ class JourneyRecordsScreen extends ConsumerWidget {
                               ),
                               _RecordShareCard(
                                 emoji: '✨',
-                                title: 'Без Потерь',
+                                title: 'profile.no_waste'.tr(),
                                 value: '${records.longestNoWasteStreakDays}',
                                 subtitle: _daysWord(
                                   records.longestNoWasteStreakDays,
@@ -517,33 +521,7 @@ class _RecordShareCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(emoji, style: const TextStyle(fontSize: 16)),
-              InkWell(
-                onTap: () {
-                  // Открывает генератор сторис с заготовленным рекордом
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => DayStoryPreviewScreen(
-                        dateKey: du.DateUtils.dateKey(DateTime.now()),
-                      ),
-                    ),
-                  );
-                },
-                borderRadius: BorderRadius.circular(10),
-                child: Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Icon(
-                    Icons.share_outlined,
-                    size: 16,
-                    color: accentColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          Text(emoji, style: const TextStyle(fontSize: 18)),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

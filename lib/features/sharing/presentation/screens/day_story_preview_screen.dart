@@ -7,15 +7,27 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../stats/application/stats_provider.dart';
 import '../../application/day_story_provider.dart';
 import '../widgets/day_story_card.dart';
+import '../widgets/month_story_card.dart';
+import '../widgets/week_story_card.dart';
+import '../widgets/year_story_card.dart';
 
-/// Экран превью "Дневника дня" перед шерингом.
-/// Содержит панель переключения 3 премиальных шаблонов и быстрые тумблеры кастомизации.
+/// Экран превью Сторис (9:16) перед шерингом.
+/// Поддерживает как дневные истории (с фотографиями и заметками), так и
+/// сводные открытки за периоды Неделя, Месяц и Год.
 class DayStoryPreviewScreen extends ConsumerStatefulWidget {
-  const DayStoryPreviewScreen({super.key, required this.dateKey});
+  const DayStoryPreviewScreen({
+    super.key,
+    required this.dateKey,
+    this.periodType = StatsPeriodType.day,
+    this.range,
+  });
 
   final String dateKey;
+  final StatsPeriodType periodType;
+  final StatsPeriodRange? range;
 
   @override
   ConsumerState<DayStoryPreviewScreen> createState() =>
@@ -44,7 +56,7 @@ class _DayStoryPreviewScreenState
       final pngBytes = byteData.buffer.asUint8List();
 
       final tempDir = await getTemporaryDirectory();
-      final file = File('${tempDir.path}/asr_day_story_${widget.dateKey}.png');
+      final file = File('${tempDir.path}/asr_story_${widget.dateKey}.png');
       await file.writeAsBytes(pngBytes);
 
       if (!mounted) return;
@@ -58,6 +70,8 @@ class _DayStoryPreviewScreenState
   Widget build(BuildContext context) {
     final selection = ref.watch(dayStorySelectionProvider);
     final controller = ref.read(dayStorySelectionProvider.notifier);
+
+    final isSingleDay = widget.periodType == StatsPeriodType.day || widget.range == null;
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
@@ -75,7 +89,7 @@ class _DayStoryPreviewScreenState
                   ),
                   const Expanded(
                     child: Text(
-                      'Поделиться историей',
+                      'Поделиться в Сторис',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
@@ -89,57 +103,58 @@ class _DayStoryPreviewScreenState
               ),
             ),
 
-            // Переключатель шаблонов (Журнал / Тёмный фокус / Минимализм)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
+            // Фильтры и темы доступны для дневных сторис
+            if (isSingleDay) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _ThemeChip(
+                        label: '📖 Дневник',
+                        isSelected: selection.theme == DayStoryTheme.journal,
+                        onTap: () => controller.setTheme(DayStoryTheme.journal),
+                      ),
+                      const SizedBox(width: 8),
+                      _ThemeChip(
+                        label: '⚡ Тёмный фокус',
+                        isSelected: selection.theme == DayStoryTheme.darkFocus,
+                        onTap: () => controller.setTheme(DayStoryTheme.darkFocus),
+                      ),
+                      const SizedBox(width: 8),
+                      _ThemeChip(
+                        label: '✨ Минимализм',
+                        isSelected: selection.theme == DayStoryTheme.minimalQuote,
+                        onTap: () => controller.setTheme(DayStoryTheme.minimalQuote),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _ThemeChip(
-                      label: '📖 Дневник',
-                      isSelected: selection.theme == DayStoryTheme.journal,
-                      onTap: () => controller.setTheme(DayStoryTheme.journal),
+                    _ToggleFilterChip(
+                      label: 'Статистика',
+                      icon: Icons.bar_chart_outlined,
+                      isActive: selection.showStats,
+                      onTap: controller.toggleShowStats,
                     ),
-                    const SizedBox(width: 8),
-                    _ThemeChip(
-                      label: '⚡ Тёмный фокус',
-                      isSelected: selection.theme == DayStoryTheme.darkFocus,
-                      onTap: () => controller.setTheme(DayStoryTheme.darkFocus),
-                    ),
-                    const SizedBox(width: 8),
-                    _ThemeChip(
-                      label: '✨ Минимализм',
-                      isSelected: selection.theme == DayStoryTheme.minimalQuote,
-                      onTap: () => controller.setTheme(DayStoryTheme.minimalQuote),
+                    const SizedBox(width: 10),
+                    _ToggleFilterChip(
+                      label: 'Заметки',
+                      icon: Icons.edit_note,
+                      isActive: selection.showNotes,
+                      onTap: controller.toggleShowNotes,
                     ),
                   ],
                 ),
               ),
-            ),
-
-            // Быстрые фильтры информации
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _ToggleFilterChip(
-                    label: 'Статистика',
-                    icon: Icons.bar_chart_outlined,
-                    isActive: selection.showStats,
-                    onTap: controller.toggleShowStats,
-                  ),
-                  const SizedBox(width: 10),
-                  _ToggleFilterChip(
-                    label: 'Заметки',
-                    icon: Icons.edit_note,
-                    isActive: selection.showNotes,
-                    onTap: controller.toggleShowNotes,
-                  ),
-                ],
-              ),
-            ),
+            ],
             const SizedBox(height: 10),
 
             // Область рендеринга карточки в 9:16
@@ -147,7 +162,9 @@ class _DayStoryPreviewScreenState
               child: Center(
                 child: RepaintBoundary(
                   key: _captureKey,
-                  child: DayStoryCard(dateKey: widget.dateKey),
+                  child: isSingleDay
+                      ? DayStoryCard(dateKey: widget.dateKey)
+                      : _buildPeriodStoryWidget(widget.periodType, widget.range!),
                 ),
               ),
             ),
@@ -179,7 +196,7 @@ class _DayStoryPreviewScreenState
                         )
                       : const Icon(Icons.ios_share, size: 20),
                   label: Text(
-                    _isSharing ? 'Готовим карточку...' : 'Поделиться в Сторис',
+                    _isSharing ? 'Готовим открытку...' : 'Поделиться в Сторис (9:16)',
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -191,6 +208,46 @@ class _DayStoryPreviewScreenState
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildPeriodStoryWidget(
+    StatsPeriodType periodType,
+    StatsPeriodRange range,
+  ) {
+    final periodDataAsync = ref.watch(periodStoryDataProvider(range));
+
+    return periodDataAsync.when(
+      loading: () => const SizedBox(
+        width: 360,
+        height: 640,
+        child: Center(
+          child: CircularProgressIndicator(color: Color(0xFF06B6D4)),
+        ),
+      ),
+      error: (e, _) => SizedBox(
+        width: 360,
+        height: 640,
+        child: Center(
+          child: Text(
+            'Ошибка загрузки данных: $e',
+            style: const TextStyle(color: Colors.white54),
+          ),
+        ),
+      ),
+      data: (periodData) {
+        switch (periodType) {
+          case StatsPeriodType.week:
+            return WeekStoryCard(data: periodData);
+          case StatsPeriodType.month:
+            return MonthStoryCard(data: periodData);
+          case StatsPeriodType.year:
+            return YearStoryCard(data: periodData);
+          case StatsPeriodType.day:
+          default:
+            return DayStoryCard(dateKey: widget.dateKey);
+        }
+      },
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -126,18 +127,18 @@ class _CategoryStep extends StatelessWidget {
       children: [
         const _DragHandle(),
         const SizedBox(height: 8),
-        Row(
+        const Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const SizedBox(width: 40),
-            const SizedBox.shrink(),
-            const PickerHelpButton(),
+            SizedBox(width: 40),
+            SizedBox.shrink(),
+            PickerHelpButton(),
           ],
         ),
         const SizedBox(height: 4),
-        const Text(
-          'Чем занимаешься?',
-          style: TextStyle(
+        Text(
+          'timer.what_are_you_doing'.tr(),
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 22,
             fontWeight: FontWeight.w600,
@@ -145,7 +146,7 @@ class _CategoryStep extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          'Выбери категорию',
+          'timer.select_category'.tr(),
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.48),
             fontSize: 14,
@@ -234,9 +235,9 @@ class _ActivityStep extends ConsumerWidget {
                   loading: () => Center(
                     child: CircularProgressIndicator(color: category.color),
                   ),
-                  error: (_, _) => _SuggestionsErrorText(),
+                  error: (_, _) => const _SuggestionsErrorText(),
                   data: (items) => items.isEmpty
-                      ? _NoSuggestionsText()
+                      ? const _NoSuggestionsText()
                       : SingleChildScrollView(
                           child: ActivitySuggestionsList(
                             suggestions: items,
@@ -322,7 +323,7 @@ class _SuggestionsErrorText extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(top: 20),
     child: Text(
-      'Не удалось загрузить подсказки.',
+      'common.error'.tr(),
       style: TextStyle(
         color: Colors.white.withValues(alpha: 0.5),
         fontSize: 14,

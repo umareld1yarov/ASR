@@ -11,7 +11,7 @@ class Insight {
   final InsightTone tone;
 }
 
-/// Категории, которые считаются "продуктивными" при расчёте баланса.
+/// Категории, которые считаются "созидательными/продуктивными".
 const _productiveKeys = {
   'religion',
   'work',
@@ -23,14 +23,13 @@ const _productiveKeys = {
 
 const _wasteKey = 'waste';
 
-/// Минимальный порог в секундах, ниже которого разницу/долю не считаем
-/// значимой — чтобы не генерировать инсайты из шума в 2 минуты.
-const _noiseThresholdSeconds = 600; // 10 минут
+/// Минимальный порог в секундах (10 минут)
+const _noiseThresholdSeconds = 600;
 
 String _formatDuration(int seconds) {
   final h = seconds ~/ 3600;
   final m = (seconds % 3600) ~/ 60;
-  if (h > 0) return '$hч $mм';
+  if (h > 0) return '$hч ${m > 0 ? "$mм" : ""}';
   return '$mм';
 }
 
@@ -38,13 +37,8 @@ String _categoryLabel(String key) {
   return ActivityCategory.fromStorageKey(key).label;
 }
 
-/// Главная функция движка. Принимает агрегированные данные периода и
-/// возвращает готовые фразы-инсайты, отсортированные по важности.
-///
-/// [current] — секунды по категориям за текущий период (включая live-время).
-/// [previous] — секунды по категориям за предыдущий период той же длины.
-/// [dailyByCategory] — секунды по дням+категориям текущего периода (для стриков).
-/// [periodDaysCount] — сколько дней в периоде (для расчёта просадок по среднему).
+/// Умный движок инсайтов. Генерирует НЕ очевидные факты (которые и так видны
+/// на экране), а глубокие тренды, длинные стрики и скрытую динамику.
 List<Insight> buildInsights({
   required Map<String, int> current,
   required Map<String, int> previous,
@@ -53,16 +47,67 @@ List<Insight> buildInsights({
 }) {
   final candidates = <Insight>[];
 
+  // 1. Однодневный режим (День)
+  if (periodDaysCount <= 1) {
+    _addDaySpecificInsights(candidates, current);
+    return candidates.take(2).toList();
+  }
+
+  // 2. Длинные периоды (Неделя, Месяц, Год)
   _addBalanceInsight(candidates, current);
   _addDeltaInsights(candidates, current, previous);
   _addStreakInsight(candidates, dailyByCategory);
   _addDropOffInsight(candidates, current, previous, periodDaysCount);
 
-  // Не перегружаем UI — максимум 3 самых значимых.
   return candidates.take(3).toList();
 }
 
-// ── Баланс продуктив/потери ──────────────────────────
+// ── Специальные инсайты для ДНЯ (без ложных тревог) ──
+
+void _addDaySpecificInsights(List<Insight> out, Map<String, int> current) {
+  final totalSec = current.values.fold(0, (a, b) => a + b);
+  if (totalSec == 0) return;
+
+  final wasteTotal = current[_wasteKey] ?? 0;
+
+  // 1. Нуль потерь за день
+  if (wasteTotal == 0 && totalSec >= 1800) {
+    out.add(
+      const Insight(
+        emoji: '🌿',
+        text: 'Чистый день без единой минуты в «Потери». Отличный самоконтроль!',
+        tone: InsightTone.positive,
+      ),
+    );
+  } else if (wasteTotal >= 1800) {
+    // Высокие потери
+    out.add(
+      Insight(
+        emoji: '⏳',
+        text: 'На Потери ушло ${_formatDuration(wasteTotal)}. Попробуйте сделать осознанную паузу.',
+        tone: InsightTone.warning,
+      ),
+    );
+  }
+
+  // 2. Выдающийся продуктивный объем
+  int productiveSec = 0;
+  for (final k in _productiveKeys) {
+    productiveSec += current[k] ?? 0;
+  }
+
+  if (productiveSec >= 10800) { // ≥ 3 часов
+    out.add(
+      Insight(
+        emoji: '⚡',
+        text: 'Высокий день созидания: ${_formatDuration(productiveSec)} продуктивной работы!',
+        tone: InsightTone.positive,
+      ),
+    );
+  }
+}
+
+// ── Баланс продуктив/потери для НЕДЕЛИ/МЕСЯЦА ──────────
 
 void _addBalanceInsight(List<Insight> out, Map<String, int> current) {
   final trackedTotal = current.values.fold(0, (a, b) => a + b);
@@ -71,23 +116,22 @@ void _addBalanceInsight(List<Insight> out, Map<String, int> current) {
   final wasteTotal = current[_wasteKey] ?? 0;
   final wasteShare = wasteTotal / trackedTotal;
 
-  if (wasteTotal >= _noiseThresholdSeconds && wasteShare >= 0.3) {
+  if (wasteTotal >= _noiseThresholdSeconds && wasteShare >= 0.25) {
     final percent = (wasteShare * 100).round();
     out.add(
       Insight(
         emoji: '⏳',
         text:
-            '$percent% времени ушло в Потери — это ${_formatDuration(wasteTotal)}. '
-            'В следующий раз попробуй поймать этот момент и переключиться.',
+            '$percent% времени периода ушло в Потери (${_formatDuration(wasteTotal)}). '
+            'Попробуйте проанализировать эти моменты.',
         tone: InsightTone.warning,
       ),
     );
-  } else if (trackedTotal >= _noiseThresholdSeconds && wasteShare < 0.15) {
-    final percent = (wasteShare * 100).round();
+  } else if (trackedTotal >= 3600 && wasteShare < 0.10) {
     out.add(
-      Insight(
+      const Insight(
         emoji: '🔥',
-        text: 'Отличный баланс — на Потери ушло всего $percent%. Так держать!',
+        text: 'Высокая дисциплина периода — Потери составляют менее 10% времени!',
         tone: InsightTone.positive,
       ),
     );
@@ -101,7 +145,6 @@ void _addDeltaInsights(
   Map<String, int> current,
   Map<String, int> previous,
 ) {
-  // Ищем категорию с наибольшим ростом среди продуктивных.
   String? bestKey;
   int bestDelta = 0;
   for (final key in _productiveKeys) {
@@ -112,7 +155,7 @@ void _addDeltaInsights(
     }
   }
 
-  if (bestKey != null && bestDelta >= _noiseThresholdSeconds) {
+  if (bestKey != null && bestDelta >= 1800) { // хотя бы +30 мин роста
     final prevValue = previous[bestKey] ?? 0;
     if (prevValue > 0) {
       final percent = ((bestDelta / prevValue) * 100).round();
@@ -120,55 +163,22 @@ void _addDeltaInsights(
         Insight(
           emoji: '📈',
           text:
-              '${_categoryLabel(bestKey)} выросл${_genderSuffix(bestKey)} на $percent% '
-              'по сравнению с прошлым периодом.',
+              'Сфера «${_categoryLabel(bestKey)}» выросла на $percent% '
+              '(+${_formatDuration(bestDelta)}) к прошлому периоду.',
           tone: InsightTone.positive,
-        ),
-      );
-    } else {
-      out.add(
-        Insight(
-          emoji: '✨',
-          text:
-              '${_categoryLabel(bestKey)} впервые появил${_genderSuffix(bestKey)}сь '
-              'в этом периоде — ${_formatDuration(current[bestKey] ?? 0)}.',
-          tone: InsightTone.positive,
-        ),
-      );
-    }
-  }
-
-  // Рост потерь — отдельно и всегда как предупреждение.
-  final wasteDelta = (current[_wasteKey] ?? 0) - (previous[_wasteKey] ?? 0);
-  if (wasteDelta >= _noiseThresholdSeconds) {
-    final prevWaste = previous[_wasteKey] ?? 0;
-    if (prevWaste > 0) {
-      final percent = ((wasteDelta / prevWaste) * 100).round();
-      out.add(
-        Insight(
-          emoji: '⚠️',
-          text: 'Потери выросли на $percent% по сравнению с прошлым периодом.',
-          tone: InsightTone.warning,
         ),
       );
     }
   }
 }
 
-/// Грубое согласование рода для глагола ("вырос"/"выросла") — по последней
-/// букве label. Не идеально лингвистически, но покрывает все 9 категорий верно.
-String _genderSuffix(String key) {
-  final label = _categoryLabel(key);
-  return label.endsWith('а') || label.endsWith('я') ? 'а' : '';
-}
-
-// ── Стрики ────────────────────────────────────────────
+// ── Стрики и серии ────────────────────────────────────
 
 void _addStreakInsight(
   List<Insight> out,
   Map<String, Map<String, int>> dailyByCategory,
 ) {
-  if (dailyByCategory.length < 3) return; // стрик короче 3 дней не считаем
+  if (dailyByCategory.length < 3) return;
 
   final sortedDays = dailyByCategory.keys.toList()..sort();
 
@@ -177,10 +187,9 @@ void _addStreakInsight(
 
   for (final category in _productiveKeys) {
     int streak = 0;
-    // Идём от самого свежего дня назад, пока категория присутствует.
     for (var i = sortedDays.length - 1; i >= 0; i--) {
       final seconds = dailyByCategory[sortedDays[i]]?[category] ?? 0;
-      if (seconds >= 60) {
+      if (seconds >= 600) { // хотя бы 10 минут в день
         streak++;
       } else {
         break;
@@ -197,7 +206,7 @@ void _addStreakInsight(
       Insight(
         emoji: '🔥',
         text:
-            '${_categoryLabel(bestKey)} — $bestStreak ${_daysWord(bestStreak)} подряд. Не останавливайся!',
+            'Серия «${_categoryLabel(bestKey)}»: $bestStreak ${_daysWord(bestStreak)} подряд!',
         tone: InsightTone.positive,
       ),
     );
@@ -212,7 +221,7 @@ String _daysWord(int n) {
   return 'дней';
 }
 
-// ── Просадки ──────────────────────────────────────────
+// ── Заметные просадки (только для долгосрока) ─────────
 
 void _addDropOffInsight(
   List<Insight> out,
@@ -220,7 +229,8 @@ void _addDropOffInsight(
   Map<String, int> previous,
   int periodDaysCount,
 ) {
-  if (periodDaysCount == 0) return;
+  // На коротких отрезках (≤ 3 дней) просадки не считаем — это естественный отдых
+  if (periodDaysCount <= 3) return;
 
   String? bestKey;
   int bestAvgPrev = 0;
@@ -229,8 +239,8 @@ void _addDropOffInsight(
     final avgPrev = (previous[category] ?? 0) ~/ periodDaysCount;
     final avgCurr = (current[category] ?? 0) ~/ periodDaysCount;
 
-    final significantBefore = avgPrev >= 600; // было ≥10 мин/день в среднем
-    final droppedHard = avgCurr <= avgPrev * 0.3; // упало на 70%+
+    final significantBefore = avgPrev >= 1200; // было ≥20 мин/день
+    final droppedHard = avgCurr <= avgPrev * 0.25; // упало на 75%+
 
     if (significantBefore && droppedHard && avgPrev > bestAvgPrev) {
       bestAvgPrev = avgPrev;
@@ -243,8 +253,8 @@ void _addDropOffInsight(
       Insight(
         emoji: '📉',
         text:
-            '${_categoryLabel(bestKey)} почти пропал${_genderSuffix(bestKey)} в этом периоде — '
-            'раньше было в среднем ${_formatDuration(bestAvgPrev)}/день.',
+            'Категория «${_categoryLabel(bestKey)}» просела за этот период. '
+            'В прошлом было в среднем ${_formatDuration(bestAvgPrev)}/день.',
         tone: InsightTone.warning,
       ),
     );

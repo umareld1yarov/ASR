@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../feed/application/feed_provider.dart';
 import '../../feed/data/feed_repository.dart';
+import '../../stats/application/stats_provider.dart';
 import '../../timer/domain/models/activity_entry.dart';
 
 enum DayStoryTheme {
@@ -47,6 +48,84 @@ final dayStoryDataProvider = FutureProvider.autoDispose
         categoryGroups: groups,
         totalDurationSeconds: totalSec,
         categoryDurations: durations,
+      );
+    });
+
+/// Данные произвольного периода (неделя, месяц, год) для 9:16 Сторис
+class PeriodStoryData {
+  const PeriodStoryData({
+    required this.periodType,
+    required this.range,
+    required this.totalDurationSeconds,
+    required this.categoryDurations,
+    required this.topActivities,
+    this.bestDayDateKey,
+    this.bestDaySeconds,
+  });
+
+  final StatsPeriodType periodType;
+  final StatsPeriodRange range;
+  final int totalDurationSeconds;
+  final Map<String, int> categoryDurations;
+  final List<ActivityStatItem> topActivities;
+  final String? bestDayDateKey;
+  final int? bestDaySeconds;
+}
+
+final periodStoryDataProvider = FutureProvider.autoDispose
+    .family<PeriodStoryData, StatsPeriodRange>((ref, range) async {
+      final periodType = ref.watch(statsPeriodTypeProvider);
+      final repo = ref.watch(statsRepositoryProvider);
+
+      final breakdown = await repo.getCategoryBreakdown(
+        startDateKey: range.startKey,
+        endDateKey: range.endKey,
+      );
+
+      final entries = await repo.getEntriesInRange(
+        startDateKey: range.startKey,
+        endDateKey: range.endKey,
+      );
+
+      int totalSec = 0;
+      final activityMap = <String, int>{};
+      final dailyMap = <String, int>{};
+
+      for (final e in entries) {
+        totalSec += e.durationSeconds;
+        dailyMap[e.dateKey] = (dailyMap[e.dateKey] ?? 0) + e.durationSeconds;
+
+        final name = e.name.trim();
+        if (name.isNotEmpty) {
+          activityMap[name] = (activityMap[name] ?? 0) + e.durationSeconds;
+        }
+      }
+
+      final sortedActivities = activityMap.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+
+      final topActivities = sortedActivities.take(3).map((e) {
+        final ratio = totalSec > 0 ? e.value / totalSec : 0.0;
+        return ActivityStatItem(name: e.key, seconds: e.value, ratio: ratio);
+      }).toList();
+
+      String? bestDayKey;
+      int? bestDaySec;
+      if (dailyMap.isNotEmpty) {
+        final sortedDays = dailyMap.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+        bestDayKey = sortedDays.first.key;
+        bestDaySec = sortedDays.first.value;
+      }
+
+      return PeriodStoryData(
+        periodType: periodType,
+        range: range,
+        totalDurationSeconds: totalSec,
+        categoryDurations: breakdown,
+        topActivities: topActivities,
+        bestDayDateKey: bestDayKey,
+        bestDaySeconds: bestDaySec,
       );
     });
 

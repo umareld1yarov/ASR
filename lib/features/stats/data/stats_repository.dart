@@ -101,6 +101,56 @@ class StatsRepository {
     return stats;
   }
 
+  /// Раскладка по конкретным активностям (делам/тегам) для выбранной категории за период.
+  /// Возвращает карту: название активности -> суммарные секунды, отсортированную по убыванию.
+  Future<Map<String, int>> getActivityBreakdownForCategory({
+    required String categoryKey,
+    required String? startDateKey,
+    required String endDateKey,
+  }) async {
+    final entries = await getEntriesInRange(
+      startDateKey: startDateKey,
+      endDateKey: endDateKey,
+    );
+
+    final grouped = <String, int>{};
+    for (final e in entries) {
+      if (e.categoryKey == categoryKey) {
+        final name = e.name.trim();
+        if (name.isEmpty) continue;
+        grouped[name] = (grouped[name] ?? 0) + e.durationSeconds;
+      }
+    }
+
+    final sortedEntries = grouped.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return Map.fromEntries(sortedEntries);
+  }
+
+  /// Статистика по сессиям за период: всего сессий и средняя длительность сессии.
+  Future<({int totalSessions, int averageSeconds})> getPeriodSessionSummary({
+    required String? startDateKey,
+    required String endDateKey,
+  }) async {
+    final entries = await getEntriesInRange(
+      startDateKey: startDateKey,
+      endDateKey: endDateKey,
+    );
+
+    if (entries.isEmpty) {
+      return (totalSessions: 0, averageSeconds: 0);
+    }
+
+    int totalSec = 0;
+    for (final e in entries) {
+      totalSec += e.durationSeconds;
+    }
+
+    final avg = (totalSec / entries.length).round();
+    return (totalSessions: entries.length, averageSeconds: avg);
+  }
+
   /// Суммарные секунды по каждому дню за период (для тренда).
   /// Включает дни без единой записи (0 секунд), чтобы график/стрик-логика
   /// не "перепрыгивала" через пропуски.
@@ -340,5 +390,172 @@ class StatsRepository {
       longestOverallStreakDays: longestOverallStreak,
       longestNoWasteStreakDays: longestNoWasteStreak,
     );
+  }
+
+  // ── Хронологический Аудит времени (Текстовый экспорт) ──
+
+  static const _weekDaysGenitive = [
+    'Понедельник',
+    'Вторник',
+    'Среда',
+    'Четверг',
+    'Пятница',
+    'Суббота',
+    'Воскресенье',
+  ];
+
+  static const _monthsGenitive = [
+    'Января',
+    'Февраля',
+    'Марта',
+    'Апреля',
+    'Мая',
+    'Июня',
+    'Июля',
+    'Августа',
+    'Сентября',
+    'Октября',
+    'Ноября',
+    'Декабря',
+  ];
+
+  String _formatTimeHHmm(int millisSinceEpoch) {
+    final dt = DateTime.fromMillisecondsSinceEpoch(millisSinceEpoch);
+    final h = dt.hour.toString().padLeft(2, '0');
+    final m = dt.minute.toString().padLeft(2, '0');
+    return '$h:$m';
+  }
+
+  String _formatDurationBrief(int seconds) {
+    final h = seconds ~/ 3600;
+    final m = (seconds % 3600) ~/ 60;
+    if (h > 0) return '$hч ${m > 0 ? "$mм" : ""}';
+    return '$mм';
+  }
+
+  /// Генерирует подробный текстовый аудит за ОДИН ДЕНЬ.
+  Future<String> generateDayAuditText(String dateKey) async {
+    final entries = await getEntriesInRange(
+      startDateKey: dateKey,
+      endDateKey: dateKey,
+    );
+
+    final date = du.DateUtils.dateKeyToDate(dateKey);
+    final dayOfWeek = _weekDaysGenitive[date.weekday - 1];
+    final dayNum = date.day.toString().padLeft(2, '0');
+    final monthNum = date.month.toString().padLeft(2, '0');
+    final monthName = _monthsGenitive[date.month - 1];
+
+    final buffer = StringBuffer();
+    buffer.writeln('▼ Аудит за $dayOfWeek, $dayNum.$monthNum.${date.year} (${date.day} $monthName ${date.year}):');
+    buffer.writeln();
+
+    if (entries.isEmpty) {
+      buffer.writeln('  (Записи за этот день отсутствуют)');
+    } else {
+      final categoryTotals = <String, int>{};
+
+      for (final e in entries) {
+        categoryTotals[e.categoryKey] = (categoryTotals[e.categoryKey] ?? 0) + e.durationSeconds;
+
+        final startStr = _formatTimeHHmm(e.startedAt);
+        final endStr = _formatTimeHHmm(e.endedAt);
+        final cat = ActivityCategory.fromStorageKey(e.categoryKey);
+        final durationStr = _formatDurationBrief(e.durationSeconds);
+        final nameStr = e.name.trim().isEmpty ? cat.label : e.name.trim();
+
+        buffer.writeln('  $startStr - $endStr [${cat.label}]: $nameStr ($durationStr)');
+        if (e.note != null && e.note!.trim().isNotEmpty) {
+          buffer.writeln('    └─ Заметка: ${e.note!.trim()}');
+        }
+      }
+
+      buffer.writeln();
+      buffer.writeln('● ИТОГ ДНЯ:');
+      final activeCatStrings = <String>[];
+      for (final cat in ActivityCategory.values) {
+        final sec = categoryTotals[cat.storageKey] ?? 0;
+        if (sec > 0) {
+          activeCatStrings.add('${cat.label}: ${_formatDurationBrief(sec)}');
+        }
+      }
+      buffer.writeln('  ${activeCatStrings.join(' | ')}');
+    }
+
+    buffer.writeln('──────────────────────────────────────────');
+    buffer.writeln('— Сгенерировано в ASR Focus Journal');
+    return buffer.toString();
+  }
+
+  /// Генерирует текстовый аудит за Диапазон Дней (Неделя, Месяц, Год).
+  Future<String> generatePeriodAuditText({
+    required String startDateKey,
+    required String endDateKey,
+    required String periodLabel,
+  }) async {
+    final entries = await getEntriesInRange(
+      startDateKey: startDateKey,
+      endDateKey: endDateKey,
+    );
+
+    final buffer = StringBuffer();
+    buffer.writeln('▼ Аудит периода: $periodLabel');
+    buffer.writeln('  (Интервал: $startDateKey — $endDateKey)');
+    buffer.writeln();
+
+    if (entries.isEmpty) {
+      buffer.writeln('  (Записи за этот период отсутствуют)');
+    } else {
+      final entriesByDate = <String, List<ActivityEntry>>{};
+      final categoryTotals = <String, int>{};
+      int overallTotalSec = 0;
+
+      for (final e in entries) {
+        overallTotalSec += e.durationSeconds;
+        categoryTotals[e.categoryKey] = (categoryTotals[e.categoryKey] ?? 0) + e.durationSeconds;
+        entriesByDate.putIfAbsent(e.dateKey, () => []).add(e);
+      }
+
+      final sortedDateKeys = entriesByDate.keys.toList()..sort();
+
+      for (final dKey in sortedDateKeys) {
+        final date = du.DateUtils.dateKeyToDate(dKey);
+        final dayOfWeek = _weekDaysGenitive[date.weekday - 1];
+        final dayNum = date.day.toString().padLeft(2, '0');
+        final monthNum = date.month.toString().padLeft(2, '0');
+        final monthName = _monthsGenitive[date.month - 1];
+
+        buffer.writeln('📅 $dayOfWeek, $dayNum.$monthNum.${date.year} (${date.day} $monthName):');
+
+        final dayEntries = entriesByDate[dKey]!;
+        for (final e in dayEntries) {
+          final startStr = _formatTimeHHmm(e.startedAt);
+          final endStr = _formatTimeHHmm(e.endedAt);
+          final cat = ActivityCategory.fromStorageKey(e.categoryKey);
+          final durationStr = _formatDurationBrief(e.durationSeconds);
+          final nameStr = e.name.trim().isEmpty ? cat.label : e.name.trim();
+
+          buffer.writeln('  $startStr - $endStr [${cat.label}]: $nameStr ($durationStr)');
+          if (e.note != null && e.note!.trim().isNotEmpty) {
+            buffer.writeln('    └─ Заметка: ${e.note!.trim()}');
+          }
+        }
+        buffer.writeln();
+      }
+
+      buffer.writeln('● ИТОГ ПЕРИОДА (Всего: ${_formatDurationBrief(overallTotalSec)}):');
+      final activeCatStrings = <String>[];
+      for (final cat in ActivityCategory.values) {
+        final sec = categoryTotals[cat.storageKey] ?? 0;
+        if (sec > 0) {
+          activeCatStrings.add('${cat.label}: ${_formatDurationBrief(sec)}');
+        }
+      }
+      buffer.writeln('  ${activeCatStrings.join(' | ')}');
+    }
+
+    buffer.writeln('──────────────────────────────────────────');
+    buffer.writeln('— Сгенерировано в ASR Focus Journal');
+    return buffer.toString();
   }
 }

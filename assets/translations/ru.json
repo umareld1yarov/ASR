@@ -1,0 +1,120 @@
+{
+  "common": {
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "done": "Готово",
+    "back": "Назад",
+    "share": "Поделиться",
+    "loading": "Загрузка...",
+    "error": "Произошла ошибка",
+    "retry": "Повторить",
+    "edit": "Изменить",
+    "delete": "Удалить",
+    "confirm": "Подтвердить"
+  },
+  "categories": {
+    "religion": "Религия",
+    "work": "Работа",
+    "growth": "Развитие",
+    "finance": "Финансы",
+    "sport": "Спорт",
+    "family": "Семья/Друзья",
+    "rest": "Отдых",
+    "waste": "Потери",
+    "base": "Базовые"
+  },
+  "timer": {
+    "ready_to_focus": "Готов к фокусу",
+    "what_are_you_doing": "Что Вы делаете прямо сейчас?",
+    "start": "Начать",
+    "finish": "Завершить",
+    "pause": "Пауза",
+    "resume": "Продолжить",
+    "select_category": "Выберите категорию",
+    "note_placeholder": "Заметка к записи...",
+    "finish_sheet_title": "Итоги фокус-сессии",
+    "mood_question": "Как ощущается эта сессия?",
+    "obstacles_question": "Были ли препятствия?",
+    "experiment_question": "Что улучшить в следующий раз?",
+    "photo_add": "Добавить фото",
+    "save_session": "Сохранить сессию"
+  },
+  "feed": {
+    "title": "Хроника дня",
+    "today": "Сегодня",
+    "yesterday": "Вчера",
+    "no_entries": "Записей за этот день пока нет",
+    "entry_count": {
+      "zero": "0 записей",
+      "one": "{} запись",
+      "few": "{} записи",
+      "many": "{} записей",
+      "other": "{} записей"
+    },
+    "note": "Заметка",
+    "obstacles": "Препятствия",
+    "next_experiment": "Эксперимент",
+    "photos": "Фотографии"
+  },
+  "stats": {
+    "day": "День",
+    "week": "Неделя",
+    "month": "Месяц",
+    "year": "Год",
+    "total_focus": "Всего в фокусе",
+    "top_category": "Топ-категория",
+    "total_sessions": "Всего сессий",
+    "avg_session": "Средняя сессия",
+    "activities_breakdown": "Детализация по делам",
+    "export_story": "📸 В Stories (9:16)",
+    "copy_log": "📋 Скопировать лог",
+    "export_txt": "📄 Экспорт в .TXT",
+    "audit_copied_toast": "Аудит-лог скопирован в буфер обмена!",
+    "audit_header": "▼ Аудит за {date}:",
+    "donut_total_mode": "Всего в фокусе",
+    "donut_top_mode": "Главный фокус",
+    "donut_sessions_mode": "Сессий за период"
+  },
+  "insights": {
+    "title": "Умные инсайты",
+    "clean_day": "🌿 Чистый день без единой минуты в «Потери». Отличный самоконтроль!",
+    "high_productive_day": "⚡ Высокий день созидания: {} продуктивной работы!",
+    "streak_active": "🔥 Серия «{}»: {} подряд!",
+    "category_growth": "📈 Сфера «{}» выросла на {}% (+{}) к прошлому периоду.",
+    "waste_warning": "⏳ На Потери ушло {}. Попробуйте сделать осознанную паузу.",
+    "discipline_high": "🔥 Высокая дисциплина периода — Потери составляют менее 10% времени!",
+    "drop_off": "📉 Категория «{}» просела за этот период."
+  },
+  "community": {
+    "title": "Сообщество",
+    "live_stream": "СЕЙЧАС В ЭФИРЕ",
+    "how_friends_see_you": "Как Вас видят друзья",
+    "access_count": "Доступ ({})",
+    "add_friend": "Добавить друга",
+    "friend_requests": "Заявки в друзья",
+    "respect_toast": "Вы поддержали {}!",
+    "offline_status": "Сейчас не делится",
+    "online_status": "В эфире",
+    "empty_friends_title": "Ваш созидательный круг",
+    "empty_friends_desc": "Добавляйте друзей для взаимной мотивации и тихой поддержки во время работы."
+  },
+  "profile": {
+    "title": "Профиль",
+    "journey_records": "Мой путь & Рекорды",
+    "days_with_asr": "ASR с Вами {} {}",
+    "longest_session": "Макс. сессия",
+    "best_day": "Лучший день",
+    "longest_streak": "Рекордный стрик",
+    "no_waste": "Без Потерь",
+    "milestones": "Вехи развития",
+    "unlocked": "✅ Разблокировано",
+    "language": "Язык интерфейса",
+    "select_language": "Выбрать язык",
+    "settings": "Настройки"
+  },
+  "sharing": {
+    "story_preview_title": "Предпросмотр Story (9:16)",
+    "save_image": "Сохранить картинку",
+    "share_to_apps": "Поделиться"
+  }
+}

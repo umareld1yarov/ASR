@@ -1,10 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../shared/widgets/glass_pill_button.dart';
 import 'category_picker_sheet.dart';
 
-/// Кнопка "Сменить активность" — стеклянная таблетка, тот же материал,
-/// что и карточка таймера.
+/// Кнопка "Сменить активность" — стеклянная таблетка.
 class SwitchActivityButton extends StatelessWidget {
   const SwitchActivityButton({super.key});
 
@@ -12,14 +12,14 @@ class SwitchActivityButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GlassPillButton(
       onTap: () => CategoryPickerSheet.show(context),
-      child: const Row(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.swap_horiz_rounded, color: Colors.white, size: 20),
-          SizedBox(width: 8),
+          const Icon(Icons.swap_horiz_rounded, color: Colors.white, size: 20),
+          const SizedBox(width: 8),
           Text(
-            'Сменить активность',
-            style: TextStyle(
+            'timer.select_category'.tr(),
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 15,
               fontWeight: FontWeight.w600,

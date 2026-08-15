@@ -148,4 +148,13 @@ class MockCommunityRepository implements CommunityRepository {
     }
     return null;
   }
+
+  @override
+  Future<void> sendReaction({
+    required String friendId,
+    required String emoji,
+  }) async {
+    // В будущем тут вызов Supabase / Realtime сигнала
+    return;
+  }
 }

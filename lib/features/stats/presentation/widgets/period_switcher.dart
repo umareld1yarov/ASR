@@ -1,23 +1,23 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../application/stats_provider.dart';
 
 /// Переключатель периода: День / Неделя / Месяц / Год.
-/// Стеклянная капсула с 4 сегментами, активный подсвечен.
 class PeriodSwitcher extends ConsumerWidget {
   const PeriodSwitcher({super.key});
-
-  static const _options = [
-    (StatsPeriodType.day, 'День'),
-    (StatsPeriodType.week, 'Неделя'),
-    (StatsPeriodType.month, 'Месяц'),
-    (StatsPeriodType.year, 'Год'),
-  ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = ref.watch(statsPeriodTypeProvider);
+
+    final options = [
+      (StatsPeriodType.day, 'stats.day'.tr()),
+      (StatsPeriodType.week, 'stats.week'.tr()),
+      (StatsPeriodType.month, 'stats.month'.tr()),
+      (StatsPeriodType.year, 'stats.year'.tr()),
+    ];
 
     return Container(
       padding: const EdgeInsets.all(4),
@@ -27,7 +27,7 @@ class PeriodSwitcher extends ConsumerWidget {
         border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
       child: Row(
-        children: _options.map((option) {
+        children: options.map((option) {
           final (type, label) = option;
           final isSelected = type == selected;
 
