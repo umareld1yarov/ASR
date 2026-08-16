@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 /// Утилиты работы с датами — аналог dateKey()/dateUtils из storage.js.
 class DateUtils {
   DateUtils._();
@@ -70,23 +72,11 @@ class DateUtils {
     return DateTime(dt.year, 12, 31);
   }
 
-  static const List<String> monthsGenitiveRu = [
-    'января',
-    'февраля',
-    'марта',
-    'апреля',
-    'мая',
-    'июня',
-    'июля',
-    'августа',
-    'сентября',
-    'октября',
-    'ноября',
-    'декабря',
-  ];
-
-  /// Короткая дата на русском в родительном падеже: "12 июля".
-  static String formatShortRu(DateTime dt) {
-    return '${dt.day} ${monthsGenitiveRu[dt.month - 1]}';
+  /// Короткая дата в текущей локали: «12 июля» / «12 July» / «12 шілде».
+  static String formatShortLocalized(DateTime dt) {
+    return DateFormat('d MMMM').format(dt);
   }
+
+  @Deprecated('Use formatShortLocalized instead')
+  static String formatShortRu(DateTime dt) => formatShortLocalized(dt);
 }

@@ -1,4 +1,3 @@
-import 'package:easy_localization/easy_localization.dart';
 import '../../../core/constants/activity_category.dart';
 
 /// Наборы тегов "Что помешало?" для шторки рефлексии.
@@ -6,38 +5,38 @@ class FocusReviewObstacles {
   FocusReviewObstacles._();
 
   static List<String> _tagsForWork() => [
-    'obstacles.phone'.tr(),
-    'obstacles.tired'.tr(),
-    'obstacles.distracted'.tr(),
-    'obstacles.procrastination'.tr(),
+    'obstacles.phone',
+    'obstacles.tired',
+    'obstacles.distracted',
+    'obstacles.procrastination',
   ];
 
   static List<String> _tagsForGrowth() => [
-    'obstacles.hard_topic'.tr(),
-    'obstacles.phone'.tr(),
-    'obstacles.tired'.tr(),
-    'obstacles.no_material'.tr(),
+    'obstacles.hard_topic',
+    'obstacles.phone',
+    'obstacles.tired',
+    'obstacles.no_material',
   ];
 
   static List<String> _tagsForSport() => [
-    'obstacles.lack_of_sleep'.tr(),
-    'obstacles.no_energy'.tr(),
-    'obstacles.light_pain'.tr(),
-    'obstacles.weather'.tr(),
+    'obstacles.lack_of_sleep',
+    'obstacles.no_energy',
+    'obstacles.light_pain',
+    'obstacles.weather',
   ];
 
   static List<String> _tagsForReligion() => [
-    'obstacles.phone'.tr(),
-    'obstacles.tired'.tr(),
-    'obstacles.scattered_thoughts'.tr(),
-    'obstacles.no_time'.tr(),
+    'obstacles.phone',
+    'obstacles.tired',
+    'obstacles.scattered_thoughts',
+    'obstacles.no_time',
   ];
 
   static List<String> _fallbackTags() => [
-    'obstacles.phone'.tr(),
-    'obstacles.tired'.tr(),
-    'obstacles.distracted'.tr(),
-    'obstacles.other'.tr(),
+    'obstacles.phone',
+    'obstacles.tired',
+    'obstacles.distracted',
+    'obstacles.other',
   ];
 
   static bool appliesTo(ActivityCategory category) {

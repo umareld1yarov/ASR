@@ -325,7 +325,7 @@ class _AddGoalSheetState extends ConsumerState<AddGoalSheet> {
                         ),
                       ),
                       child: Text(
-                        '$hч',
+                        '$h${'milestones.units.h'.tr()}',
                         style: TextStyle(
                           color: _hoursController.text == '$h'
                               ? Colors.white

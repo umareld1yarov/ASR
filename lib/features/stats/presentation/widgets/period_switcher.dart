@@ -10,6 +10,8 @@ class PeriodSwitcher extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Регистрируем зависимость от локали для мгновенного обновления переключателя
+    final _ = context.locale;
     final selected = ref.watch(statsPeriodTypeProvider);
 
     final options = [

@@ -13,7 +13,6 @@ import '../../../sharing/presentation/screens/day_story_preview_screen.dart';
 import '../../application/stats_provider.dart';
 import '../widgets/category_stat_row.dart';
 import '../widgets/donut_chart.dart';
-import '../widgets/insight_card.dart';
 import '../widgets/period_navigator_bar.dart';
 import '../widgets/period_switcher.dart';
 
@@ -23,8 +22,9 @@ class StatsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Регистрируем зависимость от локали для мгновенного обновления статистики
+    final _ = context.locale;
     final statsAsync = ref.watch(categoryBreakdownProvider);
-    final insightsAsync = ref.watch(insightsProvider);
     final periodType = ref.watch(statsPeriodTypeProvider);
 
     final isLongPeriod = periodType == StatsPeriodType.month || periodType == StatsPeriodType.year;
@@ -127,9 +127,11 @@ class StatsScreen extends ConsumerWidget {
                               final repo = ref.read(statsRepositoryProvider);
                               final label = formatPeriodLabel(pType, range);
 
+                              final localeStr = context.locale.toString();
                               if (pType == StatsPeriodType.day) {
                                 final auditText = await repo.generateDayAuditText(
                                   range.startKey,
+                                  localeStr,
                                 );
                                 await Clipboard.setData(
                                   ClipboardData(text: auditText),
@@ -162,6 +164,7 @@ class StatsScreen extends ConsumerWidget {
                                   startDateKey: range.startKey,
                                   endDateKey: range.endKey,
                                   periodLabel: label,
+                                  locale: localeStr,
                                 );
                                 await Clipboard.setData(
                                   ClipboardData(text: auditText),
@@ -194,6 +197,7 @@ class StatsScreen extends ConsumerWidget {
                                   startDateKey: range.startKey,
                                   endDateKey: range.endKey,
                                   periodLabel: label,
+                                  locale: localeStr,
                                 );
                                 final tempDir = await getTemporaryDirectory();
                                 final file = File(
@@ -247,27 +251,6 @@ class StatsScreen extends ConsumerWidget {
                     // Интерактивная Донат-Диаграмма
                     Center(child: DonutChart(stats: stats)),
                     const SizedBox(height: 20),
-
-                    // Умные инсайты
-                    insightsAsync.when(
-                      skipLoadingOnReload: true,
-                      skipLoadingOnRefresh: true,
-                      loading: () => const SizedBox.shrink(),
-                      error: (_, _) => const SizedBox.shrink(),
-                      data: (insights) {
-                        if (insights.isEmpty) return const SizedBox.shrink();
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            for (final insight in insights) ...[
-                              InsightCard(insight: insight),
-                              const SizedBox(height: 8),
-                            ],
-                            const SizedBox(height: 8),
-                          ],
-                        );
-                      },
-                    ),
 
                     // Секция деталей по категориям и делам
                     Row(

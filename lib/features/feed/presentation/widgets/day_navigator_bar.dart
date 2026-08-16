@@ -22,6 +22,7 @@ class DayNavigatorBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final _ = context.locale;
     final selectedDate = ref.watch(selectedDateProvider);
     final earliest = ref.watch(earliestDateProvider).valueOrNull;
     final controller = ref.read(feedControllerProvider);

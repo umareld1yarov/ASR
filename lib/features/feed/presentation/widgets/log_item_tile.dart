@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/activity_category.dart';
 import '../../../timer/domain/models/activity_entry.dart';
 
+import '../../../../core/utils/duration_formatter.dart';
+
 /// Карточка одной записи в таймлайне Ленты — цветная подложка по категории,
 /// время + длительность, название, заметка (зелёная), миниатюры фото.
 class LogItemTile extends StatelessWidget {
@@ -21,10 +23,7 @@ class LogItemTile extends StatelessWidget {
   }
 
   String _formatShort(int seconds) {
-    final h = seconds ~/ 3600;
-    final m = (seconds % 3600) ~/ 60;
-    if (h > 0) return '$hч $mм';
-    return '$mм';
+    return formatDuration(seconds);
   }
 
   @override

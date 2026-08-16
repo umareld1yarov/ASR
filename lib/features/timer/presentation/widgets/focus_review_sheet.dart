@@ -153,7 +153,7 @@ class _FocusReviewSheetState extends ConsumerState<FocusReviewSheet> {
               children: tags.map((tag) {
                 final isSelected = _selectedObstacles.contains(tag);
                 return ChoiceChip(
-                  label: Text(tag),
+                  label: Text(tag.tr()),
                   selected: isSelected,
                   onSelected: (_) {
                     setState(() {

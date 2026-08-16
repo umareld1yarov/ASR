@@ -20,6 +20,8 @@ class MyActivityPreviewCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Регистрируем зависимость от локали для перевода "Как вас видят друзья", "Доступ" и т.д.
+    final _ = context.locale;
     final currentAsync = ref.watch(currentActivityProvider);
 
     return currentAsync.when(
@@ -109,11 +111,11 @@ class MyActivityPreviewCard extends ConsumerWidget {
                   Expanded(
                     child: Text(
                       isLive
-                          ? (category?.label ?? 'community.online_status'.tr())
+                          ? 'community.online_status'.tr()
                           : 'community.offline_status'.tr(),
                       style: TextStyle(
                         color: isLive
-                            ? (category?.color ?? const Color(0xFF22C55E))
+                            ? const Color(0xFF22C55E)
                             : Colors.white.withValues(alpha: 0.35),
                         fontWeight: isLive ? FontWeight.w600 : FontWeight.w400,
                         fontSize: 12.5,

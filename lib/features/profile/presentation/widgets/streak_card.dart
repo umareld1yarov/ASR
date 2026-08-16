@@ -31,7 +31,7 @@ class StreakCard extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'insights.streak_active'.tr(args: ['ASR', '$streak']),
+                    '🔥 ${'profile.day_count'.plural(streak)}',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,

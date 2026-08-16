@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,6 +11,7 @@ class PeriodNavigatorBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final langCode = context.locale.languageCode;
     final type = ref.watch(statsPeriodTypeProvider);
     final range = ref.watch(statsPeriodRangeProvider);
     final canGoPrev = ref.watch(canGoPreviousProvider);
@@ -25,7 +27,7 @@ class PeriodNavigatorBar extends ConsumerWidget {
           color: canGoPrev ? Colors.white : Colors.white24,
         ),
         Text(
-          formatPeriodLabel(type, range),
+          formatPeriodLabel(type, range, langCode),
           style: const TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,

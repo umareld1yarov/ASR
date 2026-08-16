@@ -3,6 +3,7 @@ import 'package:isar_community/isar.dart';
 
 import '../../../core/constants/activity_category.dart';
 import '../../../core/utils/date_utils.dart' as du;
+import '../../../core/utils/duration_formatter.dart';
 import '../../timer/domain/models/activity_entry.dart';
 
 /// Пожизненная статистика пути пользователя — для секции "Мой путь"
@@ -401,21 +402,18 @@ class StatsRepository {
   }
 
   String _formatDurationBrief(int seconds) {
-    final h = seconds ~/ 3600;
-    final m = (seconds % 3600) ~/ 60;
-    if (h > 0) return '$hч ${m > 0 ? "$mм" : ""}';
-    return '$mм';
+    return formatDuration(seconds);
   }
 
   /// Генерирует подробный текстовый аудит за ОДИН ДЕНЬ.
-  Future<String> generateDayAuditText(String dateKey) async {
+  Future<String> generateDayAuditText(String dateKey, [String? locale]) async {
     final entries = await getEntriesInRange(
       startDateKey: dateKey,
       endDateKey: dateKey,
     );
 
     final date = du.DateUtils.dateKeyToDate(dateKey);
-    final dateStr = DateFormat('EEEE, dd.MM.yyyy (d MMMM yyyy)').format(date);
+    final dateStr = DateFormat('EEEE, dd.MM.yyyy (d MMMM yyyy)', locale).format(date);
 
     final buffer = StringBuffer();
     buffer.writeln('stats.audit_header'.tr(namedArgs: {'date': dateStr}));
@@ -463,6 +461,7 @@ class StatsRepository {
     required String startDateKey,
     required String endDateKey,
     required String periodLabel,
+    String? locale,
   }) async {
     final entries = await getEntriesInRange(
       startDateKey: startDateKey,
@@ -491,7 +490,7 @@ class StatsRepository {
 
       for (final dKey in sortedDateKeys) {
         final date = du.DateUtils.dateKeyToDate(dKey);
-        final dateHeader = DateFormat('EEEE, dd.MM.yyyy (d MMMM)').format(date);
+        final dateHeader = DateFormat('EEEE, dd.MM.yyyy (d MMMM)', locale).format(date);
 
         buffer.writeln('📅 $dateHeader:');
 

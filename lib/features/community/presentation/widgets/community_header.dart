@@ -20,16 +20,8 @@ class CommunityHeader extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Text(
-            'community.title'.tr(),
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const Spacer(),
           _HeaderAction(
             icon: Icons.group_outlined,
             badgeCount: incomingRequestsCount,

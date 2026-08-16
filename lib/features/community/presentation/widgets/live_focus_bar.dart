@@ -20,6 +20,8 @@ class LiveFocusBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Регистрируем зависимость от локали для перевода "СЕЙЧАС В ЭФИРЕ"
+    final _ = context.locale;
     final liveFriends = friendships.where((f) {
       final status = ref.watch(friendActivityStatusProvider(f.friend.id));
       return status.valueOrNull != null;

@@ -1,8 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../application/milestones_provider.dart';
+import '../../application/profile_provider.dart';
+import '../../../../features/community/application/community_provider.dart';
+import '../../../../features/stats/application/stats_provider.dart';
 
 /// Модальный диалог выбора языка приложения.
-class LanguageSelectorSheet extends StatelessWidget {
+class LanguageSelectorSheet extends ConsumerWidget {
   const LanguageSelectorSheet({super.key});
 
   static const _supportedLanguages = [
@@ -17,7 +23,7 @@ class LanguageSelectorSheet extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final currentCode = context.locale.languageCode;
 
     return Container(
@@ -91,6 +97,16 @@ class LanguageSelectorSheet extends StatelessWidget {
                         : null,
                     onTap: () async {
                       await context.setLocale(Locale(lang['code']!));
+                      ref.invalidate(milestonesProvider);
+                      ref.invalidate(goalsProvider);
+                      ref.invalidate(lifetimeJourneyStatsProvider);
+                      ref.invalidate(lifetimeBreakdownProvider);
+                      ref.invalidate(personalRecordsProvider);
+                      ref.invalidate(categoryBreakdownProvider);
+                      ref.invalidate(previousCategoryBreakdownProvider);
+                      ref.invalidate(categoryDailyTotalsProvider);
+                      ref.invalidate(friendsProvider);
+                      ref.invalidate(statsPeriodRangeProvider);
                       if (context.mounted) {
                         Navigator.of(context).pop();
                       }

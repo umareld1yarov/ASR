@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/activity_category.dart';
+import '../../../../core/utils/date_utils.dart' as du;
+import '../../../../core/utils/duration_formatter.dart';
 import '../../../feed/data/feed_repository.dart';
 import '../../application/day_story_provider.dart';
 
@@ -183,7 +185,7 @@ class _DarkFocusThemeCard extends ConsumerWidget {
               textBaseline: TextBaseline.alphabetic,
               children: [
                 Text(
-                  hours > 0 ? '$hoursч $minutes' : '$minutes',
+                  hours > 0 ? '$hours${'milestones.units.h'.tr()} $minutes' : '$minutes',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 48,
@@ -192,7 +194,7 @@ class _DarkFocusThemeCard extends ConsumerWidget {
                   ),
                 ),
                 Text(
-                  hours > 0 ? 'мин' : 'минут',
+                  hours > 0 ? 'milestones.units.h'.tr() : '',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.5),
                     fontSize: 18,
@@ -406,10 +408,7 @@ class _MinimalQuoteThemeCard extends ConsumerWidget {
   }
 
   String _formatDuration(int totalSec) {
-    final h = totalSec ~/ 3600;
-    final m = (totalSec % 3600) ~/ 60;
-    if (h > 0) return '$hч $m мин';
-    return '$m мин';
+    return formatDuration(totalSec);
   }
 }
 
@@ -420,8 +419,18 @@ class _StoryHeader extends StatelessWidget {
   final String dateKey;
   final String themeLabel;
 
+  String _formattedDate(BuildContext context) {
+    try {
+      final date = du.DateUtils.dateKeyToDate(dateKey);
+      return DateFormat('d MMMM yyyy', context.locale.toString()).format(date);
+    } catch (_) {
+      return dateKey;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final _ = context.locale;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -441,7 +450,7 @@ class _StoryHeader extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            dateKey,
+            _formattedDate(context),
             style: const TextStyle(
               color: Colors.white,
               fontSize: 11,
@@ -477,7 +486,7 @@ class _MiniStatsBar extends StatelessWidget {
       child: Row(
         children: [
           Text(
-            hours > 0 ? '$hoursч $minsм' : '$minsм',
+            hours > 0 ? '$hours${'milestones.units.h'.tr()} $mins' : '$mins',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 13,
@@ -531,7 +540,7 @@ class _CategoryPill extends StatelessWidget {
           Text(category.emoji, style: const TextStyle(fontSize: 11)),
           const SizedBox(width: 4),
           Text(
-            '${category.label} · $minsм',
+            '${category.label} · $mins',
             style: TextStyle(
               color: category.color,
               fontSize: 11,

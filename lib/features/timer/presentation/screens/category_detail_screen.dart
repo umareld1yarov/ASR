@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/activity_category.dart';
+import '../../../../core/utils/duration_formatter.dart';
 import '../../../../shared/widgets/app_background.dart';
 import '../../../feed/presentation/screens/entry_detail_screen.dart';
 import '../../../feed/presentation/widgets/log_item_tile.dart';
@@ -17,6 +18,7 @@ class CategoryDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final _ = context.locale;
     final entriesAsync = ref.watch(
       categoryEntriesProvider(category.storageKey),
     );
@@ -178,10 +180,7 @@ class _TotalDurationCard extends StatelessWidget {
   }
 
   String _formatDuration(int seconds) {
-    final hours = seconds ~/ 3600;
-    final minutes = (seconds % 3600) ~/ 60;
-    if (hours > 0) return '$hoursч $minutesм';
-    return '$minutesм';
+    return formatDuration(seconds);
   }
 }
 

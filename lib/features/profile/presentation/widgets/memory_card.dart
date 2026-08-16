@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -15,6 +16,7 @@ class MemoryCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final _ = context.locale;
     final memoryAsync = ref.watch(memoryEntryProvider);
 
     return memoryAsync.when(
@@ -28,7 +30,7 @@ class MemoryCard extends ConsumerWidget {
         }
 
         final category = ActivityCategory.fromStorageKey(entry.categoryKey);
-        final dateLabel = du.DateUtils.formatShortRu(
+        final dateLabel = du.DateUtils.formatShortLocalized(
           DateTime.fromMillisecondsSinceEpoch(entry.startedAt),
         );
 

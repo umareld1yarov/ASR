@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/constants/activity_category.dart';
+import '../../../../core/utils/duration_formatter.dart';
 import '../../../../shared/widgets/app_background.dart';
 import '../../../timer/domain/models/activity_entry.dart';
 import '../../application/feed_provider.dart';
@@ -65,10 +66,7 @@ class _EntryDetailScreenState extends ConsumerState<EntryDetailScreen> {
   }
 
   String _formatShort(int seconds) {
-    final h = seconds ~/ 3600;
-    final m = (seconds % 3600) ~/ 60;
-    if (h > 0) return '$hч $mм';
-    return '$mм';
+    return formatDuration(seconds);
   }
 
   Future<void> _save() async {

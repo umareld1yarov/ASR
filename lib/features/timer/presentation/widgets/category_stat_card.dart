@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/activity_category.dart';
 
+import '../../../../core/utils/duration_formatter.dart';
+
 /// Одна карточка статистики категории — эмодзи, название, время за сегодня.
 class CategoryStatCard extends StatelessWidget {
   const CategoryStatCard({
@@ -16,10 +18,7 @@ class CategoryStatCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   String _formatShort(int seconds) {
-    final h = seconds ~/ 3600;
-    final m = (seconds % 3600) ~/ 60;
-    if (h > 0) return '$hч $mм';
-    return '$mм';
+    return formatDuration(seconds);
   }
 
   @override

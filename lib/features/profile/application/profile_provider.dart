@@ -1,4 +1,3 @@
-import 'package:asr/features/stats/application/insight_engine.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/utils/date_utils.dart' as du;
@@ -177,48 +176,6 @@ final personalRecordsProvider = FutureProvider<PersonalRecords>((ref) async {
   ref.watch(entriesChangedProvider);
   final repo = ref.watch(statsRepositoryProvider);
   return repo.getPersonalRecords();
-});
-
-// ── "Что ASR заметил" — переиспользуем insight-движок Статистики ────
-
-/// Один самый значимый инсайт за последние 30 дней (в сравнении
-/// с предыдущими 30 днями) — та же логика, что в Статистике, просто
-/// с более длинным окном и без привязки к выбранному пользователем периоду.
-final profileInsightProvider = FutureProvider<Insight?>((ref) async {
-  ref.watch(entriesChangedProvider);
-  final repo = ref.watch(statsRepositoryProvider);
-
-  final today = du.DateUtils.startOfDay(DateTime.now());
-  final currentStart = today.subtract(const Duration(days: 29));
-  final previousEnd = currentStart.subtract(const Duration(days: 1));
-  final previousStart = previousEnd.subtract(const Duration(days: 29));
-
-  final currentKey = du.DateUtils.dateKey(today);
-  final currentStartKey = du.DateUtils.dateKey(currentStart);
-  final previousStartKey = du.DateUtils.dateKey(previousStart);
-  final previousEndKey = du.DateUtils.dateKey(previousEnd);
-
-  final current = await repo.getCategoryBreakdown(
-    startDateKey: currentStartKey,
-    endDateKey: currentKey,
-  );
-  final previous = await repo.getCategoryBreakdown(
-    startDateKey: previousStartKey,
-    endDateKey: previousEndKey,
-  );
-  final daily = await repo.getCategoryDailyTotals(
-    startDateKey: currentStartKey,
-    endDateKey: currentKey,
-  );
-
-  final insights = buildInsights(
-    current: current,
-    previous: previous,
-    dailyByCategory: daily,
-    periodDaysCount: 30,
-  );
-
-  return insights.isNotEmpty ? insights.first : null;
 });
 
 // ── Воспоминания — случайная запись с фото ───────────

@@ -71,6 +71,7 @@ class _PickerHelpButtonState extends State<PickerHelpButton> {
 
   @override
   Widget build(BuildContext context) {
+    final _ = context.locale;
     if (_hidden) return const SizedBox.shrink();
 
     return IconButton(

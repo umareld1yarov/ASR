@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/activity_category.dart';
+import '../../../../core/utils/duration_formatter.dart';
 import '../../application/day_story_provider.dart';
 
 /// Виджет Сторис (9:16) для итогов Недели.
@@ -14,10 +15,7 @@ class WeekStoryCard extends StatelessWidget {
   final PeriodStoryData data;
 
   String _formatDuration(int seconds) {
-    final h = seconds ~/ 3600;
-    final m = (seconds % 3600) ~/ 60;
-    if (h > 0) return '$hч ${m > 0 ? "$mм" : ""}';
-    return '$mм';
+    return formatDuration(seconds);
   }
 
   @override

@@ -22,6 +22,8 @@ class CommunityScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Регистрируем зависимость от локали для мгновенной перерисовки при смене языка
+    final _ = context.locale;
     final friends = ref.watch(friendsProvider);
     final incomingRequests = ref.watch(incomingRequestsProvider);
 

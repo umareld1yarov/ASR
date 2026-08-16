@@ -7,6 +7,7 @@ import '../../../../core/utils/date_utils.dart' as du;
 import '../../../../shared/widgets/app_background.dart';
 import '../../application/milestones_provider.dart';
 import '../../application/profile_provider.dart';
+import '../../../../core/utils/duration_formatter.dart';
 
 class JourneyRecordsScreen extends ConsumerWidget {
   const JourneyRecordsScreen({super.key});
@@ -18,10 +19,7 @@ class JourneyRecordsScreen extends ConsumerWidget {
   }
 
   String _formatHours(int seconds) {
-    final h = seconds ~/ 3600;
-    final m = (seconds % 3600) ~/ 60;
-    if (h > 0) return '$hч ${m > 0 ? "$mм" : ""}';
-    return '$mм';
+    return formatDuration(seconds);
   }
 
   String _daysWord(int n) {
@@ -30,6 +28,7 @@ class JourneyRecordsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final _ = context.locale;
     final journeyAsync = ref.watch(lifetimeJourneyStatsProvider);
     final recordsAsync = ref.watch(personalRecordsProvider);
     final milestonesAsync = ref.watch(milestonesProvider);
@@ -100,10 +99,6 @@ class JourneyRecordsScreen extends ConsumerWidget {
                       journeyAsync.when(
                         data: (stats) {
                           final hours = stats.totalSeconds ~/ 3600;
-                          final metaphor = ref.watch(
-                            timeMetaphorProvider(stats.totalSeconds),
-                          );
-
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
@@ -131,7 +126,7 @@ class JourneyRecordsScreen extends ConsumerWidget {
                                       children: [
                                         _StatPill(
                                           emoji: '⏱️',
-                                          value: '$hoursч',
+                                          value: '$hours${'milestones.units.h'.tr()}',
                                           label: 'common.time'.tr(),
                                         ),
                                         const SizedBox(width: 8),
@@ -153,42 +148,6 @@ class JourneyRecordsScreen extends ConsumerWidget {
                                           label: 'common.photos'.tr(),
                                         ),
                                       ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 12,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(
-                                    0xFF06B6D4,
-                                  ).withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(
-                                    color: const Color(
-                                      0xFF06B6D4,
-                                    ).withValues(alpha: 0.3),
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Text(
-                                      '💡 ',
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                    Expanded(
-                                      child: Text(
-                                        metaphor,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.white70,
-                                          height: 1.35,
-                                        ),
-                                      ),
                                     ),
                                   ],
                                 ),
@@ -249,7 +208,7 @@ class JourneyRecordsScreen extends ConsumerWidget {
                                     ? _formatHours(records.bestDaySeconds!)
                                     : '—',
                                 subtitle: records.bestDayDateKey != null
-                                    ? du.DateUtils.formatShortRu(
+                                    ? du.DateUtils.formatShortLocalized(
                                         du.DateUtils.dateKeyToDate(
                                           records.bestDayDateKey!,
                                         ),

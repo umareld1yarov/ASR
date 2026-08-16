@@ -22,6 +22,7 @@ class TimerDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final _ = context.locale;
     final currentAsync = ref.watch(currentActivityProvider);
     final elapsedAsync = ref.watch(elapsedSecondsProvider);
 

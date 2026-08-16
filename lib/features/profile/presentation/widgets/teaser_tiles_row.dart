@@ -15,6 +15,7 @@ class TeaserTilesRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final _ = context.locale;
     final journeyAsync = ref.watch(lifetimeJourneyStatsProvider);
     final milestonesAsync = ref.watch(milestonesProvider);
 

@@ -4,16 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/activity_category.dart';
 import '../../../../core/utils/date_utils.dart' as du;
+import '../../../../core/utils/duration_formatter.dart';
 import '../../application/profile_provider.dart';
 
 class PersonalRecordsSection extends ConsumerWidget {
   const PersonalRecordsSection({super.key});
 
   String _formatDuration(int seconds) {
-    final h = seconds ~/ 3600;
-    final m = (seconds % 3600) ~/ 60;
-    if (h > 0) return '$hч $mм';
-    return '$mм';
+    return formatDuration(seconds);
   }
 
   String _daysWord(int n) {
@@ -78,7 +76,7 @@ class PersonalRecordsSection extends ConsumerWidget {
                       ? _formatDuration(records.bestDaySeconds!)
                       : '—',
                   subtitle: records.bestDayDateKey != null
-                      ? du.DateUtils.formatShortRu(
+                      ? du.DateUtils.formatShortLocalized(
                           du.DateUtils.dateKeyToDate(records.bestDayDateKey!),
                         )
                       : null,

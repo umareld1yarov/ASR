@@ -28,6 +28,7 @@ class MemoriesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final _ = context.locale;
     final entriesAsync = ref.watch(allMemoriesProvider);
 
     return Scaffold(
@@ -196,7 +197,7 @@ class _MemoryViewerScreenState extends State<_MemoryViewerScreen> {
                           ),
                         ),
                         Text(
-                          du.DateUtils.formatShortRu(
+                          du.DateUtils.formatShortLocalized(
                             DateTime.fromMillisecondsSinceEpoch(
                               photo.startedAt,
                             ),

@@ -73,6 +73,7 @@ class _CategoryPickerSheetState extends ConsumerState<CategoryPickerSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final _ = context.locale;
     final screenHeight = MediaQuery.sizeOf(context).height;
     return Container(
       decoration: const BoxDecoration(
@@ -121,42 +122,45 @@ class _CategoryStep extends StatelessWidget {
   final ValueChanged<ActivityCategory> onSelected;
 
   @override
-  Widget build(BuildContext context) => SingleChildScrollView(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const _DragHandle(),
-        const SizedBox(height: 8),
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SizedBox(width: 40),
-            SizedBox.shrink(),
-            PickerHelpButton(),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'timer.what_are_you_doing'.tr(),
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.w600,
+  Widget build(BuildContext context) {
+    final _ = context.locale;
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _DragHandle(),
+          const SizedBox(height: 8),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(width: 40),
+              SizedBox.shrink(),
+              PickerHelpButton(),
+            ],
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'timer.select_category'.tr(),
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.48),
-            fontSize: 14,
+          const SizedBox(height: 4),
+          Text(
+            'timer.what_are_you_doing'.tr(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        const SizedBox(height: 22),
-        CategorySelectionGrid(onSelected: onSelected),
-      ],
-    ),
-  );
+          const SizedBox(height: 4),
+          Text(
+            'timer.select_category'.tr(),
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.48),
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 22),
+          CategorySelectionGrid(onSelected: onSelected),
+        ],
+      ),
+    );
+  }
 }
 
 class _ActivityStep extends ConsumerWidget {
@@ -184,6 +188,7 @@ class _ActivityStep extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final _ = context.locale;
     final suggestions = ref.watch(
       activitySuggestionsProvider(category.storageKey),
     );
@@ -264,16 +269,18 @@ class _ActivityStep extends ConsumerWidget {
 class _DragHandle extends StatelessWidget {
   const _DragHandle();
   @override
-  Widget build(BuildContext context) => Center(
-    child: Container(
-      width: 36,
-      height: 4,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(2),
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        width: 36,
+        height: 4,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(2),
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _NewActivityButton extends StatelessWidget {
@@ -281,53 +288,62 @@ class _NewActivityButton extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => GlassPillButton(
-    onTap: onTap,
-    height: 52,
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(Icons.add, color: Colors.white, size: 20),
-        const SizedBox(width: 8),
-        Text(
-          'timer.new_activity'.tr(),
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
+  Widget build(BuildContext context) {
+    final _ = context.locale;
+    return GlassPillButton(
+      onTap: onTap,
+      height: 52,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.add, color: Colors.white, size: 20),
+          const SizedBox(width: 8),
+          Text(
+            'timer.new_activity'.tr(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
 
 class _NoSuggestionsText extends StatelessWidget {
   const _NoSuggestionsText();
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 20),
-    child: Text(
-      'timer.no_saved_activities'.tr(),
-      style: TextStyle(
-        color: Colors.white.withValues(alpha: 0.5),
-        fontSize: 14,
+  Widget build(BuildContext context) {
+    final _ = context.locale;
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: Text(
+        'timer.no_saved_activities'.tr(),
+        style: TextStyle(
+          color: Colors.white.withValues(alpha: 0.5),
+          fontSize: 14,
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _SuggestionsErrorText extends StatelessWidget {
   const _SuggestionsErrorText();
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 20),
-    child: Text(
-      'common.error'.tr(),
-      style: TextStyle(
-        color: Colors.white.withValues(alpha: 0.5),
-        fontSize: 14,
+  Widget build(BuildContext context) {
+    final _ = context.locale;
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: Text(
+        'common.error'.tr(),
+        style: TextStyle(
+          color: Colors.white.withValues(alpha: 0.5),
+          fontSize: 14,
+        ),
       ),
-    ),
-  );
+    );
+  }
 }

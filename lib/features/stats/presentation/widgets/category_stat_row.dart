@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/activity_category.dart';
+import '../../../../core/utils/duration_formatter.dart';
 import '../../application/stats_provider.dart';
 
 /// Раскрывающаяся строка категории (Expandable Accordion).
@@ -28,10 +29,7 @@ class _CategoryStatRowState extends ConsumerState<CategoryStatRow> {
   bool _isExpanded = false;
 
   String _formatDuration(int seconds) {
-    final h = seconds ~/ 3600;
-    final m = (seconds % 3600) ~/ 60;
-    if (h > 0) return '$hч ${m > 0 ? "$mм" : ""}';
-    return '$mм';
+    return formatDuration(seconds);
   }
 
   @override

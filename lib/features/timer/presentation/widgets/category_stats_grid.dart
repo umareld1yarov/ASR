@@ -12,6 +12,7 @@ class CategoryStatsGrid extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final _ = context.locale;
     final closedAsync = ref.watch(closedStatsProvider);
     final current = ref.watch(currentActivityProvider).valueOrNull;
     final elapsed = ref.watch(elapsedSecondsProvider).valueOrNull ?? 0;

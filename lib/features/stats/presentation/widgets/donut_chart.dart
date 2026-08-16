@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/activity_category.dart';
+import '../../../../core/utils/duration_formatter.dart';
 import '../../../timer/application/timer_provider.dart';
 import '../../application/stats_provider.dart';
 
@@ -23,10 +24,7 @@ class _DonutChartState extends ConsumerState<DonutChart> {
   int _displayMode = 0; // 0: total time, 1: top category %, 2: sessions
 
   String _formatDuration(int seconds) {
-    final h = seconds ~/ 3600;
-    final m = (seconds % 3600) ~/ 60;
-    if (h > 0) return '$hч $mм';
-    return '$mм';
+    return formatDuration(seconds);
   }
 
   void _cycleMode() {

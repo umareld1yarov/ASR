@@ -50,7 +50,10 @@ class ActivityStatusPill extends StatelessWidget {
               ),
             ],
           ),
-          if (activityName != null && activityName!.isNotEmpty) ...[
+          if (activityName != null &&
+              activityName!.trim().isNotEmpty &&
+              activityName!.trim().toLowerCase() !=
+                  category.label.trim().toLowerCase()) ...[
             const SizedBox(height: 7),
             Text(
               activityName!,

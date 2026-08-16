@@ -18,6 +18,7 @@ class FeedScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final _ = context.locale;
     final entriesAsync = ref.watch(feedEntriesProvider);
 
     return AppBackground(

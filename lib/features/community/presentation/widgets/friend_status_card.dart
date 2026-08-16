@@ -79,6 +79,8 @@ class _FriendStatusCardState extends ConsumerState<FriendStatusCard> {
 
   @override
   Widget build(BuildContext context) {
+    // Регистрируем зависимость от локали для мгновенного обновления статуса друга
+    final _ = context.locale;
     final friend = widget.friendship.friend;
     final currentStatus = widget.status;
     final isLive = currentStatus != null;
@@ -130,11 +132,11 @@ class _FriendStatusCardState extends ConsumerState<FriendStatusCard> {
                         ),
                         Text(
                           isLive
-                              ? (category?.label ?? 'community.online_status'.tr())
+                              ? 'community.online_status'.tr()
                               : 'community.offline_status'.tr(),
                           style: TextStyle(
                             color: isLive
-                                ? (category?.color ?? const Color(0xFF22C55E))
+                                ? const Color(0xFF22C55E)
                                 : Colors.white.withValues(alpha: 0.35),
                             fontSize: 11,
                             fontWeight: isLive ? FontWeight.w600 : FontWeight.w400,

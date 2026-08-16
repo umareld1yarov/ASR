@@ -106,6 +106,7 @@ class ProfileHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final _ = context.locale;
     final profileAsync = ref.watch(userProfileProvider);
     final streakAsync = ref.watch(overallStreakProvider);
     final streak = streakAsync.valueOrNull ?? 0;

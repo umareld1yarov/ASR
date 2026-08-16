@@ -5,7 +5,6 @@ import '../../../core/utils/date_utils.dart' as du;
 import '../../../data/isar_service.dart';
 import '../../timer/application/timer_provider.dart';
 import '../data/stats_repository.dart';
-import 'insight_engine.dart';
 
 final statsRepositoryProvider = Provider<StatsRepository>((ref) {
   return StatsRepository(IsarService.instance);
@@ -279,24 +278,6 @@ final statsControllerProvider = Provider<StatsController>((ref) {
   return StatsController(ref);
 });
 
-// ── Готовые инсайты для UI ───────────────────────────
-
-final insightsProvider = FutureProvider<List<Insight>>((ref) async {
-  final current = await ref.watch(categoryBreakdownProvider.future);
-  final previous = await ref.watch(previousCategoryBreakdownProvider.future);
-  final daily = await ref.watch(categoryDailyTotalsProvider.future);
-  final range = ref.watch(statsPeriodRangeProvider);
-
-  final periodDaysCount = range.end.difference(range.start).inDays + 1;
-
-  return buildInsights(
-    current: current,
-    previous: previous,
-    dailyByCategory: daily,
-    periodDaysCount: periodDaysCount,
-  );
-});
-
 // ── Можно ли листать дальше ──────────────────────────
 
 final canGoNextProvider = Provider<bool>((ref) {
@@ -319,24 +300,28 @@ final canGoPreviousProvider = Provider<bool>((ref) {
 
 // ── Подпись периода для UI ───────────────────────────
 
-String formatPeriodLabel(StatsPeriodType type, StatsPeriodRange range) {
+String formatPeriodLabel(
+  StatsPeriodType type,
+  StatsPeriodRange range, [
+  String? locale,
+]) {
   final isCurrent = range.start == _startOfPeriod(type, DateTime.now());
 
   switch (type) {
     case StatsPeriodType.day:
       if (isCurrent) return 'feed.today'.tr();
       final d = range.start;
-      return DateFormat('d MMMM yyyy').format(d);
+      return DateFormat('d MMMM yyyy', locale).format(d);
 
     case StatsPeriodType.week:
       if (isCurrent) return 'stats.this_week'.tr();
       final s = range.start;
       final e = range.end;
-      return '${DateFormat("d MMM").format(s)} – ${DateFormat("d MMM yyyy").format(e)}';
+      return '${DateFormat("d MMM", locale).format(s)} – ${DateFormat("d MMM yyyy", locale).format(e)}';
 
     case StatsPeriodType.month:
       if (isCurrent) return 'stats.this_month'.tr();
-      return DateFormat('MMMM yyyy').format(range.start);
+      return DateFormat('MMMM yyyy', locale).format(range.start);
 
     case StatsPeriodType.year:
       if (isCurrent) return 'stats.this_year'.tr();

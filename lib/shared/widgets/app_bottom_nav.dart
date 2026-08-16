@@ -32,6 +32,9 @@ class _AppBottomNavState extends State<AppBottomNav> {
 
   @override
   Widget build(BuildContext context) {
+    // Регистрируем зависимость от локали для мгновенного обновления подписей вкладок
+    final _ = context.locale;
+
     final items = [
       (Icons.radio_button_unchecked, Icons.radio_button_checked, 'nav.focus'.tr()),
       (Icons.list_alt_outlined, Icons.list_alt, 'nav.feed'.tr()),

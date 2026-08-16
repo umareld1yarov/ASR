@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../shared/widgets/app_background.dart';
@@ -12,6 +13,7 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _ = context.locale;
     return Scaffold(
       body: AppBackground(
         child: SafeArea(

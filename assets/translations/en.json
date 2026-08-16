@@ -34,7 +34,7 @@
   },
   "timer": {
     "what_are_you_doing": "What are you doing right now?",
-    "select_category": "Select Category",
+    "select_category": "Switch Activity",
     "photo_add": "Add Photo",
     "no_activity": "NO ACTIVITY",
     "tap_to_switch": "Tap 'Select Category'",
@@ -119,15 +119,6 @@
     "audit_period": "▼ Period Audit: {}",
     "interval": "  (Interval: {} — {})",
     "note": "    └─ Note: {}"
-  },
-  "insights": {
-    "clean_day": "🌿 Zero Waste Day! Pure focus and self-control.",
-    "high_productive_day": "⚡ Peak Productivity: {} of focused work!",
-    "streak_active": "🔥 {} Streak: {} in a row!",
-    "category_growth": "📈 {} grew by {}% (+{}) compared to the previous period.",
-    "waste_warning": "⏳ {} spent in Time Waste. Take a mindful pause.",
-    "discipline_high": "🔥 Outstanding Discipline — Time Waste is under 10%!",
-    "drop_off": "📉 {} declined during this period."
   },
   "community": {
     "title": "Community",
@@ -320,14 +311,8 @@
     "units": {
       "session": "session",
       "h": "h",
+      "m": "m",
       "d": "days"
     }
-  },
-  "metaphors": {
-    "start": "You are just starting your journey — every session brings you closer to your goals!",
-    "books_1": "You have {} h of mindful time — equivalent to reading about {} books!",
-    "books_2": "You dedicated {} h — that's like reading {} books of 300 pages each!",
-    "road": "Your result is {} h — like driving {} km towards your dream!",
-    "life": "Amazing! {} h — that is {} days of mindful, meaningful life!"
   }
 }

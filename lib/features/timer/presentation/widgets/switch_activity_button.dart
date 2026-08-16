@@ -10,6 +10,8 @@ class SwitchActivityButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Регистрируем зависимость от локали для мгновенной смены языка на кнопке "Сменить активность"
+    final _ = context.locale;
     return GlassPillButton(
       onTap: () => CategoryPickerSheet.show(context),
       child: Row(

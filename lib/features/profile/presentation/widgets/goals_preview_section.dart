@@ -11,6 +11,7 @@ class GoalsPreviewSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final _ = context.locale;
     final goalsAsync = ref.watch(goalsProvider);
 
     return Column(
