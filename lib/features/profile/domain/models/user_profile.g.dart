@@ -22,12 +22,13 @@ const UserProfileSchema = CollectionSchema(
       name: r'avatarPath',
       type: IsarType.string,
     ),
+    r'isPro': PropertySchema(id: 1, name: r'isPro', type: IsarType.bool),
     r'missionStatement': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'missionStatement',
       type: IsarType.string,
     ),
-    r'name': PropertySchema(id: 2, name: r'name', type: IsarType.string),
+    r'name': PropertySchema(id: 3, name: r'name', type: IsarType.string),
   },
 
   estimateSize: _userProfileEstimateSize,
@@ -74,8 +75,9 @@ void _userProfileSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeString(offsets[0], object.avatarPath);
-  writer.writeString(offsets[1], object.missionStatement);
-  writer.writeString(offsets[2], object.name);
+  writer.writeBool(offsets[1], object.isPro);
+  writer.writeString(offsets[2], object.missionStatement);
+  writer.writeString(offsets[3], object.name);
 }
 
 UserProfile _userProfileDeserialize(
@@ -87,8 +89,9 @@ UserProfile _userProfileDeserialize(
   final object = UserProfile();
   object.avatarPath = reader.readStringOrNull(offsets[0]);
   object.id = id;
-  object.missionStatement = reader.readStringOrNull(offsets[1]);
-  object.name = reader.readString(offsets[2]);
+  object.isPro = reader.readBool(offsets[1]);
+  object.missionStatement = reader.readStringOrNull(offsets[2]);
+  object.name = reader.readString(offsets[3]);
   return object;
 }
 
@@ -102,8 +105,10 @@ P _userProfileDeserializeProp<P>(
     case 0:
       return (reader.readStringOrNull(offset)) as P;
     case 1:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 2:
+      return (reader.readStringOrNull(offset)) as P;
+    case 3:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -424,6 +429,16 @@ extension UserProfileQueryFilter
           upper: upper,
           includeUpper: includeUpper,
         ),
+      );
+    });
+  }
+
+  QueryBuilder<UserProfile, UserProfile, QAfterFilterCondition> isProEqualTo(
+    bool value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'isPro', value: value),
       );
     });
   }
@@ -755,6 +770,18 @@ extension UserProfileQuerySortBy
     });
   }
 
+  QueryBuilder<UserProfile, UserProfile, QAfterSortBy> sortByIsPro() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isPro', Sort.asc);
+    });
+  }
+
+  QueryBuilder<UserProfile, UserProfile, QAfterSortBy> sortByIsProDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isPro', Sort.desc);
+    });
+  }
+
   QueryBuilder<UserProfile, UserProfile, QAfterSortBy>
   sortByMissionStatement() {
     return QueryBuilder.apply(this, (query) {
@@ -808,6 +835,18 @@ extension UserProfileQuerySortThenBy
     });
   }
 
+  QueryBuilder<UserProfile, UserProfile, QAfterSortBy> thenByIsPro() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isPro', Sort.asc);
+    });
+  }
+
+  QueryBuilder<UserProfile, UserProfile, QAfterSortBy> thenByIsProDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isPro', Sort.desc);
+    });
+  }
+
   QueryBuilder<UserProfile, UserProfile, QAfterSortBy>
   thenByMissionStatement() {
     return QueryBuilder.apply(this, (query) {
@@ -845,6 +884,12 @@ extension UserProfileQueryWhereDistinct
     });
   }
 
+  QueryBuilder<UserProfile, UserProfile, QDistinct> distinctByIsPro() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isPro');
+    });
+  }
+
   QueryBuilder<UserProfile, UserProfile, QDistinct> distinctByMissionStatement({
     bool caseSensitive = true,
   }) {
@@ -876,6 +921,12 @@ extension UserProfileQueryProperty
   QueryBuilder<UserProfile, String?, QQueryOperations> avatarPathProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'avatarPath');
+    });
+  }
+
+  QueryBuilder<UserProfile, bool, QQueryOperations> isProProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isPro');
     });
   }
 

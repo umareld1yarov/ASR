@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+import 'core/services/supabase_service.dart';
 import 'data/isar_service.dart';
 import 'shared/widgets/app_bottom_nav.dart';
 
@@ -10,6 +13,15 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
   await IsarService.open();
+
+  try {
+    await dotenv.load(fileName: '.env');
+  } catch (_) {
+    // .env файл не найден или пуст
+  }
+
+  await SupabaseService.initialize();
+
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
