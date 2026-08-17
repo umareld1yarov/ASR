@@ -51,18 +51,23 @@ class LogItemTile extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      '${_time(entry.startedAt)} – ${_time(entry.endedAt)} · ${_formatShort(entry.durationSeconds)}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white.withValues(alpha: 0.55),
+                    Expanded(
+                      child: Text(
+                        '${_time(entry.startedAt)} – ${_time(entry.endedAt)} · ${_formatShort(entry.durationSeconds)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withValues(alpha: 0.8),
+                        ),
                       ),
                     ),
+                    const SizedBox(width: 6),
                     Text(
                       category.label.toUpperCase(),
                       style: TextStyle(
-                        fontSize: 10.5,
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: category.color,
                         letterSpacing: 0.4,

@@ -66,7 +66,7 @@ class _CategoryStatRowState extends ConsumerState<CategoryStatRow> {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               child: Row(
                 children: [
-                  Text(category.emoji, style: const TextStyle(fontSize: 20)),
+                  Text(category.emoji, style: const TextStyle(fontSize: 22)),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
@@ -78,7 +78,7 @@ class _CategoryStatRowState extends ConsumerState<CategoryStatRow> {
                             Text(
                               category.label,
                               style: const TextStyle(
-                                fontSize: 14,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
                               ),
@@ -87,10 +87,10 @@ class _CategoryStatRowState extends ConsumerState<CategoryStatRow> {
                               children: [
                                 Text(
                                   '${_formatDuration(displaySeconds)} · ${(percent * 100).round()}%',
-                                  style: const TextStyle(
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white70,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white.withValues(alpha: 0.9),
                                   ),
                                 ),
                                 const SizedBox(width: 4),
@@ -98,8 +98,8 @@ class _CategoryStatRowState extends ConsumerState<CategoryStatRow> {
                                   _isExpanded
                                       ? Icons.keyboard_arrow_up
                                       : Icons.keyboard_arrow_down,
-                                  size: 18,
-                                  color: Colors.white54,
+                                  size: 20,
+                                  color: Colors.white70,
                                 ),
                               ],
                             ),
@@ -141,7 +141,7 @@ class _CategoryStatRowState extends ConsumerState<CategoryStatRow> {
                               child: Text(
                                 'stats.no_custom_entries'.tr(),
                                 style: const TextStyle(
-                                  fontSize: 11.5,
+                                  fontSize: 12.5,
                                   color: Colors.white38,
                                   fontStyle: FontStyle.italic,
                                 ),
@@ -159,37 +159,36 @@ class _CategoryStatRowState extends ConsumerState<CategoryStatRow> {
                                       CrossAxisAlignment.stretch,
                                   children: [
                                     Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Row(
-                                          children: [
-                                            Container(
-                                              width: 6,
-                                              height: 6,
-                                              decoration: BoxDecoration(
-                                                color: category.color,
-                                                shape: BoxShape.circle,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              item.name,
-                                              style: const TextStyle(
-                                                fontSize: 12.5,
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ],
+                                        Container(
+                                          width: 6,
+                                          height: 6,
+                                          decoration: BoxDecoration(
+                                            color: category.color,
+                                            shape: BoxShape.circle,
+                                          ),
                                         ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            item.name,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
                                         Text(
                                           '${_formatDuration(item.seconds)} · ${(item.ratio * 100).round()}%',
                                           style: TextStyle(
-                                            fontSize: 11.5,
-                                            fontWeight: FontWeight.w500,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
                                             color: category.color.withValues(
-                                              alpha: 0.9,
+                                              alpha: 0.95,
                                             ),
                                           ),
                                         ),

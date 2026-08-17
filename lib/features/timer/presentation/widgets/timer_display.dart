@@ -76,7 +76,7 @@ class TimerDisplay extends ConsumerWidget {
                               category?.label.toUpperCase() ?? 'timer.no_activity'.tr(),
                               style: TextStyle(
                                 color: category?.color ?? Colors.white38,
-                                fontSize: width * 0.045,
+                                fontSize: width * 0.054,
                                 fontWeight: FontWeight.w700,
                                 letterSpacing: 1.0,
                               ),
@@ -91,7 +91,7 @@ class TimerDisplay extends ConsumerWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.65),
-                            fontSize: width * 0.058,
+                            fontSize: width * 0.065,
                             fontWeight: FontWeight.w600,
                             height: 1.1,
                             letterSpacing: 0.1,

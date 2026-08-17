@@ -48,15 +48,19 @@ class CategoryStatCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                fontSize: 10.5,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),
             ),
-            const SizedBox(height: 0),
+            const SizedBox(height: 1),
             Text(
               _formatShort(seconds),
-              style: const TextStyle(fontSize: 10.5, color: Colors.white54),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: Colors.white70,
+              ),
             ),
           ],
         ),
