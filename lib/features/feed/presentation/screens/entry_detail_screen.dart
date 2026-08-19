@@ -8,10 +8,12 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/activity_category.dart';
 import '../../../../core/utils/duration_formatter.dart';
 import '../../../../shared/widgets/app_background.dart';
+import '../../../../shared/widgets/glass_pill_button.dart';
 import '../../../timer/domain/models/activity_entry.dart';
 import '../../application/feed_provider.dart';
 import '../../data/photo_service.dart';
 import 'photo_viewer_screen.dart';
+import 'split_entry_screen.dart';
 
 class EntryDetailScreen extends ConsumerStatefulWidget {
   const EntryDetailScreen({super.key, required this.entry});
@@ -82,6 +84,29 @@ class _EntryDetailScreenState extends ConsumerState<EntryDetailScreen> {
         );
 
     if (mounted) setState(() => _isEditing = false);
+  }
+
+  Future<void> _splitEntry() async {
+    final result = await Navigator.of(context).push<SplitEntryResult>(
+      MaterialPageRoute(builder: (_) => SplitEntryScreen(entry: widget.entry)),
+    );
+    if (result == null || !mounted) return;
+
+    await ref
+        .read(feedControllerProvider)
+        .splitEntry(
+          widget.entry.id,
+          splitAt: result.splitAt,
+          firstName: result.firstName,
+          firstCategoryKey: result.firstCategory.storageKey,
+          secondName: result.secondName,
+          secondCategoryKey: result.secondCategory.storageKey,
+        );
+    if (!mounted) return;
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('feed.split_success'.tr())));
   }
 
   void _startEditingNote() {
@@ -443,33 +468,171 @@ class _EntryDetailScreenState extends ConsumerState<EntryDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 8),
+        Text(
+          'feed.name_label'.tr(),
+          style: const TextStyle(
+            color: Colors.white60,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
         TextField(
           controller: _nameController,
           style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
-            labelText: 'feed.name_label'.tr(),
-            labelStyle: const TextStyle(color: Colors.white54),
-            border: const OutlineInputBorder(),
+            hintText: 'feed.name_label'.tr(),
+            hintStyle: const TextStyle(color: Colors.white38),
+            filled: true,
+            fillColor: _selectedCategory.color.withValues(alpha: 0.06),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(
+                color: _selectedCategory.color.withValues(alpha: 0.45),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(
+                color: _selectedCategory.color,
+                width: 1.6,
+              ),
+            ),
           ),
         ),
-        const SizedBox(height: 16),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: ActivityCategory.values.map((category) {
-            final isSelected = _selectedCategory == category;
-            return ChoiceChip(
-              label: Text(category.label),
-              selected: isSelected,
-              onSelected: (_) => setState(() => _selectedCategory = category),
-              selectedColor: category.color.withValues(alpha: 0.3),
-            );
-          }).toList(),
+        const SizedBox(height: 20),
+        Text(
+          'feed.category_label'.tr(),
+          style: const TextStyle(
+            color: Colors.white60,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
         ),
-        const SizedBox(height: 24),
-        ElevatedButton(onPressed: _save, child: Text('common.save'.tr())),
-        const SizedBox(height: 24),
+        const SizedBox(height: 10),
+        GridView.count(
+          crossAxisCount: 3,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 1.82,
+          children: ActivityCategory.values.map(_buildCategoryTile).toList(),
+        ),
+        const SizedBox(height: 26),
+        GlassPillButton(
+          onTap: _save,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.check_rounded, color: Colors.white, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'feed.save_changes'.tr(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        GlassPillButton(
+          onTap: _splitEntry,
+          subtle: true,
+          height: 54,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.call_split_rounded,
+                color: Colors.white70,
+                size: 19,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'feed.split_action'.tr(),
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 32),
       ],
+    );
+  }
+
+  Widget _buildCategoryTile(ActivityCategory category) {
+    final selected = _selectedCategory == category;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => setState(() => _selectedCategory = category),
+        borderRadius: BorderRadius.circular(14),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 4),
+          decoration: BoxDecoration(
+            color: category.color.withValues(alpha: selected ? 0.25 : 0.08),
+            borderRadius: BorderRadius.circular(11),
+            border: Border.all(
+              color: category.color.withValues(alpha: selected ? 0.9 : 0.3),
+              width: selected ? 1.5 : 1,
+            ),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: category.color.withValues(alpha: 0.16),
+                      blurRadius: 12,
+                    ),
+                  ]
+                : null,
+          ),
+          child: Stack(
+            children: [
+              Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(category.emoji, style: const TextStyle(fontSize: 15)),
+                    const SizedBox(height: 1),
+                    Text(
+                      category.label,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: selected ? Colors.white : Colors.white70,
+                        fontSize: 10,
+                        height: 1,
+                        fontWeight: selected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (selected)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Icon(
+                    Icons.check_circle_rounded,
+                    color: category.color,
+                    size: 13,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

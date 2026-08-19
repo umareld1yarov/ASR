@@ -2,6 +2,7 @@ import 'package:isar_community/isar.dart';
 
 import '../../timer/domain/models/activity_entry.dart';
 import 'dart:math';
+import 'package:uuid/uuid.dart';
 
 /// Одна запись-кандидат для карточки "Дневник дня" — со ВСЕМИ её фото
 /// (до 4 штук). Какое именно фото показать — выбирает пользователь на
@@ -44,6 +45,7 @@ class FeedRepository {
   FeedRepository(this._isar);
 
   final Isar _isar;
+  static const _uuid = Uuid();
 
   /// Записи за конкретный день, отсортированные по времени начала.
   Future<List<ActivityEntry>> getEntriesByDate(String dateKey) {
@@ -85,6 +87,7 @@ class FeedRepository {
       if (mood != null) entry.mood = mood;
       if (obstacles != null) entry.obstacles = obstacles;
       if (nextExperiment != null) entry.nextExperiment = nextExperiment;
+      entry.updatedAt = DateTime.now().millisecondsSinceEpoch;
       await _isar.activityEntrys.put(entry);
     });
   }
@@ -112,6 +115,7 @@ class FeedRepository {
       final photos = List<String>.from(entry.photoPaths ?? []);
       photos.add(photoPath);
       entry.photoPaths = photos;
+      entry.updatedAt = DateTime.now().millisecondsSinceEpoch;
       await _isar.activityEntrys.put(entry);
     });
   }
@@ -124,6 +128,7 @@ class FeedRepository {
       final photos = List<String>.from(entry.photoPaths ?? []);
       photos.remove(photoPath);
       entry.photoPaths = photos;
+      entry.updatedAt = DateTime.now().millisecondsSinceEpoch;
       await _isar.activityEntrys.put(entry);
     });
   }
@@ -133,8 +138,60 @@ class FeedRepository {
       final entry = await _isar.activityEntrys.get(id);
       if (entry == null) return;
       entry.isDeleted = true;
+      entry.updatedAt = DateTime.now().millisecondsSinceEpoch;
       await _isar.activityEntrys.put(entry);
     });
+  }
+
+  /// Делит завершённую запись на две непрерывные части, не позволяя изменить
+  /// внешние границы исходного интервала.
+  Future<ActivityEntry> splitEntry(
+    int id, {
+    required int splitAt,
+    required String firstName,
+    required String firstCategoryKey,
+    required String secondName,
+    required String secondCategoryKey,
+  }) async {
+    late ActivityEntry second;
+    await _isar.writeTxn(() async {
+      final original = await _isar.activityEntrys.get(id);
+      if (original == null || original.isDeleted) {
+        throw StateError('Activity entry not found');
+      }
+      const minPartMillis = Duration.millisecondsPerMinute;
+      if (splitAt - original.startedAt < minPartMillis ||
+          original.endedAt - splitAt < minPartMillis) {
+        throw ArgumentError('Each split part must be at least one minute');
+      }
+
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final originalEnd = original.endedAt;
+      final totalDurationSeconds = ((originalEnd - original.startedAt) / 1000)
+          .floor();
+      final firstDurationSeconds = ((splitAt - original.startedAt) / 1000)
+          .floor();
+      original
+        ..name = firstName.trim()
+        ..categoryKey = firstCategoryKey
+        ..endedAt = splitAt
+        ..durationSeconds = firstDurationSeconds
+        ..updatedAt = now;
+
+      second = ActivityEntry()
+        ..syncId = _uuid.v4()
+        ..updatedAt = now
+        ..name = secondName.trim()
+        ..categoryKey = secondCategoryKey
+        ..startedAt = splitAt
+        ..endedAt = originalEnd
+        ..durationSeconds = totalDurationSeconds - firstDurationSeconds
+        ..dateKey = original.dateKey;
+
+      await _isar.activityEntrys.put(original);
+      await _isar.activityEntrys.put(second);
+    });
+    return second;
   }
 
   /// Все записи с фото, для полного экрана "Воспоминания" — от новых к старым.

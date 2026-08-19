@@ -1,5 +1,6 @@
 import 'package:isar_community/isar.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
 
 import '../features/profile/domain/models/goal.dart';
 import '../features/profile/domain/models/user_profile.dart';
@@ -26,6 +27,27 @@ class IsarService {
       UserProfileSchema,
       GoalSchema,
     ], directory: dir.path);
+
+    // Ленивая локальная миграция: старые записи получают глобальный UUID и
+    // реальное время изменения без потери существующих данных.
+    final entries = await _instance!.activityEntrys.where().findAll();
+    final needsMigration = entries.any(
+      (entry) => entry.syncId.isEmpty || entry.updatedAt == 0,
+    );
+    if (needsMigration) {
+      const uuid = Uuid();
+      await _instance!.writeTxn(() async {
+        for (final entry in entries) {
+          if (entry.syncId.isEmpty) entry.syncId = uuid.v4();
+          if (entry.updatedAt == 0) {
+            entry.updatedAt = entry.endedAt > 0
+                ? entry.endedAt
+                : DateTime.now().millisecondsSinceEpoch;
+          }
+          await _instance!.activityEntrys.put(entry);
+        }
+      });
+    }
 
     return _instance!;
   }

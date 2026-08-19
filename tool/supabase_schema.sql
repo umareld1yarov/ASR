@@ -3,6 +3,8 @@
 -- Выполните этот скрипт в Supabase Dashboard -> SQL Editor
 -- ========================================================
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- 1. Таблица профилей пользователей
 CREATE TABLE IF NOT EXISTS public.user_profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -15,7 +17,7 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );
 
--- Добавляем колонку username и display_name, если таблица уже существовала
+-- Дополняем старую таблицу профилей всеми полями актуальной схемы.
 DO $$ 
 BEGIN 
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user_profiles' AND column_name = 'username') THEN
@@ -24,12 +26,28 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user_profiles' AND column_name = 'display_name') THEN
         ALTER TABLE public.user_profiles ADD COLUMN display_name TEXT NOT NULL DEFAULT 'ASR Member';
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'user_profiles' AND column_name = 'avatar_url') THEN
+        ALTER TABLE public.user_profiles ADD COLUMN avatar_url TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'user_profiles' AND column_name = 'mission_statement') THEN
+        ALTER TABLE public.user_profiles ADD COLUMN mission_statement TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'user_profiles' AND column_name = 'is_pro') THEN
+        ALTER TABLE public.user_profiles ADD COLUMN is_pro BOOLEAN NOT NULL DEFAULT false;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'user_profiles' AND column_name = 'subscription_tier') THEN
+        ALTER TABLE public.user_profiles ADD COLUMN subscription_tier TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'user_profiles' AND column_name = 'updated_at') THEN
+        ALTER TABLE public.user_profiles ADD COLUMN updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now());
+    END IF;
 END $$;
 
 
 -- 2. Таблица записей активности (Focus Logs)
 CREATE TABLE IF NOT EXISTS public.activity_entries (
     id BIGINT NOT NULL,
+    sync_id UUID NOT NULL DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     category_key TEXT NOT NULL,
@@ -44,8 +62,11 @@ CREATE TABLE IF NOT EXISTS public.activity_entries (
     note TEXT,
     photo_urls TEXT[],
     updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
-    PRIMARY KEY (id, user_id)
+    PRIMARY KEY (user_id, sync_id)
 );
+
+CREATE INDEX IF NOT EXISTS activity_entries_user_legacy_id_idx
+    ON public.activity_entries (user_id, id);
 
 
 -- 3. Таблица целей
@@ -166,8 +187,8 @@ DECLARE
     raw_name TEXT;
     derived_username TEXT;
 BEGIN
-    raw_name := COALESCE(NEW.raw_user_meta_data->>'name', NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1));
-    derived_username := LOWER(REGEXP_REPLACE(split_part(NEW.email, '@', 1), '[^a-zA-Z0-9_]', '_', 'g')) || '_' || SUBSTRING(NEW.id::text, 1, 4);
+    raw_name := COALESCE(NEW.raw_user_meta_data->>'name', NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1), 'ASR Member');
+    derived_username := LOWER(REGEXP_REPLACE(COALESCE(split_part(NEW.email, '@', 1), 'user'), '[^a-zA-Z0-9_]', '_', 'g')) || '_' || SUBSTRING(NEW.id::text, 1, 8);
 
     INSERT INTO public.user_profiles (id, username, display_name, avatar_url, is_pro, updated_at)
     VALUES (
@@ -182,7 +203,7 @@ BEGIN
 
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, auth;
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
@@ -217,5 +238,3 @@ BEGIN
     DELETE FROM auth.users WHERE id = _user_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
-
-

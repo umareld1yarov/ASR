@@ -11,11 +11,13 @@ class GlassPillButton extends StatelessWidget {
     required this.onTap,
     required this.child,
     this.height = 58,
+    this.subtle = false,
   });
 
   final VoidCallback onTap;
   final Widget child;
   final double height;
+  final bool subtle;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,7 @@ class GlassPillButton extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(height / 2),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.22),
+              color: Colors.white.withValues(alpha: subtle ? 0.16 : 0.22),
               width: 1.2,
             ),
             boxShadow: [
@@ -51,8 +53,12 @@ class GlassPillButton extends StatelessWidget {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          const Color(0xFF63656E).withValues(alpha: 0.45),
-                          const Color(0xFF2A2B30).withValues(alpha: 0.55),
+                          const Color(
+                            0xFF63656E,
+                          ).withValues(alpha: subtle ? 0.24 : 0.45),
+                          const Color(
+                            0xFF2A2B30,
+                          ).withValues(alpha: subtle ? 0.32 : 0.55),
                         ],
                       ),
                     ),
@@ -68,8 +74,8 @@ class GlassPillButton extends StatelessWidget {
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          Colors.white.withValues(alpha: 0.28),
-                          Colors.white.withValues(alpha: 0.08),
+                          Colors.white.withValues(alpha: subtle ? 0.12 : 0.28),
+                          Colors.white.withValues(alpha: subtle ? 0.04 : 0.08),
                           Colors.transparent,
                         ],
                       ),
@@ -80,7 +86,9 @@ class GlassPillButton extends StatelessWidget {
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                     child: Material(
-                      color: Colors.white.withValues(alpha: 0.04),
+                      color: Colors.white.withValues(
+                        alpha: subtle ? 0.02 : 0.04,
+                      ),
                       child: InkWell(
                         onTap: onTap,
                         child: Center(child: child),

@@ -107,6 +107,26 @@ class FeedController {
     _ref.invalidate(feedEntriesProvider);
     _ref.read(entriesChangedProvider.notifier).state++;
   }
+
+  Future<void> splitEntry(
+    int id, {
+    required int splitAt,
+    required String firstName,
+    required String firstCategoryKey,
+    required String secondName,
+    required String secondCategoryKey,
+  }) async {
+    await _repo.splitEntry(
+      id,
+      splitAt: splitAt,
+      firstName: firstName,
+      firstCategoryKey: firstCategoryKey,
+      secondName: secondName,
+      secondCategoryKey: secondCategoryKey,
+    );
+    _ref.invalidate(feedEntriesProvider);
+    _ref.read(entriesChangedProvider.notifier).state++;
+  }
 }
 
 final feedControllerProvider = Provider<FeedController>((ref) {

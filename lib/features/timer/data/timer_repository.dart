@@ -5,6 +5,7 @@ import '../../profile/domain/models/goal.dart';
 import '../domain/models/activity_entry.dart';
 import '../domain/models/activity_suggestion.dart';
 import '../domain/models/current_activity.dart';
+import 'package:uuid/uuid.dart';
 
 /// Репозиторий таймера: работа с текущей активностью и завершёнными записями.
 /// Логика нарезки по полуночи — прямой перенос _ensureSliced из timer.js.
@@ -12,6 +13,7 @@ class TimerRepository {
   TimerRepository(this._isar);
 
   final Isar _isar;
+  static const _uuid = Uuid();
 
   static const int _minDurationSeconds = 5;
 
@@ -151,6 +153,8 @@ class TimerRepository {
       final durationSeconds = ((midnightMillis - currentStart) / 1000).floor();
 
       final chunk = ActivityEntry()
+        ..syncId = _uuid.v4()
+        ..updatedAt = DateTime.now().millisecondsSinceEpoch
         ..name = name
         ..categoryKey = categoryKey
         ..startedAt = currentStart
@@ -222,6 +226,8 @@ class TimerRepository {
         final durationSeconds = ((now - lastChunkStart) / 1000).floor();
 
         final finalEntry = ActivityEntry()
+          ..syncId = _uuid.v4()
+          ..updatedAt = DateTime.now().millisecondsSinceEpoch
           ..name = prev.name
           ..categoryKey = prev.categoryKey
           ..startedAt = lastChunkStart
@@ -302,6 +308,7 @@ class TimerRepository {
       if (entry == null) return;
       if (name != null) entry.name = name;
       if (categoryKey != null) entry.categoryKey = categoryKey;
+      entry.updatedAt = DateTime.now().millisecondsSinceEpoch;
       await _isar.activityEntrys.put(entry);
     });
   }
@@ -311,6 +318,7 @@ class TimerRepository {
       final entry = await _isar.activityEntrys.get(id);
       if (entry == null) return;
       entry.isDeleted = true;
+      entry.updatedAt = DateTime.now().millisecondsSinceEpoch;
       await _isar.activityEntrys.put(entry);
     });
   }
