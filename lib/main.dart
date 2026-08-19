@@ -5,8 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+import 'core/services/purchases_service.dart';
 import 'core/services/supabase_service.dart';
 import 'data/isar_service.dart';
+import 'features/onboarding/application/onboarding_provider.dart';
+import 'features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'shared/widgets/app_bottom_nav.dart';
 
 void main() async {
@@ -21,7 +24,7 @@ void main() async {
   }
 
   await SupabaseService.initialize();
-
+  await PurchasesService.initialize();
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -51,11 +54,13 @@ void main() async {
   );
 }
 
-class AsrApp extends StatelessWidget {
+class AsrApp extends ConsumerWidget {
   const AsrApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final onboardingAsync = ref.watch(isOnboardingCompletedProvider);
+
     return MaterialApp(
       title: 'ASR',
       debugShowCheckedModeBanner: false,
@@ -65,7 +70,17 @@ class AsrApp extends StatelessWidget {
       theme: ThemeData.dark(
         useMaterial3: true,
       ).copyWith(scaffoldBackgroundColor: const Color(0xFF0A0A0A)),
-      home: const AppBottomNav(),
+      home: onboardingAsync.when(
+        data: (completed) =>
+            completed ? const AppBottomNav() : const OnboardingScreen(),
+        loading: () => const Scaffold(
+          backgroundColor: Color(0xFF0A0A0A),
+          body: Center(
+            child: CircularProgressIndicator(color: Color(0xFF06B6D4)),
+          ),
+        ),
+        error: (e, s) => const AppBottomNav(),
+      ),
     );
   }
 }

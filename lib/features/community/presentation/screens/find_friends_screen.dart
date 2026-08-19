@@ -1,6 +1,7 @@
 import 'package:asr/features/community/community_theme.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../shared/widgets/app_background.dart';
@@ -26,59 +27,146 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final meAsync = ref.watch(meProvider);
     final resultsAsync = ref.watch(userSearchProvider(_query));
     final controller = ref.read(communityControllerProvider);
 
-    return AppBackground(
-      child: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.arrow_back, color: Colors.white70),
-                  ),
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      autofocus: true,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        hintText: 'community.enter_username_hint'.tr(),
-                        hintStyle: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.3),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white.withValues(alpha: 0.06),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      onChanged: (value) =>
-                          setState(() => _query = value.trim()),
+    return Scaffold(
+      body: AppBackground(
+        child: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
+                child: Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.arrow_back, color: Colors.white70),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: _query.isEmpty
-                  ? Center(
-                      child: Text(
-                        'community.enter_username_prompt'.tr(),
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.35),
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        autofocus: true,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: 'community.enter_username_hint'.tr(),
+                          hintStyle: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.3),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white.withValues(alpha: 0.06),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
                         ),
+                        onChanged: (value) =>
+                            setState(() => _query = value.trim()),
                       ),
-                    )
-                  : resultsAsync.when(
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: _query.isEmpty
+                    ? SingleChildScrollView(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 20),
+                            // Карточка собственного никнейма
+                            meAsync.when(
+                              loading: () => const SizedBox.shrink(),
+                              error: (e, s) => const SizedBox.shrink(),
+                              data: (me) => Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.05),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: CommunityTheme.accentColor.withValues(alpha: 0.2),
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      'Ваш никнейм для друзей:',
+                                      style: TextStyle(
+                                        color: Colors.white.withValues(alpha: 0.6),
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          '@${me.username}',
+                                          style: const TextStyle(
+                                            color: CommunityTheme.accentColor,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.copy,
+                                            size: 18,
+                                            color: Colors.white70,
+                                          ),
+                                          tooltip: 'Скопировать ник',
+                                          onPressed: () {
+                                            Clipboard.setData(
+                                              ClipboardData(text: '@${me.username}'),
+                                            );
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(
+                                                content: Text('Никнейм скопирован в буфер обмена'),
+                                                duration: Duration(seconds: 2),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Отправьте его другу, чтобы он мог найти вас в ASR',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.white.withValues(alpha: 0.4),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 40),
+                            Icon(
+                              Icons.search_rounded,
+                              size: 48,
+                              color: Colors.white.withValues(alpha: 0.15),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'community.enter_username_prompt'.tr(),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.35),
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : resultsAsync.when(
                       loading: () => const Center(
                         child: CircularProgressIndicator(
                           color: CommunityTheme.accentColor,
@@ -133,6 +221,6 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
           ],
         ),
       ),
-    );
+    ),);
   }
 }

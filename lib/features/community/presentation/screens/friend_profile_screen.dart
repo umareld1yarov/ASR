@@ -21,8 +21,9 @@ class FriendProfileScreen extends ConsumerWidget {
       friendActivityStatusProvider(friendship.friend.id),
     );
 
-    return AppBackground(
-      child: SafeArea(
+    return Scaffold(
+      body: AppBackground(
+        child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -176,7 +177,7 @@ class FriendProfileScreen extends ConsumerWidget {
           ],
         ),
       ),
-    );
+    ),);
   }
 }
 

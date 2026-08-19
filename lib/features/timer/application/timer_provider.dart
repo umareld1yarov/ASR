@@ -80,16 +80,10 @@ class TimerController {
   Future<void> switchActivity({
     required String name,
     required String categoryKey,
-    String? reviewMood,
-    List<String>? reviewObstacles,
-    String? reviewNextExperiment,
   }) async {
     await _repo.switchActivity(
       name: name,
       categoryKey: categoryKey,
-      reviewMood: reviewMood,
-      reviewObstacles: reviewObstacles,
-      reviewNextExperiment: reviewNextExperiment,
     );
 
     // Проигрываем звук переключения активности

@@ -150,6 +150,18 @@ class MockCommunityRepository implements CommunityRepository {
   }
 
   @override
+  Future<bool> checkUsernameAvailable(String username) async {
+    final clean = username.trim().replaceAll('@', '').toLowerCase();
+    return !_allUsers.any((u) => u.username.toLowerCase() == clean);
+  }
+
+  @override
+  Future<void> updateUsername(String newUsername) async {
+    // In-memory mock
+    return;
+  }
+
+  @override
   Future<void> sendReaction({
     required String friendId,
     required String emoji,

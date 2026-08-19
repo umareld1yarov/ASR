@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -5,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../community/application/community_provider.dart';
+import '../../../community/community_theme.dart';
 import '../../../feed/data/photo_service.dart';
 import '../../application/profile_provider.dart';
 
@@ -62,6 +65,19 @@ class ProfileHeader extends ConsumerWidget {
     }
   }
 
+  Future<void> _editUsername(
+    BuildContext context,
+    WidgetRef ref,
+    String currentUsername,
+  ) async {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _UsernameEditSheet(initialUsername: currentUsername),
+    );
+  }
+
   Future<void> _editMission(
     BuildContext context,
     WidgetRef ref,
@@ -108,6 +124,7 @@ class ProfileHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final _ = context.locale;
     final profileAsync = ref.watch(userProfileProvider);
+    final meAsync = ref.watch(meProvider);
     final streakAsync = ref.watch(overallStreakProvider);
     final streak = streakAsync.valueOrNull ?? 0;
 
@@ -160,7 +177,45 @@ class ProfileHeader extends ConsumerWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
+            // Инстаграм-стиль: уникальный @username
+            meAsync.when(
+              loading: () => const SizedBox(height: 20),
+              error: (e, s) => const SizedBox.shrink(),
+              data: (me) => GestureDetector(
+                onTap: () => _editUsername(context, ref, me.username),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: CommunityTheme.accentColor.withValues(alpha: 0.25),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '@${me.username}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: CommunityTheme.accentColor,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        Icons.edit,
+                        size: 12,
+                        color: CommunityTheme.accentColor,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
             GestureDetector(
               onTap: () =>
                   _editMission(context, ref, profile.missionStatement ?? ''),
@@ -188,6 +243,290 @@ class ProfileHeader extends ConsumerWidget {
       },
       loading: () => const SizedBox(height: 120),
       error: (e, _) => Text('${"common.error".tr()}: $e'),
+    );
+  }
+}
+
+/// Модальное окно редактирования @username с валидацией как в Instagram.
+class _UsernameEditSheet extends ConsumerStatefulWidget {
+  const _UsernameEditSheet({required this.initialUsername});
+
+  final String initialUsername;
+
+  @override
+  ConsumerState<_UsernameEditSheet> createState() => _UsernameEditSheetState();
+}
+
+class _UsernameEditSheetState extends ConsumerState<_UsernameEditSheet> {
+  late final TextEditingController _controller;
+  Timer? _debounce;
+  bool _isChecking = false;
+  bool _isSaving = false;
+  bool? _isAvailable;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialUsername);
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onChanged(String value) {
+    _debounce?.cancel();
+    final clean = value.trim().replaceAll('@', '').toLowerCase();
+
+    if (clean == widget.initialUsername.toLowerCase()) {
+      setState(() {
+        _isChecking = false;
+        _isAvailable = true;
+        _errorMessage = null;
+      });
+      return;
+    }
+
+    if (clean.length < 3) {
+      setState(() {
+        _isChecking = false;
+        _isAvailable = false;
+        _errorMessage = 'Минимум 3 символа';
+      });
+      return;
+    }
+
+    if (clean.length > 30) {
+      setState(() {
+        _isChecking = false;
+        _isAvailable = false;
+        _errorMessage = 'Максимум 30 символов';
+      });
+      return;
+    }
+
+    final regex = RegExp(r'^(?!.*\.\.)(?!.*\.$)[a-z0-9_][a-z0-9_\.]{1,28}[a-z0-9_]$');
+    if (!regex.hasMatch(clean)) {
+      setState(() {
+        _isChecking = false;
+        _isAvailable = false;
+        _errorMessage = 'Разрешены только a-z, 0-9, . и _';
+      });
+      return;
+    }
+
+    setState(() {
+      _isChecking = true;
+      _errorMessage = null;
+    });
+
+    _debounce = Timer(const Duration(milliseconds: 400), () async {
+      try {
+        final available = await ref
+            .read(communityControllerProvider)
+            .checkUsernameAvailable(clean);
+
+        if (mounted) {
+          setState(() {
+            _isChecking = false;
+            _isAvailable = available;
+            _errorMessage = available ? null : 'Этот никнейм уже занят';
+          });
+        }
+      } catch (_) {
+        if (mounted) {
+          setState(() {
+            _isChecking = false;
+            _isAvailable = false;
+            _errorMessage = 'Ошибка проверки доступности';
+          });
+        }
+      }
+    });
+  }
+
+  Future<void> _save() async {
+    final clean = _controller.text.trim().replaceAll('@', '').toLowerCase();
+    if (_isAvailable != true || clean.isEmpty) return;
+
+    setState(() => _isSaving = true);
+    try {
+      await ref.read(communityControllerProvider).updateUsername(clean);
+      if (mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Никнейм успешно изменен на @$clean'),
+            backgroundColor: const Color(0xFF22C55E),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+          _errorMessage = e.toString().replaceAll('Exception: ', '');
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    return Container(
+      padding: EdgeInsets.fromLTRB(24, 20, 24, 24 + bottomInset),
+      decoration: const BoxDecoration(
+        color: Color(0xFF18181B),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          const Text(
+            'Уникальный никнейм',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Друзья смогут находить вас по этому нику (@username), как в Instagram.',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.5),
+              fontSize: 13,
+            ),
+          ),
+          const SizedBox(height: 20),
+          TextField(
+            controller: _controller,
+            autofocus: true,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+            ),
+            decoration: InputDecoration(
+              prefixText: '@',
+              prefixStyle: const TextStyle(
+                color: CommunityTheme.accentColor,
+                fontWeight: FontWeight.w700,
+                fontSize: 16,
+              ),
+              hintText: 'ваш_никнейм',
+              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
+              filled: true,
+              fillColor: Colors.white.withValues(alpha: 0.05),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(
+                  color: _errorMessage != null
+                      ? Colors.redAccent
+                      : _isAvailable == true
+                          ? const Color(0xFF22C55E)
+                          : Colors.white12,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(
+                  color: _errorMessage != null
+                      ? Colors.redAccent
+                      : _isAvailable == true
+                          ? const Color(0xFF22C55E)
+                          : Colors.white12,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(
+                  color: _errorMessage != null
+                      ? Colors.redAccent
+                      : _isAvailable == true
+                          ? const Color(0xFF22C55E)
+                          : CommunityTheme.accentColor,
+                  width: 1.5,
+                ),
+              ),
+              suffixIcon: _isChecking
+                  ? const Padding(
+                      padding: EdgeInsets.all(12),
+                      child: SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
+                      ),
+                    )
+                  : _isAvailable == true && _errorMessage == null
+                      ? const Icon(Icons.check_circle, color: Color(0xFF22C55E), size: 20)
+                      : _errorMessage != null
+                          ? const Icon(Icons.cancel, color: Colors.redAccent, size: 20)
+                          : null,
+            ),
+            onChanged: _onChanged,
+          ),
+          const SizedBox(height: 10),
+          if (_errorMessage != null)
+            Text(
+              _errorMessage!,
+              style: const TextStyle(color: Colors.redAccent, fontSize: 12),
+            )
+          else if (_isAvailable == true && _controller.text.trim().isNotEmpty)
+            const Text(
+              '✓ Этот никнейм свободен',
+              style: TextStyle(color: Color(0xFF22C55E), fontSize: 12, fontWeight: FontWeight.w500),
+            )
+          else
+            Text(
+              'От 3 до 30 символов: a-z, 0-9, точки и подчеркивания.',
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.35), fontSize: 12),
+            ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: (_isAvailable == true && !_isChecking && !_isSaving) ? _save : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: CommunityTheme.accentColor,
+              disabledBackgroundColor: Colors.white.withValues(alpha: 0.1),
+              foregroundColor: Colors.black,
+              disabledForegroundColor: Colors.white24,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            child: _isSaving
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                  )
+                : const Text(
+                    'Сохранить никнейм',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }

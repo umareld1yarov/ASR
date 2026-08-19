@@ -2,7 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/services/purchases_service.dart';
+import '../../backup/application/sync_controller.dart';
+import '../../premium/application/premium_controller.dart';
 import '../data/auth_repository.dart';
+
 
 const String _kCloudBackupEnabledKey = 'cloud_backup_enabled';
 
@@ -46,11 +50,12 @@ class AuthStateModel {
 
 /// Контроллер управления состоянием авторизации и включения бэкапа.
 class AuthController extends StateNotifier<AuthStateModel> {
-  AuthController(this._repository) : super(const AuthStateModel()) {
+  AuthController(this._repository, this._ref) : super(const AuthStateModel()) {
     _init();
   }
 
   final AuthRepository _repository;
+  final Ref _ref;
 
   Future<void> _init() async {
     final prefs = await SharedPreferences.getInstance();
@@ -62,10 +67,32 @@ class AuthController extends StateNotifier<AuthStateModel> {
       user: currentUser,
     );
 
+    if (currentUser != null) {
+      PurchasesService.logIn(currentUser.id);
+      _triggerAutoSync();
+    }
+
     // Подписка на изменения состояния Supabase Auth
     _repository.authStateChanges?.listen((data) {
       final user = data.session?.user;
       state = state.copyWith(user: user, clearUser: user == null);
+      if (user != null) {
+        PurchasesService.logIn(user.id);
+        _triggerAutoSync();
+      } else {
+        PurchasesService.logOut();
+      }
+    });
+  }
+
+  void _triggerAutoSync() {
+    Future.microtask(() {
+      try {
+        final isPro = _ref.read(isProProvider);
+        if (isPro) {
+          _ref.read(syncControllerProvider.notifier).triggerSync(silent: true);
+        }
+      } catch (_) {}
     });
   }
 
@@ -74,6 +101,9 @@ class AuthController extends StateNotifier<AuthStateModel> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_kCloudBackupEnabledKey, value);
     state = state.copyWith(isCloudBackupEnabled: value);
+    if (value) {
+      _triggerAutoSync();
+    }
   }
 
   /// Вход через Email/Пароль.
@@ -91,6 +121,7 @@ class AuthController extends StateNotifier<AuthStateModel> {
       );
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_kCloudBackupEnabledKey, true);
+      _triggerAutoSync();
       return true;
     } on AuthException catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
@@ -113,14 +144,30 @@ class AuthController extends StateNotifier<AuthStateModel> {
         password: password,
         name: name,
       );
+
+      final sessionUser = response.user ?? response.session?.user;
+
+      if (sessionUser == null && response.user != null) {
+        // Требуется подтверждение email от Supabase
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage:
+              'Регистрация создана! Проверьте вашу почту и подтвердите Email или войдите под своим паролем.',
+        );
+        return false;
+      }
+
       state = state.copyWith(
         isLoading: false,
-        user: response.user,
-        isCloudBackupEnabled: true,
+        user: sessionUser,
+        isCloudBackupEnabled: sessionUser != null,
       );
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_kCloudBackupEnabledKey, true);
-      return true;
+      await prefs.setBool(_kCloudBackupEnabledKey, sessionUser != null);
+      if (sessionUser != null) {
+        _triggerAutoSync();
+      }
+      return sessionUser != null;
     } on AuthException catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
       return false;
@@ -148,13 +195,16 @@ class AuthController extends StateNotifier<AuthStateModel> {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final success = await _repository.signInWithGoogle();
+      final user = _repository.currentUser;
+      state = state.copyWith(
+        isLoading: false,
+        user: success ? user : state.user,
+        isCloudBackupEnabled: success ? true : state.isCloudBackupEnabled,
+      );
       if (success) {
-        state = state.copyWith(
-          isLoading: false,
-          isCloudBackupEnabled: true,
-        );
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool(_kCloudBackupEnabledKey, true);
+        _triggerAutoSync();
       }
       return success;
     } catch (e) {
@@ -171,13 +221,16 @@ class AuthController extends StateNotifier<AuthStateModel> {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final success = await _repository.signInWithApple();
+      final user = _repository.currentUser;
+      state = state.copyWith(
+        isLoading: false,
+        user: success ? user : state.user,
+        isCloudBackupEnabled: success ? true : state.isCloudBackupEnabled,
+      );
       if (success) {
-        state = state.copyWith(
-          isLoading: false,
-          isCloudBackupEnabled: true,
-        );
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool(_kCloudBackupEnabledKey, true);
+        _triggerAutoSync();
       }
       return success;
     } catch (e) {
@@ -197,7 +250,7 @@ class AuthController extends StateNotifier<AuthStateModel> {
 
       // Очистка локального переключателя
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_kCloudBackupEnabledKey, false);
+      await prefs.remove(_kCloudBackupEnabledKey);
 
       state = state.copyWith(
         isLoading: false,
@@ -219,5 +272,5 @@ class AuthController extends StateNotifier<AuthStateModel> {
 final authControllerProvider =
     StateNotifierProvider<AuthController, AuthStateModel>((ref) {
   final repository = ref.watch(authRepositoryProvider);
-  return AuthController(repository);
+  return AuthController(repository, ref);
 });

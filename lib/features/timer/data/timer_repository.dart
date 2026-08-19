@@ -204,9 +204,6 @@ class TimerRepository {
   Future<void> switchActivity({
     required String name,
     required String categoryKey,
-    String? reviewMood,
-    List<String>? reviewObstacles,
-    String? reviewNextExperiment,
   }) async {
     final now = DateTime.now().millisecondsSinceEpoch;
 
@@ -230,10 +227,7 @@ class TimerRepository {
           ..startedAt = lastChunkStart
           ..endedAt = now
           ..durationSeconds = durationSeconds
-          ..dateKey = du.DateUtils.dateKeyFromMillis(lastChunkStart)
-          ..mood = reviewMood
-          ..obstacles = reviewObstacles
-          ..nextExperiment = reviewNextExperiment;
+          ..dateKey = du.DateUtils.dateKeyFromMillis(lastChunkStart);
 
         await _addEntry(finalEntry);
       }

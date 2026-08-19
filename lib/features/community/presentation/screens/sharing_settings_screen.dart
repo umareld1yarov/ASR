@@ -32,8 +32,9 @@ class _SharingSettingsScreenState extends ConsumerState<SharingSettingsScreen> {
   Widget build(BuildContext context) {
     final controller = ref.read(communityControllerProvider);
 
-    return AppBackground(
-      child: SafeArea(
+    return Scaffold(
+      body: AppBackground(
+        child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -119,7 +120,7 @@ class _SharingSettingsScreenState extends ConsumerState<SharingSettingsScreen> {
           ],
         ),
       ),
-    );
+    ),);
   }
 }
 

@@ -16,8 +16,9 @@ class FriendRequestsScreen extends ConsumerWidget {
     final outgoingAsync = ref.watch(outgoingRequestsProvider);
     final controller = ref.read(communityControllerProvider);
 
-    return AppBackground(
-      child: SafeArea(
+    return Scaffold(
+      body: AppBackground(
+        child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -89,7 +90,7 @@ class FriendRequestsScreen extends ConsumerWidget {
           ],
         ),
       ),
-    );
+    ),);
   }
 }
 

@@ -127,7 +127,7 @@ class _ElapsedTimeState extends State<_ElapsedTime> {
 
     final seconds = ((DateTime.now().millisecondsSinceEpoch - startedAt) / 1000)
         .floor()
-        .clamp(0, 1 << 31) as int;
+        .clamp(0, 1 << 31);
     final hours = seconds ~/ 3600;
     final minutes = (seconds % 3600) ~/ 60;
     final remainingSeconds = seconds % 60;

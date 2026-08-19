@@ -40,13 +40,16 @@ class CloudSyncService {
       );
     }
 
-    final currentUser = client.auth.currentUser;
+    final currentUser =
+        client.auth.currentUser ?? client.auth.currentSession?.user;
     if (currentUser == null) {
       return const SyncResult(
         isSuccess: false,
-        message: 'Пользователь не авторизован в облаке',
+        message:
+            'Пользователь не авторизован в облаке (войдите по Email и Паролю)',
       );
     }
+
 
     try {
       final userId = currentUser.id;
@@ -84,8 +87,32 @@ class CloudSyncService {
 
     // Выгрузка локальных записей в Supabase PostgreSQL (Upsert)
     if (localEntries.isNotEmpty) {
-      final payload = localEntries.map((e) {
-        return {
+      final payload = <Map<String, dynamic>>[];
+
+      for (final e in localEntries) {
+        List<String>? remotePhotoUrls =
+            e.photoPaths != null ? List<String>.from(e.photoPaths!) : null;
+
+        // Если есть локальные фото, пробуем загрузить новые в Supabase Storage
+        if (remotePhotoUrls != null && remotePhotoUrls.isNotEmpty) {
+          final updatedUrls = <String>[];
+          for (final path in remotePhotoUrls) {
+            if (path.startsWith('http://') || path.startsWith('https://')) {
+              updatedUrls.add(path);
+            } else {
+              final file = File(path);
+              if (file.existsSync()) {
+                final cloudUrl = await uploadPhoto(file, userId);
+                updatedUrls.add(cloudUrl ?? path);
+              } else {
+                updatedUrls.add(path);
+              }
+            }
+          }
+          remotePhotoUrls = updatedUrls;
+        }
+
+        payload.add({
           'id': e.id,
           'user_id': userId,
           'name': e.name,
@@ -99,10 +126,10 @@ class CloudSyncService {
           'obstacles': e.obstacles,
           'next_experiment': e.nextExperiment,
           'note': e.note,
-          'photo_urls': e.photoPaths,
+          'photo_urls': remotePhotoUrls,
           'updated_at': DateTime.now().toIso8601String(),
-        };
-      }).toList();
+        });
+      }
 
       await client.from('activity_entries').upsert(
             payload,
@@ -134,6 +161,9 @@ class CloudSyncService {
           entry.obstacles = (row['obstacles'] as List?)?.cast<String>();
           entry.nextExperiment = row['next_experiment'];
           entry.note = row['note'];
+          if (row['photo_urls'] != null) {
+            entry.photoPaths = (row['photo_urls'] as List?)?.cast<String>();
+          }
 
           await _isar.activityEntrys.put(entry);
         }
@@ -193,7 +223,6 @@ class CloudSyncService {
     return localGoals.length;
   }
 
-
   /// Синхронизация профиля пользователя (UserProfile)
   Future<void> _syncUserProfile(SupabaseClient client, String userId) async {
     final profile = await _isar.userProfiles.get(0);
@@ -208,7 +237,7 @@ class CloudSyncService {
     }
   }
 
-  /// Загрузка фото в Supabase Storage (Private Bucket)
+  /// Загрузка фото в Supabase Storage (Private / Public Bucket)
   Future<String?> uploadPhoto(File file, String userId) async {
     final client = _supabase;
     if (client == null) return null;
@@ -217,11 +246,12 @@ class CloudSyncService {
     final path = '$userId/$fileName';
 
     try {
-      await client.storage.from('activity_photos').upload(path, file);
-      // Возвращаем временную ссылку для просмотра
-      return await client.storage
-          .from('activity_photos')
-          .createSignedUrl(path, 60 * 60 * 24 * 365); // 1 год
+      await client.storage.from('activity_photos').upload(
+            path,
+            file,
+            fileOptions: const FileOptions(upsert: true),
+          );
+      return client.storage.from('activity_photos').getPublicUrl(path);
     } catch (e) {
       if (kDebugMode) {
         print('[CloudSyncService] Ошибка загрузки фото: $e');

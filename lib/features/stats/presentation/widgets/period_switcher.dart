@@ -2,23 +2,25 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../premium/application/premium_controller.dart';
+import '../../../premium/presentation/screens/paywall_screen.dart';
 import '../../application/stats_provider.dart';
 
-/// Переключатель периода: День / Неделя / Месяц / Год.
+/// Переключатель периода: День / Неделя (Free) и Месяц / Год (PRO).
 class PeriodSwitcher extends ConsumerWidget {
   const PeriodSwitcher({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Регистрируем зависимость от локали для мгновенного обновления переключателя
     final _ = context.locale;
     final selected = ref.watch(statsPeriodTypeProvider);
+    final isPro = ref.watch(isProProvider);
 
     final options = [
-      (StatsPeriodType.day, 'stats.day'.tr()),
-      (StatsPeriodType.week, 'stats.week'.tr()),
-      (StatsPeriodType.month, 'stats.month'.tr()),
-      (StatsPeriodType.year, 'stats.year'.tr()),
+      (StatsPeriodType.day, 'stats.day'.tr(), false),
+      (StatsPeriodType.week, 'stats.week'.tr(), false),
+      (StatsPeriodType.month, 'stats.month'.tr(), true),
+      (StatsPeriodType.year, 'stats.year'.tr(), true),
     ];
 
     return Container(
@@ -30,13 +32,21 @@ class PeriodSwitcher extends ConsumerWidget {
       ),
       child: Row(
         children: options.map((option) {
-          final (type, label) = option;
+          final (type, label, isProOnly) = option;
           final isSelected = type == selected;
 
           return Expanded(
             child: GestureDetector(
-              onTap: () =>
-                  ref.read(statsControllerProvider).setPeriodType(type),
+              onTap: () {
+                if (isProOnly && !isPro) {
+                  // Переход на Paywall при выборе PRO периода без подписки
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const PaywallScreen()),
+                  );
+                } else {
+                  ref.read(statsControllerProvider).setPeriodType(type);
+                }
+              },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 padding: const EdgeInsets.symmetric(vertical: 9),
@@ -46,14 +56,28 @@ class PeriodSwitcher extends ConsumerWidget {
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    color: isSelected ? Colors.white : Colors.white54,
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      label,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight:
+                            isSelected ? FontWeight.w700 : FontWeight.w500,
+                        color: isSelected ? Colors.white : Colors.white54,
+                      ),
+                    ),
+                    if (isProOnly && !isPro) ...[
+                      const SizedBox(width: 3),
+                      const Icon(
+                        Icons.workspace_premium,
+                        size: 13,
+                        color: Color(0xFF06B6D4),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ),

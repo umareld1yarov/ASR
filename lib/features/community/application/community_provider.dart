@@ -1,15 +1,25 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/services/supabase_service.dart';
+import '../../auth/application/auth_controller.dart';
+import '../../premium/application/premium_controller.dart';
 import '../data/community_repository.dart';
 import '../data/mock_community_repository.dart';
+import '../data/supabase_community_repository.dart';
 import '../domain/models/community_user.dart';
 import '../domain/models/friendship.dart';
 import '../domain/models/sharing_permission.dart';
+import 'presence_service.dart';
 
 /// Провайдер репозитория Сообщества.
-/// Сейчас — мок. Когда подключим Supabase, поменяется ТОЛЬКО эта строка
-/// (на SupabaseCommunityRepository) — весь остальной код фичи не тронется.
+/// Автоматически переключается на SupabaseCommunityRepository, когда пользователь авторизован.
 final communityRepositoryProvider = Provider<CommunityRepository>((ref) {
+  final authState = ref.watch(authControllerProvider);
+  if (SupabaseService.isInitialized && authState.isAuthenticated) {
+    // Активируем трансляцию фокуса
+    ref.watch(presenceServiceProvider);
+    return SupabaseCommunityRepository();
+  }
   return MockCommunityRepository();
 });
 
@@ -72,6 +82,16 @@ class CommunityController {
   CommunityRepository get _repo => _ref.read(communityRepositoryProvider);
 
   Future<void> sendFriendRequest(String userId) async {
+    final isPro = _ref.read(isProProvider);
+    if (!isPro) {
+      final currentFriends = await _repo.getFriends();
+      if (currentFriends.length >= 3) {
+        throw Exception(
+          'В бесплатной версии доступно до 3 друзей. Получите ASR PRO для безлимитного добавления друзей.',
+        );
+      }
+    }
+
     await _repo.sendFriendRequest(userId);
     _bump();
   }
@@ -93,6 +113,16 @@ class CommunityController {
 
   Future<void> updateSharingPermission(SharingPermission permission) async {
     await _repo.updateSharingPermission(permission);
+    _bump();
+  }
+
+  Future<bool> checkUsernameAvailable(String username) async {
+    return _repo.checkUsernameAvailable(username);
+  }
+
+  Future<void> updateUsername(String newUsername) async {
+    await _repo.updateUsername(newUsername);
+    _ref.invalidate(meProvider);
     _bump();
   }
 

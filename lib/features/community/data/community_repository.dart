@@ -45,6 +45,12 @@ abstract class CommunityRepository {
   /// Возвращает null целиком, если друг сейчас не в сети / нет активности.
   Future<FriendActivityStatus?> getFriendActivityStatus(String friendId);
 
+  /// Проверить, свободен ли юзернейм (уникальность, как в Instagram).
+  Future<bool> checkUsernameAvailable(String username);
+
+  /// Обновить свой юзернейм (@username).
+  Future<void> updateUsername(String newUsername);
+
   /// Отправить тихую эмодзи-реакцию другу в поддержку его текущего фокуса.
   Future<void> sendReaction({required String friendId, required String emoji});
 }

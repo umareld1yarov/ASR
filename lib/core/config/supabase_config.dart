@@ -6,6 +6,9 @@ class SupabaseConfig {
 
   static String get url => dotenv.env['SUPABASE_URL'] ?? '';
   static String get anonKey => dotenv.env['SUPABASE_ANON_KEY'] ?? '';
+  static String get googleWebClientId =>
+      dotenv.env['GOOGLE_WEB_CLIENT_ID'] ?? '';
+
 
   /// Проверка, заполнены ли реальные ключи (не плейсхолдеры).
   static bool get isConfigured {
