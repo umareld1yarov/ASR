@@ -2,24 +2,17 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/constants/activity_category.dart';
-import '../../../../core/utils/date_utils.dart' as du;
 import '../../../../shared/widgets/app_background.dart';
 import '../../application/milestones_provider.dart';
 import '../../application/profile_provider.dart';
-import '../../../../core/utils/duration_formatter.dart';
 
-class JourneyRecordsScreen extends ConsumerWidget {
-  const JourneyRecordsScreen({super.key});
+class JourneyScreen extends ConsumerWidget {
+  const JourneyScreen({super.key});
 
   static Future<void> show(BuildContext context) {
     return Navigator.of(
       context,
-    ).push(MaterialPageRoute(builder: (_) => const JourneyRecordsScreen()));
-  }
-
-  String _formatHours(int seconds) {
-    return formatDuration(seconds);
+    ).push(MaterialPageRoute(builder: (_) => const JourneyScreen()));
   }
 
   String _daysWord(int n) {
@@ -30,12 +23,11 @@ class JourneyRecordsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final _ = context.locale;
     final journeyAsync = ref.watch(lifetimeJourneyStatsProvider);
-    final recordsAsync = ref.watch(personalRecordsProvider);
     final milestonesAsync = ref.watch(milestonesProvider);
 
     final unlockedCount =
         milestonesAsync.valueOrNull?.where((m) => m.isUnlocked).length ?? 0;
-    final totalMilestones = milestonesAsync.valueOrNull?.length ?? 10;
+    final totalMilestones = milestonesAsync.valueOrNull?.length ?? 0;
 
     return Scaffold(
       body: AppBackground(
@@ -52,7 +44,7 @@ class JourneyRecordsScreen extends ConsumerWidget {
                     ),
                     Expanded(
                       child: Text(
-                        'profile.journey_records'.tr(),
+                        'profile.my_journey'.tr(),
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
@@ -114,7 +106,9 @@ class JourneyRecordsScreen extends ConsumerWidget {
                                 child: Column(
                                   children: [
                                     Text(
-                                      'profile.days_with_asr'.tr(args: ['${stats.daysSinceStart}', _daysWord(stats.daysSinceStart)]),
+                                      'profile.days_with_asr'.tr(
+                                        args: [_daysWord(stats.daysSinceStart)],
+                                      ),
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w800,
@@ -126,7 +120,8 @@ class JourneyRecordsScreen extends ConsumerWidget {
                                       children: [
                                         _StatPill(
                                           emoji: '⏱️',
-                                          value: '$hours${'milestones.units.h'.tr()}',
+                                          value:
+                                              '$hours${'milestones.units.h'.tr()}',
                                           label: 'common.time'.tr(),
                                         ),
                                         const SizedBox(width: 8),
@@ -161,93 +156,6 @@ class JourneyRecordsScreen extends ConsumerWidget {
 
                       const SizedBox(height: 24),
 
-                      Row(
-                        children: [
-                          Text(
-                            'profile.journey_records'.tr(),
-                            style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      recordsAsync.when(
-                        data: (records) {
-                          return GridView.count(
-                            crossAxisCount: 2,
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            mainAxisSpacing: 10,
-                            crossAxisSpacing: 10,
-                            childAspectRatio: 1.25,
-                            children: [
-                              _RecordShareCard(
-                                emoji: '⚡',
-                                title: 'profile.longest_session'.tr(),
-                                value: records.longestSessionSeconds != null
-                                    ? _formatHours(
-                                        records.longestSessionSeconds!,
-                                      )
-                                    : '—',
-                                subtitle:
-                                    records.longestSessionName ?? '—',
-                                accentColor:
-                                    records.longestSessionCategoryKey != null
-                                    ? ActivityCategory.fromStorageKey(
-                                        records.longestSessionCategoryKey!,
-                                      ).color
-                                    : const Color(0xFF06B6D4),
-                              ),
-                              _RecordShareCard(
-                                emoji: '🏆',
-                                title: 'profile.best_day'.tr(),
-                                value: records.bestDaySeconds != null
-                                    ? _formatHours(records.bestDaySeconds!)
-                                    : '—',
-                                subtitle: records.bestDayDateKey != null
-                                    ? du.DateUtils.formatShortLocalized(
-                                        du.DateUtils.dateKeyToDate(
-                                          records.bestDayDateKey!,
-                                        ),
-                                      )
-                                    : '—',
-                                accentColor:
-                                    records.bestCategoryKeyOfBestDay != null
-                                    ? ActivityCategory.fromStorageKey(
-                                        records.bestCategoryKeyOfBestDay!,
-                                      ).color
-                                    : const Color(0xFFEAB308),
-                              ),
-                              _RecordShareCard(
-                                emoji: '🔥',
-                                title: 'profile.longest_streak'.tr(),
-                                value: '${records.longestOverallStreakDays}',
-                                subtitle: _daysWord(
-                                  records.longestOverallStreakDays,
-                                ),
-                                accentColor: const Color(0xFF22C55E),
-                              ),
-                              _RecordShareCard(
-                                emoji: '✨',
-                                title: 'profile.no_waste'.tr(),
-                                value: '${records.longestNoWasteStreakDays}',
-                                subtitle: _daysWord(
-                                  records.longestNoWasteStreakDays,
-                                ),
-                                accentColor: const Color(0xFFA855F7),
-                              ),
-                            ],
-                          );
-                        },
-                        loading: () => const SizedBox(height: 140),
-                        error: (_, _) => const SizedBox.shrink(),
-                      ),
-
-                      const SizedBox(height: 24),
-
                       Text(
                         'milestones.title'.tr(),
                         style: const TextStyle(
@@ -259,7 +167,10 @@ class JourneyRecordsScreen extends ConsumerWidget {
                       const SizedBox(height: 4),
                       Text(
                         'milestones.subtitle'.tr(),
-                        style: const TextStyle(fontSize: 12, color: Colors.white54),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white54,
+                        ),
                       ),
                       const SizedBox(height: 12),
 
@@ -436,69 +347,6 @@ class _StatPill extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _RecordShareCard extends StatelessWidget {
-  const _RecordShareCard({
-    required this.emoji,
-    required this.title,
-    required this.value,
-    required this.subtitle,
-    required this.accentColor,
-  });
-
-  final String emoji;
-  final String title;
-  final String value;
-  final String subtitle;
-  final Color accentColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: accentColor.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: accentColor.withValues(alpha: 0.25)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(emoji, style: const TextStyle(fontSize: 18)),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(fontSize: 11, color: Colors.white54),
-              ),
-              const SizedBox(height: 1),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                ),
-              ),
-              Text(
-                subtitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 10.5,
-                  color: accentColor.withValues(alpha: 0.9),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }

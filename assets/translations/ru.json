@@ -91,15 +91,11 @@
     "note_hint": "Например: 4 подхода по 12, дочитал до стр. 340...",
     "add_note": "Добавить заметку...",
     "name_label": "Название",
-    "activity_name_label": "Название активности",
     "save_changes": "Сохранить изменения",
     "delete_photo_title": "Удалить фото?",
     "cannot_undo": "Это действие нельзя отменить.",
-    "split_title": "Исправить распределение времени",
     "split_explanation": "Выберите границу внутри исходного интервала. Общее время не изменится.",
     "split_too_short": "Запись слишком короткая: каждая часть должна длиться не меньше минуты.",
-    "first_part": "Первая часть",
-    "second_part": "Вторая часть",
     "split_action": "Разделить активность",
     "split_success": "Активность разделена",
     "split_title_short": "Разделить активность",
@@ -214,12 +210,7 @@
     "ongoing_duration": "Идёт {}"
   },
   "profile": {
-    "journey_records": "Мой путь & Рекорды",
-    "days_with_asr": "ASR с Вами {} {}",
-    "longest_session": "Макс. сессия",
-    "best_day": "Лучший день",
-    "longest_streak": "Рекордный стрик",
-    "no_waste": "Без Потерь",
+    "days_with_asr": "ASR с Вами {}",
     "language": "Язык интерфейса",
     "select_language": "Выбрать язык",
     "settings": "Настройки",
@@ -233,7 +224,7 @@
     "reminders": "Напоминания",
     "coming_soon": "скоро",
     "streak_active_text": "Ты ведёшь журнал каждый день",
-    "journey_subtitle": "ASR с Вами {} {} · {}ч фокуса",
+    "journey_subtitle": "ASR с Вами {} · {}ч фокуса",
     "journey_desc": "Статистика Вашего пути и рекорды",
     "milestones_count": "{} вех",
     "memories_title": "Воспоминания",
@@ -258,7 +249,7 @@
     "week": "Неделя",
     "month": "Месяц",
     "last_day": "Последний день",
-    "days_left": "Осталось {} {}",
+    "days_left": "Осталось {}",
     "delete_goal_title": "Удалить цель?",
     "delete_goal_desc": "Цель будет полностью удалена.",
     "completed": "Выполнено!",
@@ -272,7 +263,7 @@
     "set_first_goal": "Поставить первую цель",
     "my_journey": "Мой путь",
     "watch_arrow": "Смотреть →",
-    "with_you_arrow": "{} {} с тобой →",
+    "with_you_arrow": "{} с тобой →",
     "achievements_count": {
       "zero": "0 достижений",
       "one": "{} достижение",
@@ -350,9 +341,7 @@
       "religion_100h_title": "Постоянство в вере",
       "religion_100h_desc": "Посвятить 100 часов категории «Религия»",
       "rest_master_title": "Осознанный отдых",
-      "rest_master_desc": "Посвятить 10 часов категории «Отдых»",
-      "no_waste_guard_title": "Страж времени",
-      "no_waste_guard_desc": "7 дней подряд без единой записи в «Потери»"
+      "rest_master_desc": "Посвятить 10 часов категории «Отдых»"
     },
     "units": {
       "session": "сессия",
@@ -425,6 +414,7 @@
     "pro_active_title": "ASR PRO Активен 👑",
     "pro_active_desc": "Все премиум-возможности и бэкап разблокированы",
     "get_pro_title": "Получи ASR PRO",
+    "get_pro_desc": "Умная аналитика, облачное резервное копирование и долгосрочная история",
     "pro_badge": "PRO"
   },
   "onboarding": {

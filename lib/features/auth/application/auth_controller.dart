@@ -7,8 +7,9 @@ import '../../backup/application/sync_controller.dart';
 import '../../premium/application/premium_controller.dart';
 import '../data/auth_repository.dart';
 
-
 const String _kCloudBackupEnabledKey = 'cloud_backup_enabled';
+
+enum AuthLoadingAction { email, google, apple, account }
 
 /// Провайдер репозитория авторизации.
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
@@ -19,30 +20,34 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 class AuthStateModel {
   final User? user;
   final bool isCloudBackupEnabled;
-  final bool isLoading;
+  final AuthLoadingAction? loadingAction;
   final String? errorMessage;
 
   const AuthStateModel({
     this.user,
     this.isCloudBackupEnabled = false,
-    this.isLoading = false,
+    this.loadingAction,
     this.errorMessage,
   });
 
   bool get isAuthenticated => user != null;
+  bool get isLoading => loadingAction != null;
 
   AuthStateModel copyWith({
     User? user,
     bool? isCloudBackupEnabled,
-    bool? isLoading,
+    AuthLoadingAction? loadingAction,
     String? errorMessage,
     bool clearError = false,
     bool clearUser = false,
+    bool clearLoading = false,
   }) {
     return AuthStateModel(
       user: clearUser ? null : (user ?? this.user),
       isCloudBackupEnabled: isCloudBackupEnabled ?? this.isCloudBackupEnabled,
-      isLoading: isLoading ?? this.isLoading,
+      loadingAction: clearLoading
+          ? null
+          : (loadingAction ?? this.loadingAction),
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
@@ -62,10 +67,7 @@ class AuthController extends StateNotifier<AuthStateModel> {
     final isEnabled = prefs.getBool(_kCloudBackupEnabledKey) ?? false;
     final currentUser = _repository.currentUser;
 
-    state = state.copyWith(
-      isCloudBackupEnabled: isEnabled,
-      user: currentUser,
-    );
+    state = state.copyWith(isCloudBackupEnabled: isEnabled, user: currentUser);
 
     if (currentUser != null) {
       PurchasesService.logIn(currentUser.id);
@@ -108,14 +110,17 @@ class AuthController extends StateNotifier<AuthStateModel> {
 
   /// Вход через Email/Пароль.
   Future<bool> signIn(String email, String password) async {
-    state = state.copyWith(isLoading: true, clearError: true);
+    state = state.copyWith(
+      loadingAction: AuthLoadingAction.email,
+      clearError: true,
+    );
     try {
       final response = await _repository.signInWithEmail(
         email: email,
         password: password,
       );
       state = state.copyWith(
-        isLoading: false,
+        clearLoading: true,
         user: response.user,
         isCloudBackupEnabled: true, // Включаем бэкап при входе
       );
@@ -124,11 +129,11 @@ class AuthController extends StateNotifier<AuthStateModel> {
       _triggerAutoSync();
       return true;
     } on AuthException catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: e.message);
+      state = state.copyWith(clearLoading: true, errorMessage: e.message);
       return false;
     } catch (e) {
       state = state.copyWith(
-        isLoading: false,
+        clearLoading: true,
         errorMessage: 'Ошибка входа: $e',
       );
       return false;
@@ -137,7 +142,10 @@ class AuthController extends StateNotifier<AuthStateModel> {
 
   /// Регистрация нового аккаунта.
   Future<bool> signUp(String email, String password, {String? name}) async {
-    state = state.copyWith(isLoading: true, clearError: true);
+    state = state.copyWith(
+      loadingAction: AuthLoadingAction.email,
+      clearError: true,
+    );
     try {
       final response = await _repository.signUpWithEmail(
         email: email,
@@ -150,7 +158,7 @@ class AuthController extends StateNotifier<AuthStateModel> {
       if (sessionUser == null && response.user != null) {
         // Требуется подтверждение email от Supabase
         state = state.copyWith(
-          isLoading: false,
+          clearLoading: true,
           errorMessage:
               'Регистрация создана! Проверьте вашу почту и подтвердите Email или войдите под своим паролем.',
         );
@@ -158,7 +166,7 @@ class AuthController extends StateNotifier<AuthStateModel> {
       }
 
       state = state.copyWith(
-        isLoading: false,
+        clearLoading: true,
         user: sessionUser,
         isCloudBackupEnabled: sessionUser != null,
       );
@@ -169,11 +177,11 @@ class AuthController extends StateNotifier<AuthStateModel> {
       }
       return sessionUser != null;
     } on AuthException catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: e.message);
+      state = state.copyWith(clearLoading: true, errorMessage: e.message);
       return false;
     } catch (e) {
       state = state.copyWith(
-        isLoading: false,
+        clearLoading: true,
         errorMessage: 'Ошибка регистрации: $e',
       );
       return false;
@@ -182,22 +190,22 @@ class AuthController extends StateNotifier<AuthStateModel> {
 
   /// Выход из аккаунта.
   Future<void> signOut() async {
-    state = state.copyWith(isLoading: true);
+    state = state.copyWith(loadingAction: AuthLoadingAction.account);
     await _repository.signOut();
-    state = state.copyWith(
-      isLoading: false,
-      clearUser: true,
-    );
+    state = state.copyWith(clearLoading: true, clearUser: true);
   }
 
   /// Вход через Google.
   Future<bool> signInWithGoogle() async {
-    state = state.copyWith(isLoading: true, clearError: true);
+    state = state.copyWith(
+      loadingAction: AuthLoadingAction.google,
+      clearError: true,
+    );
     try {
       final success = await _repository.signInWithGoogle();
       final user = _repository.currentUser;
       state = state.copyWith(
-        isLoading: false,
+        clearLoading: true,
         user: success ? user : state.user,
         isCloudBackupEnabled: success ? true : state.isCloudBackupEnabled,
       );
@@ -209,7 +217,7 @@ class AuthController extends StateNotifier<AuthStateModel> {
       return success;
     } catch (e) {
       state = state.copyWith(
-        isLoading: false,
+        clearLoading: true,
         errorMessage: 'Ошибка Google входа: $e',
       );
       return false;
@@ -218,12 +226,15 @@ class AuthController extends StateNotifier<AuthStateModel> {
 
   /// Вход через Apple.
   Future<bool> signInWithApple() async {
-    state = state.copyWith(isLoading: true, clearError: true);
+    state = state.copyWith(
+      loadingAction: AuthLoadingAction.apple,
+      clearError: true,
+    );
     try {
       final success = await _repository.signInWithApple();
       final user = _repository.currentUser;
       state = state.copyWith(
-        isLoading: false,
+        clearLoading: true,
         user: success ? user : state.user,
         isCloudBackupEnabled: success ? true : state.isCloudBackupEnabled,
       );
@@ -235,7 +246,7 @@ class AuthController extends StateNotifier<AuthStateModel> {
       return success;
     } catch (e) {
       state = state.copyWith(
-        isLoading: false,
+        clearLoading: true,
         errorMessage: 'Ошибка Apple входа: $e',
       );
       return false;
@@ -244,7 +255,10 @@ class AuthController extends StateNotifier<AuthStateModel> {
 
   /// Полное удаление аккаунта и очистка базы данных.
   Future<bool> deleteAccount() async {
-    state = state.copyWith(isLoading: true, clearError: true);
+    state = state.copyWith(
+      loadingAction: AuthLoadingAction.account,
+      clearError: true,
+    );
     try {
       await _repository.deleteAccount();
 
@@ -253,14 +267,14 @@ class AuthController extends StateNotifier<AuthStateModel> {
       await prefs.remove(_kCloudBackupEnabledKey);
 
       state = state.copyWith(
-        isLoading: false,
+        clearLoading: true,
         clearUser: true,
         isCloudBackupEnabled: false,
       );
       return true;
     } catch (e) {
       state = state.copyWith(
-        isLoading: false,
+        clearLoading: true,
         errorMessage: 'Не удалось удалить аккаунт: $e',
       );
       return false;
@@ -268,9 +282,8 @@ class AuthController extends StateNotifier<AuthStateModel> {
   }
 }
 
-
 final authControllerProvider =
     StateNotifierProvider<AuthController, AuthStateModel>((ref) {
-  final repository = ref.watch(authRepositoryProvider);
-  return AuthController(repository, ref);
-});
+      final repository = ref.watch(authRepositoryProvider);
+      return AuthController(repository, ref);
+    });

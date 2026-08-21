@@ -129,33 +129,40 @@ class _CategoryStep extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const _DragHandle(),
-          const SizedBox(height: 8),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(width: 40),
-              SizedBox.shrink(),
-              PickerHelpButton(),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'timer.what_are_you_doing'.tr(),
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.w600,
+          const SizedBox(height: 5),
+          SizedBox(
+            width: double.infinity,
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 42),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'timer.what_are_you_doing'.tr(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        'timer.select_category'.tr(),
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.48),
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Positioned(right: 0, top: 0, child: PickerHelpButton()),
+              ],
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            'timer.select_category'.tr(),
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.48),
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 14),
           CategorySelectionGrid(onSelected: onSelected),
         ],
       ),

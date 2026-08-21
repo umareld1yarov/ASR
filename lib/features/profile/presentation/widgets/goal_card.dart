@@ -31,18 +31,12 @@ class GoalCard extends ConsumerWidget {
     if (type == 'week') {
       final daysUntilSunday = 7 - now.weekday;
       if (daysUntilSunday == 0) return 'profile.last_day'.tr();
-      return 'profile.days_left'.tr(args: [
-        '$daysUntilSunday',
-        _daysWord(daysUntilSunday),
-      ]);
+      return 'profile.days_left'.tr(args: [_daysWord(daysUntilSunday)]);
     } else {
       final lastDayOfMonth = DateTime(now.year, now.month + 1, 0).day;
       final daysLeft = lastDayOfMonth - now.day;
       if (daysLeft == 0) return 'profile.last_day'.tr();
-      return 'profile.days_left'.tr(args: [
-        '$daysLeft',
-        _daysWord(daysLeft),
-      ]);
+      return 'profile.days_left'.tr(args: [_daysWord(daysLeft)]);
     }
   }
 
@@ -67,7 +61,10 @@ class GoalCard extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text('common.delete'.tr(), style: const TextStyle(color: Colors.redAccent)),
+            child: Text(
+              'common.delete'.tr(),
+              style: const TextStyle(color: Colors.redAccent),
+            ),
           ),
         ],
       ),
@@ -137,7 +134,10 @@ class GoalCard extends ConsumerWidget {
                   ),
                   if (isDone)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF22C55E).withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
@@ -145,7 +145,11 @@ class GoalCard extends ConsumerWidget {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.stars, color: Color(0xFF22C55E), size: 14),
+                          const Icon(
+                            Icons.stars,
+                            color: Color(0xFF22C55E),
+                            size: 14,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             'profile.completed'.tr(),
@@ -161,8 +165,15 @@ class GoalCard extends ConsumerWidget {
                   IconButton(
                     onPressed: () => _confirmDelete(context, ref),
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                    icon: const Icon(Icons.close, size: 16, color: Colors.white38),
+                    constraints: const BoxConstraints(
+                      minWidth: 32,
+                      minHeight: 32,
+                    ),
+                    icon: const Icon(
+                      Icons.close,
+                      size: 16,
+                      color: Colors.white38,
+                    ),
                   ),
                 ],
               ),
@@ -181,10 +192,12 @@ class GoalCard extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'profile.progress_hours'.tr(args: [
-                      _formatHours(currentSeconds),
-                      _formatHours(goal.targetSeconds),
-                    ]),
+                    'profile.progress_hours'.tr(
+                      args: [
+                        _formatHours(currentSeconds),
+                        _formatHours(goal.targetSeconds),
+                      ],
+                    ),
                     style: const TextStyle(fontSize: 12, color: Colors.white70),
                   ),
                   Text(

@@ -35,7 +35,6 @@ class Milestone {
 final milestonesProvider = FutureProvider<List<Milestone>>((ref) async {
   final journeyStats = await ref.watch(lifetimeJourneyStatsProvider.future);
   final breakdown = await ref.watch(lifetimeBreakdownProvider.future);
-  final records = await ref.watch(personalRecordsProvider.future);
 
   final growthHours =
       (breakdown[ActivityCategory.growth.storageKey] ?? 0) ~/ 3600;
@@ -45,7 +44,6 @@ final milestonesProvider = FutureProvider<List<Milestone>>((ref) async {
   final religionHours =
       (breakdown[ActivityCategory.religion.storageKey] ?? 0) ~/ 3600;
   final restHours = (breakdown[ActivityCategory.rest.storageKey] ?? 0) ~/ 3600;
-  final noWasteDays = records.longestNoWasteStreakDays;
 
   return [
     Milestone(
@@ -187,16 +185,6 @@ final milestonesProvider = FutureProvider<List<Milestone>>((ref) async {
       currentProgress: restHours,
       target: 10,
       unitKey: 'milestones.units.h',
-    ),
-    Milestone(
-      id: 'no_waste_guard',
-      emoji: '🛡️',
-      titleKey: 'milestones.items.no_waste_guard_title',
-      descriptionKey: 'milestones.items.no_waste_guard_desc',
-      isUnlocked: noWasteDays >= 7,
-      currentProgress: noWasteDays,
-      target: 7,
-      unitKey: 'milestones.units.d',
     ),
   ];
 });

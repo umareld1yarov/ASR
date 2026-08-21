@@ -24,31 +24,6 @@ class LifetimeJourneyStats {
   final int daysSinceStart;
 }
 
-/// Личные рекорды пользователя — для секции "Личные рекорды" в Профиле.
-class PersonalRecords {
-  const PersonalRecords({
-    this.longestSessionSeconds,
-    this.longestSessionName,
-    this.longestSessionCategoryKey,
-    this.bestCategoryKeyOfBestDay,
-    this.bestDaySeconds,
-    this.bestDayDateKey,
-    required this.longestOverallStreakDays,
-    required this.longestNoWasteStreakDays,
-  });
-
-  final int? longestSessionSeconds;
-  final String? longestSessionName;
-  final String? longestSessionCategoryKey;
-
-  final String? bestCategoryKeyOfBestDay;
-  final int? bestDaySeconds;
-  final String? bestDayDateKey;
-
-  final int longestOverallStreakDays;
-  final int longestNoWasteStreakDays;
-}
-
 /// Репозиторий статистики: читает ActivityEntry за диапазон дат и агрегирует
 /// их несколькими способами — по категориям (пирог), по дням (тренд),
 /// по дням+категориям (стрики и просадки).
@@ -286,114 +261,6 @@ class StatsRepository {
     );
   }
 
-  static const int _noWasteThresholdSeconds = 300; // 5 минут
-
-  /// Личные рекорды — один проход по всем записям + проход по календарным
-  /// дням от первой записи до сегодня (для стрика "без Потерь").
-  Future<PersonalRecords> getPersonalRecords() async {
-    final entries = await _isar.activityEntrys
-        .filter()
-        .isDeletedEqualTo(false)
-        .findAll();
-
-    if (entries.isEmpty) {
-      return const PersonalRecords(
-        longestOverallStreakDays: 0,
-        longestNoWasteStreakDays: 0,
-      );
-    }
-
-    // ── Самая длинная сессия ──
-    var longestEntry = entries.first;
-    for (final e in entries) {
-      if (e.durationSeconds > longestEntry.durationSeconds) longestEntry = e;
-    }
-
-    // ── Лучший день по категории + карта день→категория→секунды ──
-    final byDayCategory = <String, Map<String, int>>{};
-    final wasteByDay = <String, int>{};
-    final daysWithActivity = <String>{};
-
-    for (final e in entries) {
-      daysWithActivity.add(e.dateKey);
-      final dayMap = byDayCategory.putIfAbsent(e.dateKey, () => {});
-      dayMap[e.categoryKey] = (dayMap[e.categoryKey] ?? 0) + e.durationSeconds;
-      if (e.categoryKey == 'waste') {
-        wasteByDay[e.dateKey] =
-            (wasteByDay[e.dateKey] ?? 0) + e.durationSeconds;
-      }
-    }
-
-    String? bestDayKey;
-    String? bestDayCategory;
-    var bestDaySeconds = 0;
-    for (final dayEntry in byDayCategory.entries) {
-      for (final catEntry in dayEntry.value.entries) {
-        if (catEntry.value > bestDaySeconds) {
-          bestDaySeconds = catEntry.value;
-          bestDayKey = dayEntry.key;
-          bestDayCategory = catEntry.key;
-        }
-      }
-    }
-
-    // ── Рекордный стрик за всё время (любая активность) ──
-    final sortedDays = daysWithActivity.toList()..sort();
-    var longestOverallStreak = 0;
-    var currentStreak = 0;
-    DateTime? prevDate;
-    for (final key in sortedDays) {
-      final date = du.DateUtils.dateKeyToDate(key);
-      if (prevDate != null && date.difference(prevDate).inDays == 1) {
-        currentStreak++;
-      } else {
-        currentStreak = 1;
-      }
-      if (currentStreak > longestOverallStreak) {
-        longestOverallStreak = currentStreak;
-      }
-      prevDate = date;
-    }
-
-    // ── Самый долгий период без "Потерь" ──
-    // День без единой записи тоже прерывает стрик (решено осознанно).
-    final earliestMillis = await getEarliestStartedAt();
-    var longestNoWasteStreak = 0;
-    if (earliestMillis != null) {
-      var cursor = du.DateUtils.startOfDay(
-        DateTime.fromMillisecondsSinceEpoch(earliestMillis),
-      );
-      final today = du.DateUtils.startOfDay(DateTime.now());
-      var streak = 0;
-
-      while (!cursor.isAfter(today)) {
-        final key = du.DateUtils.dateKey(cursor);
-        final hasActivity = daysWithActivity.contains(key);
-        final waste = wasteByDay[key] ?? 0;
-
-        if (hasActivity && waste < _noWasteThresholdSeconds) {
-          streak++;
-          if (streak > longestNoWasteStreak) longestNoWasteStreak = streak;
-        } else {
-          streak = 0;
-        }
-
-        cursor = cursor.add(const Duration(days: 1));
-      }
-    }
-
-    return PersonalRecords(
-      longestSessionSeconds: longestEntry.durationSeconds,
-      longestSessionName: longestEntry.name,
-      longestSessionCategoryKey: longestEntry.categoryKey,
-      bestCategoryKeyOfBestDay: bestDayCategory,
-      bestDaySeconds: bestDaySeconds > 0 ? bestDaySeconds : null,
-      bestDayDateKey: bestDayKey,
-      longestOverallStreakDays: longestOverallStreak,
-      longestNoWasteStreakDays: longestNoWasteStreak,
-    );
-  }
-
   // ── Хронологический Аудит времени (Текстовый экспорт) ──
 
   String _formatTimeHHmm(int millisSinceEpoch) {
@@ -413,7 +280,10 @@ class StatsRepository {
     );
 
     final date = du.DateUtils.dateKeyToDate(dateKey);
-    final dateStr = DateFormat('EEEE, dd.MM.yyyy (d MMMM yyyy)', locale).format(date);
+    final dateStr = DateFormat(
+      'EEEE, dd.MM.yyyy (d MMMM yyyy)',
+      locale,
+    ).format(date);
 
     final buffer = StringBuffer();
     buffer.writeln('stats.audit_header'.tr(namedArgs: {'date': dateStr}));
@@ -425,7 +295,8 @@ class StatsRepository {
       final categoryTotals = <String, int>{};
 
       for (final e in entries) {
-        categoryTotals[e.categoryKey] = (categoryTotals[e.categoryKey] ?? 0) + e.durationSeconds;
+        categoryTotals[e.categoryKey] =
+            (categoryTotals[e.categoryKey] ?? 0) + e.durationSeconds;
 
         final startStr = _formatTimeHHmm(e.startedAt);
         final endStr = _formatTimeHHmm(e.endedAt);
@@ -433,7 +304,9 @@ class StatsRepository {
         final durationStr = _formatDurationBrief(e.durationSeconds);
         final nameStr = e.name.trim().isEmpty ? cat.label : e.name.trim();
 
-        buffer.writeln('  $startStr - $endStr [${cat.label}]: $nameStr ($durationStr)');
+        buffer.writeln(
+          '  $startStr - $endStr [${cat.label}]: $nameStr ($durationStr)',
+        );
         if (e.note != null && e.note!.trim().isNotEmpty) {
           buffer.writeln('stats.note'.tr(args: [e.note!.trim()]));
         }
@@ -482,7 +355,8 @@ class StatsRepository {
 
       for (final e in entries) {
         overallTotalSec += e.durationSeconds;
-        categoryTotals[e.categoryKey] = (categoryTotals[e.categoryKey] ?? 0) + e.durationSeconds;
+        categoryTotals[e.categoryKey] =
+            (categoryTotals[e.categoryKey] ?? 0) + e.durationSeconds;
         entriesByDate.putIfAbsent(e.dateKey, () => []).add(e);
       }
 
@@ -490,7 +364,10 @@ class StatsRepository {
 
       for (final dKey in sortedDateKeys) {
         final date = du.DateUtils.dateKeyToDate(dKey);
-        final dateHeader = DateFormat('EEEE, dd.MM.yyyy (d MMMM)', locale).format(date);
+        final dateHeader = DateFormat(
+          'EEEE, dd.MM.yyyy (d MMMM)',
+          locale,
+        ).format(date);
 
         buffer.writeln('📅 $dateHeader:');
 
@@ -502,7 +379,9 @@ class StatsRepository {
           final durationStr = _formatDurationBrief(e.durationSeconds);
           final nameStr = e.name.trim().isEmpty ? cat.label : e.name.trim();
 
-          buffer.writeln('  $startStr - $endStr [${cat.label}]: $nameStr ($durationStr)');
+          buffer.writeln(
+            '  $startStr - $endStr [${cat.label}]: $nameStr ($durationStr)',
+          );
           if (e.note != null && e.note!.trim().isNotEmpty) {
             buffer.writeln('stats.note'.tr(args: [e.note!.trim()]));
           }
@@ -510,7 +389,11 @@ class StatsRepository {
         buffer.writeln();
       }
 
-      buffer.writeln('stats.period_summary'.tr(args: [_formatDurationBrief(overallTotalSec)]));
+      buffer.writeln(
+        'stats.period_summary'.tr(
+          args: [_formatDurationBrief(overallTotalSec)],
+        ),
+      );
       final activeCatStrings = <String>[];
       for (final cat in ActivityCategory.values) {
         final sec = categoryTotals[cat.storageKey] ?? 0;

@@ -32,10 +32,9 @@ class LifetimeStatsSection extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'profile.days_with_asr'.tr(args: [
-                '${stats.daysSinceStart}',
-                _daysWord(stats.daysSinceStart),
-              ]),
+              'profile.days_with_asr'.tr(
+                args: [_daysWord(stats.daysSinceStart)],
+              ),
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 16,

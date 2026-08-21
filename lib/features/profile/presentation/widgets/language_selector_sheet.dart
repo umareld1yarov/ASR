@@ -84,8 +84,9 @@ class LanguageSelectorSheet extends ConsumerWidget {
                       lang['name']!,
                       style: TextStyle(
                         fontSize: 15,
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                         color: Colors.white,
                       ),
                     ),
@@ -101,7 +102,6 @@ class LanguageSelectorSheet extends ConsumerWidget {
                       ref.invalidate(goalsProvider);
                       ref.invalidate(lifetimeJourneyStatsProvider);
                       ref.invalidate(lifetimeBreakdownProvider);
-                      ref.invalidate(personalRecordsProvider);
                       ref.invalidate(categoryBreakdownProvider);
                       ref.invalidate(previousCategoryBreakdownProvider);
                       ref.invalidate(categoryDailyTotalsProvider);

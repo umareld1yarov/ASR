@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../application/milestones_provider.dart';
 import '../../application/profile_provider.dart';
-import '../screens/journey_records_screen.dart';
+import '../screens/journey_screen.dart';
 
 class TeaserTilesRow extends ConsumerWidget {
   const TeaserTilesRow({super.key});
@@ -21,13 +21,11 @@ class TeaserTilesRow extends ConsumerWidget {
 
     final daysWithApp = journeyAsync.valueOrNull?.daysSinceStart ?? 0;
     final totalHours = (journeyAsync.valueOrNull?.totalSeconds ?? 0) ~/ 3600;
-    final unlockedCount = milestonesAsync.valueOrNull
-            ?.where((m) => m.isUnlocked)
-            .length ??
-        0;
+    final unlockedCount =
+        milestonesAsync.valueOrNull?.where((m) => m.isUnlocked).length ?? 0;
 
     return InkWell(
-      onTap: () => JourneyRecordsScreen.show(context),
+      onTap: () => JourneyScreen.show(context),
       borderRadius: BorderRadius.circular(20),
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -64,7 +62,7 @@ class TeaserTilesRow extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'profile.journey_records'.tr(),
+                    'profile.my_journey'.tr(),
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
@@ -74,16 +72,11 @@ class TeaserTilesRow extends ConsumerWidget {
                   const SizedBox(height: 3),
                   Text(
                     daysWithApp > 0
-                        ? 'profile.journey_subtitle'.tr(args: [
-                            '$daysWithApp',
-                            _daysWord(daysWithApp),
-                            '$totalHours',
-                          ])
+                        ? 'profile.journey_subtitle'.tr(
+                            args: [_daysWord(daysWithApp), '$totalHours'],
+                          )
                         : 'profile.journey_desc'.tr(),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.white70,
-                    ),
+                    style: const TextStyle(fontSize: 12, color: Colors.white70),
                   ),
                 ],
               ),

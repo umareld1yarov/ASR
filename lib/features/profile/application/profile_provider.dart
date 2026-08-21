@@ -170,14 +170,6 @@ final lifetimeJourneyStatsProvider = FutureProvider<LifetimeJourneyStats>((
   return repo.getLifetimeJourneyStats();
 });
 
-// ── Личные рекорды ────────────────────────────────────
-
-final personalRecordsProvider = FutureProvider<PersonalRecords>((ref) async {
-  ref.watch(entriesChangedProvider);
-  final repo = ref.watch(statsRepositoryProvider);
-  return repo.getPersonalRecords();
-});
-
 // ── Воспоминания — случайная запись с фото ───────────
 
 /// autoDispose — чтобы при каждом новом заходе на экран Профиля выбиралась

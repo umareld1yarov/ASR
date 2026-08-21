@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +13,9 @@ class AuthScreen extends ConsumerStatefulWidget {
 }
 
 class _AuthScreenState extends ConsumerState<AuthScreen> {
+  // Включить после настройки Apple Developer и Sign in with Apple.
+  static const _appleSignInEnabled = false;
+
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -62,7 +63,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               _isSignUp
                   ? 'auth.register_success'.tr()
                   : 'auth.login_success'.tr(),
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         );
@@ -104,7 +108,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 8,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -122,7 +129,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF06B6D4).withValues(alpha: 0.35),
+                                color: const Color(
+                                  0xFF06B6D4,
+                                ).withValues(alpha: 0.35),
                                 blurRadius: 20,
                                 offset: const Offset(0, 6),
                               ),
@@ -137,7 +146,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       ),
                       const SizedBox(height: 18),
                       Text(
-                        _isSignUp ? 'auth.register_title'.tr() : 'auth.login_title'.tr(),
+                        _isSignUp
+                            ? 'auth.register_title'.tr()
+                            : 'auth.login_title'.tr(),
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 24,
@@ -173,7 +184,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                 onTap: () => setState(() => _isSignUp = false),
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 200),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: !_isSignUp
                                         ? const Color(0xFF06B6D4)
@@ -182,7 +195,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                     boxShadow: !_isSignUp
                                         ? [
                                             BoxShadow(
-                                              color: const Color(0xFF06B6D4).withValues(alpha: 0.3),
+                                              color: const Color(
+                                                0xFF06B6D4,
+                                              ).withValues(alpha: 0.3),
                                               blurRadius: 8,
                                               offset: const Offset(0, 2),
                                             ),
@@ -209,7 +224,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                 onTap: () => setState(() => _isSignUp = true),
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 200),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: _isSignUp
                                         ? const Color(0xFF06B6D4)
@@ -218,7 +235,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                     boxShadow: _isSignUp
                                         ? [
                                             BoxShadow(
-                                              color: const Color(0xFF06B6D4).withValues(alpha: 0.3),
+                                              color: const Color(
+                                                0xFF06B6D4,
+                                              ).withValues(alpha: 0.3),
                                               blurRadius: 8,
                                               offset: const Offset(0, 2),
                                             ),
@@ -256,25 +275,35 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                 style: const TextStyle(color: Colors.white),
                                 decoration: InputDecoration(
                                   labelText: 'auth.name_label'.tr(),
-                                  labelStyle: const TextStyle(color: Colors.white54),
-                                  prefixIcon: const Icon(Icons.person_outline,
-                                      color: Colors.white54),
+                                  labelStyle: const TextStyle(
+                                    color: Colors.white54,
+                                  ),
+                                  prefixIcon: const Icon(
+                                    Icons.person_outline,
+                                    color: Colors.white54,
+                                  ),
                                   filled: true,
-                                  fillColor: Colors.white.withValues(alpha: 0.05),
+                                  fillColor: Colors.white.withValues(
+                                    alpha: 0.05,
+                                  ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(16),
-                                    borderSide:
-                                        const BorderSide(color: Colors.white12),
+                                    borderSide: const BorderSide(
+                                      color: Colors.white12,
+                                    ),
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(16),
-                                    borderSide:
-                                        const BorderSide(color: Colors.white12),
+                                    borderSide: const BorderSide(
+                                      color: Colors.white12,
+                                    ),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(16),
                                     borderSide: const BorderSide(
-                                        color: Color(0xFF06B6D4), width: 1.5),
+                                      color: Color(0xFF06B6D4),
+                                      width: 1.5,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -295,23 +324,33 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                               },
                               decoration: InputDecoration(
                                 labelText: 'auth.email_label'.tr(),
-                                labelStyle: const TextStyle(color: Colors.white54),
-                                prefixIcon: const Icon(Icons.email_outlined,
-                                    color: Colors.white54),
+                                labelStyle: const TextStyle(
+                                  color: Colors.white54,
+                                ),
+                                prefixIcon: const Icon(
+                                  Icons.email_outlined,
+                                  color: Colors.white54,
+                                ),
                                 filled: true,
                                 fillColor: Colors.white.withValues(alpha: 0.05),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  borderSide: const BorderSide(color: Colors.white12),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white12,
+                                  ),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  borderSide: const BorderSide(color: Colors.white12),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white12,
+                                  ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
                                   borderSide: const BorderSide(
-                                      color: Color(0xFF06B6D4), width: 1.5),
+                                    color: Color(0xFF06B6D4),
+                                    width: 1.5,
+                                  ),
                                 ),
                               ),
                             ),
@@ -331,9 +370,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                               },
                               decoration: InputDecoration(
                                 labelText: 'auth.password_label'.tr(),
-                                labelStyle: const TextStyle(color: Colors.white54),
-                                prefixIcon: const Icon(Icons.lock_outline,
-                                    color: Colors.white54),
+                                labelStyle: const TextStyle(
+                                  color: Colors.white54,
+                                ),
+                                prefixIcon: const Icon(
+                                  Icons.lock_outline,
+                                  color: Colors.white54,
+                                ),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscurePassword
@@ -342,22 +385,29 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                     color: Colors.white54,
                                   ),
                                   onPressed: () => setState(
-                                      () => _obscurePassword = !_obscurePassword),
+                                    () => _obscurePassword = !_obscurePassword,
+                                  ),
                                 ),
                                 filled: true,
                                 fillColor: Colors.white.withValues(alpha: 0.05),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  borderSide: const BorderSide(color: Colors.white12),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white12,
+                                  ),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  borderSide: const BorderSide(color: Colors.white12),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white12,
+                                  ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
                                   borderSide: const BorderSide(
-                                      color: Color(0xFF06B6D4), width: 1.5),
+                                    color: Color(0xFF06B6D4),
+                                    width: 1.5,
+                                  ),
                                 ),
                               ),
                             ),
@@ -377,7 +427,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                   ),
                                   elevation: 2,
                                 ),
-                                child: state.isLoading
+                                child:
+                                    state.loadingAction ==
+                                        AuthLoadingAction.email
                                     ? const SizedBox(
                                         width: 24,
                                         height: 24,
@@ -410,7 +462,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
                               'auth.or_quick_login'.tr(),
-                              style: const TextStyle(fontSize: 12, color: Colors.white38),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.white38,
+                              ),
                             ),
                           ),
                           const Expanded(child: Divider(color: Colors.white12)),
@@ -430,65 +485,75 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                       .read(authControllerProvider.notifier)
                                       .signInWithGoogle();
                                   if (context.mounted) {
-                                    final currentAuthState =
-                                        ref.read(authControllerProvider);
+                                    final currentAuthState = ref.read(
+                                      authControllerProvider,
+                                    );
                                     if (success) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         SnackBar(
-                                          backgroundColor: const Color(0xFF06B6D4),
+                                          backgroundColor: const Color(
+                                            0xFF06B6D4,
+                                          ),
                                           content: Text(
                                             'auth.login_success'.tr(),
-                                            style: const TextStyle(color: Colors.white),
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
                                       );
                                       Navigator.of(context).pop();
-                                    } else if (currentAuthState.errorMessage != null) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                    } else if (currentAuthState.errorMessage !=
+                                        null) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         SnackBar(
                                           backgroundColor: Colors.redAccent,
-                                          content: Text(currentAuthState.errorMessage!),
+                                          content: Text(
+                                            currentAuthState.errorMessage!,
+                                          ),
                                         ),
                                       );
                                     }
                                   }
                                 },
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Colors.white24),
-                            backgroundColor: Colors.white.withValues(alpha: 0.04),
+                            side: const BorderSide(color: Color(0xFFDADCE0)),
+                            backgroundColor: Colors.white,
+                            disabledBackgroundColor: Colors.white.withValues(
+                              alpha: 0.72,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          child: state.isLoading
+                          child: state.loadingAction == AuthLoadingAction.google
                               ? const SizedBox(
                                   width: 22,
                                   height: 22,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: Color(0xFF06B6D4),
+                                    color: Color(0xFF4285F4),
                                   ),
                                 )
                               : Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.g_mobiledata,
-                                        size: 20,
-                                        color: Color(0xFFEA4335),
+                                    const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CustomPaint(
+                                        painter: _GoogleMarkPainter(),
                                       ),
                                     ),
                                     const SizedBox(width: 12),
                                     Text(
                                       'auth.google_sign_in'.tr(),
                                       style: const TextStyle(
-                                        color: Colors.white,
+                                        color: Color(0xFF202124),
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -498,61 +563,113 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                         ),
                       ),
 
-                      // Кнопка Apple (если на iOS или macOS)
-                      if (Platform.isIOS || Platform.isMacOS) ...[
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton.icon(
-                            onPressed: state.isLoading
-                                ? null
-                                : () async {
-                                    final success = await ref
-                                        .read(authControllerProvider.notifier)
-                                        .signInWithApple();
-                                    if (context.mounted) {
-                                      final currentAuthState =
-                                          ref.read(authControllerProvider);
-                                      if (success) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            backgroundColor: const Color(0xFF06B6D4),
-                                            content: Text(
-                                              'auth.login_success'.tr(),
-                                              style: const TextStyle(color: Colors.white),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: OutlinedButton(
+                          onPressed: !_appleSignInEnabled || state.isLoading
+                              ? null
+                              : () async {
+                                  final success = await ref
+                                      .read(authControllerProvider.notifier)
+                                      .signInWithApple();
+                                  if (context.mounted) {
+                                    final currentAuthState = ref.read(
+                                      authControllerProvider,
+                                    );
+                                    if (success) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: const Color(
+                                            0xFF06B6D4,
+                                          ),
+                                          content: Text(
+                                            'auth.login_success'.tr(),
+                                            style: const TextStyle(
+                                              color: Colors.white,
                                             ),
                                           ),
-                                        );
-                                        Navigator.of(context).pop();
-                                      } else if (currentAuthState.errorMessage != null) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            backgroundColor: Colors.redAccent,
-                                            content: Text(currentAuthState.errorMessage!),
+                                        ),
+                                      );
+                                      Navigator.of(context).pop();
+                                    } else if (currentAuthState.errorMessage !=
+                                        null) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: Colors.redAccent,
+                                          content: Text(
+                                            currentAuthState.errorMessage!,
                                           ),
-                                        );
-                                      }
+                                        ),
+                                      );
                                     }
-                                  },
-                            icon: const Icon(Icons.apple, size: 22, color: Colors.black),
-                            label: Text(
-                              'auth.apple_sign_in'.tr(),
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                              ),
+                                  }
+                                },
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.white24),
+                            disabledBackgroundColor: Colors.white.withValues(
+                              alpha: 0.06,
                             ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
                             ),
                           ),
+                          child: state.loadingAction == AuthLoadingAction.apple
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.apple,
+                                      size: 22,
+                                      color: Colors.white54,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      'auth.apple_sign_in'.tr(),
+                                      style: const TextStyle(
+                                        color: Colors.white54,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 7,
+                                        vertical: 3,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        'profile.coming_soon'.tr(),
+                                        style: const TextStyle(
+                                          color: Colors.white38,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                         ),
-                      ],
+                      ),
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -564,4 +681,46 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       ),
     );
   }
+}
+
+class _GoogleMarkPainter extends CustomPainter {
+  const _GoogleMarkPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final stroke = size.shortestSide * 0.18;
+    final rect = Rect.fromLTWH(
+      stroke / 2,
+      stroke / 2,
+      size.width - stroke,
+      size.height - stroke,
+    );
+    Paint segment(Color color) => Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke
+      ..strokeCap = StrokeCap.butt;
+
+    canvas.drawArc(rect, -0.78, 1.58, false, segment(const Color(0xFF4285F4)));
+    canvas.drawArc(rect, 0.80, 1.18, false, segment(const Color(0xFF34A853)));
+    canvas.drawArc(rect, 1.98, 1.05, false, segment(const Color(0xFFFBBC05)));
+    canvas.drawArc(rect, 3.03, 2.47, false, segment(const Color(0xFFEA4335)));
+
+    final blue = segment(const Color(0xFF4285F4))
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.square;
+    canvas.drawLine(
+      Offset(size.width * 0.52, size.height * 0.5),
+      Offset(size.width * 0.94, size.height * 0.5),
+      blue,
+    );
+    canvas.drawLine(
+      Offset(size.width * 0.82, size.height * 0.5),
+      Offset(size.width * 0.82, size.height * 0.68),
+      blue,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
