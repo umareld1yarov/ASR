@@ -20,7 +20,6 @@ class TeaserTilesRow extends ConsumerWidget {
     final milestonesAsync = ref.watch(milestonesProvider);
 
     final daysWithApp = journeyAsync.valueOrNull?.daysSinceStart ?? 0;
-    final totalHours = (journeyAsync.valueOrNull?.totalSeconds ?? 0) ~/ 3600;
     final unlockedCount =
         milestonesAsync.valueOrNull?.where((m) => m.isUnlocked).length ?? 0;
 
@@ -73,7 +72,7 @@ class TeaserTilesRow extends ConsumerWidget {
                   Text(
                     daysWithApp > 0
                         ? 'profile.journey_subtitle'.tr(
-                            args: [_daysWord(daysWithApp), '$totalHours'],
+                            args: [_daysWord(daysWithApp)],
                           )
                         : 'profile.journey_desc'.tr(),
                     style: const TextStyle(fontSize: 12, color: Colors.white70),

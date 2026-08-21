@@ -50,24 +50,30 @@ class MyActivityPreviewCard extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.visibility_outlined,
-                        size: 13,
-                        color: Colors.white.withValues(alpha: 0.4),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'community.how_friends_see_you'.tr(),
-                        style: TextStyle(
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.visibility_outlined,
+                          size: 13,
                           color: Colors.white.withValues(alpha: 0.4),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            'community.how_friends_see_you'.tr(),
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.4),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   InkWell(
                     onTap: onVisibleFriendsTap,
                     borderRadius: BorderRadius.circular(10),
