@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -134,7 +135,7 @@ class AuthController extends StateNotifier<AuthStateModel> {
     } catch (e) {
       state = state.copyWith(
         clearLoading: true,
-        errorMessage: 'Ошибка входа: $e',
+        errorMessage: 'auth.login_error'.tr(args: ['$e']),
       );
       return false;
     }
@@ -159,8 +160,7 @@ class AuthController extends StateNotifier<AuthStateModel> {
         // Требуется подтверждение email от Supabase
         state = state.copyWith(
           clearLoading: true,
-          errorMessage:
-              'Регистрация создана! Проверьте вашу почту и подтвердите Email или войдите под своим паролем.',
+          errorMessage: 'auth.registration_confirmation'.tr(),
         );
         return false;
       }
@@ -182,7 +182,7 @@ class AuthController extends StateNotifier<AuthStateModel> {
     } catch (e) {
       state = state.copyWith(
         clearLoading: true,
-        errorMessage: 'Ошибка регистрации: $e',
+        errorMessage: 'auth.registration_error'.tr(args: ['$e']),
       );
       return false;
     }
@@ -218,7 +218,7 @@ class AuthController extends StateNotifier<AuthStateModel> {
     } catch (e) {
       state = state.copyWith(
         clearLoading: true,
-        errorMessage: 'Ошибка Google входа: $e',
+        errorMessage: 'auth.google_error'.tr(args: ['$e']),
       );
       return false;
     }
@@ -247,7 +247,7 @@ class AuthController extends StateNotifier<AuthStateModel> {
     } catch (e) {
       state = state.copyWith(
         clearLoading: true,
-        errorMessage: 'Ошибка Apple входа: $e',
+        errorMessage: 'auth.apple_error'.tr(args: ['$e']),
       );
       return false;
     }
@@ -275,7 +275,7 @@ class AuthController extends StateNotifier<AuthStateModel> {
     } catch (e) {
       state = state.copyWith(
         clearLoading: true,
-        errorMessage: 'Не удалось удалить аккаунт: $e',
+        errorMessage: 'auth.delete_error'.tr(args: ['$e']),
       );
       return false;
     }

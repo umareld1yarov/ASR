@@ -29,7 +29,10 @@ class SettingsSection extends ConsumerWidget {
         backgroundColor: const Color(0xFF1F1F1F),
         title: Text(
           'profile.about_title'.tr(),
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         content: Text(
           'profile.about_desc'.tr(),
@@ -59,9 +62,9 @@ class SettingsSection extends ConsumerWidget {
         GestureDetector(
           onTap: () {
             if (!isPro) {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const PaywallScreen()),
-              );
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const PaywallScreen()));
             }
           },
           child: Container(
@@ -77,8 +80,11 @@ class SettingsSection extends ConsumerWidget {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: (isPro ? const Color(0xFF10B981) : const Color(0xFF06B6D4))
-                      .withValues(alpha: 0.3),
+                  color:
+                      (isPro
+                              ? const Color(0xFF10B981)
+                              : const Color(0xFF06B6D4))
+                          .withValues(alpha: 0.3),
                   blurRadius: 14,
                   offset: const Offset(0, 4),
                 ),
@@ -104,7 +110,9 @@ class SettingsSection extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isPro ? 'premium.pro_active_title'.tr() : 'premium.get_pro_title'.tr(),
+                        isPro
+                            ? 'premium.pro_active_title'.tr()
+                            : 'premium.get_pro_title'.tr(),
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
@@ -207,7 +215,9 @@ class SettingsSection extends ConsumerWidget {
                         child: ElevatedButton.icon(
                           onPressed: () {
                             Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => const AuthScreen()),
+                              MaterialPageRoute(
+                                builder: (_) => const AuthScreen(),
+                              ),
                             );
                           },
                           icon: const Icon(Icons.login, size: 18),
@@ -234,8 +244,11 @@ class SettingsSection extends ConsumerWidget {
               ] else ...[
                 // Авторизованный аккаунт: Профиль & Синхронизация
                 ListTile(
-                  leading: const Icon(Icons.account_circle,
-                      size: 26, color: Color(0xFF06B6D4)),
+                  leading: const Icon(
+                    Icons.account_circle,
+                    size: 26,
+                    color: Color(0xFF06B6D4),
+                  ),
                   title: Text(
                     authState.user?.email ?? 'ASR User',
                     style: const TextStyle(
@@ -255,7 +268,10 @@ class SettingsSection extends ConsumerWidget {
                     onPressed: () => authNotifier.signOut(),
                     child: Text(
                       'auth.logout'.tr(),
-                      style: const TextStyle(color: Colors.white54, fontSize: 13),
+                      style: const TextStyle(
+                        color: Colors.white54,
+                        fontSize: 13,
+                      ),
                     ),
                   ),
                 ),
@@ -265,8 +281,9 @@ class SettingsSection extends ConsumerWidget {
                 Consumer(
                   builder: (context, ref, _) {
                     final syncState = ref.watch(syncControllerProvider);
-                    final syncController =
-                        ref.read(syncControllerProvider.notifier);
+                    final syncController = ref.read(
+                      syncControllerProvider.notifier,
+                    );
 
                     return ListTile(
                       onTap: syncState.isSyncing
@@ -297,8 +314,11 @@ class SettingsSection extends ConsumerWidget {
                                 color: Color(0xFF06B6D4),
                               ),
                             )
-                          : const Icon(Icons.sync,
-                              size: 20, color: Color(0xFF06B6D4)),
+                          : const Icon(
+                              Icons.sync,
+                              size: 20,
+                              color: Color(0xFF06B6D4),
+                            ),
                       title: Text(
                         'auth.sync_now'.tr(),
                         style: const TextStyle(
@@ -309,15 +329,24 @@ class SettingsSection extends ConsumerWidget {
                       ),
                       subtitle: syncState.lastSyncedAt != null
                           ? Text(
-                              'auth.last_sync'.tr(args: [
-                                DateFormat('HH:mm').format(syncState.lastSyncedAt!)
-                              ]),
+                              'auth.last_sync'.tr(
+                                args: [
+                                  DateFormat(
+                                    'HH:mm',
+                                  ).format(syncState.lastSyncedAt!),
+                                ],
+                              ),
                               style: const TextStyle(
-                                  fontSize: 11, color: Colors.white38),
+                                fontSize: 11,
+                                color: Colors.white38,
+                              ),
                             )
                           : null,
-                      trailing: const Icon(Icons.chevron_right,
-                          size: 18, color: Colors.white38),
+                      trailing: const Icon(
+                        Icons.chevron_right,
+                        size: 18,
+                        color: Colors.white38,
+                      ),
                     );
                   },
                 ),
@@ -333,23 +362,30 @@ class SettingsSection extends ConsumerWidget {
                         title: Text(
                           'auth.delete_dialog_title'.tr(),
                           style: const TextStyle(
-                              color: Colors.redAccent,
-                              fontWeight: FontWeight.bold),
+                            color: Colors.redAccent,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         content: Text(
                           'auth.delete_dialog_desc'.tr(),
-                          style: const TextStyle(color: Colors.white70, height: 1.4),
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            height: 1.4,
+                          ),
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.of(dialogCtx).pop(),
-                            child: Text('common.cancel'.tr(),
-                                style: const TextStyle(color: Colors.white54)),
+                            child: Text(
+                              'common.cancel'.tr(),
+                              style: const TextStyle(color: Colors.white54),
+                            ),
                           ),
                           ElevatedButton(
                             onPressed: () async {
                               Navigator.of(dialogCtx).pop();
-                              final success = await authNotifier.deleteAccount();
+                              final success = await authNotifier
+                                  .deleteAccount();
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
@@ -358,8 +394,8 @@ class SettingsSection extends ConsumerWidget {
                                         : Colors.redAccent,
                                     content: Text(
                                       success
-                                          ? 'Аккаунт и все данные успешно удалены.'
-                                          : 'Ошибка при удалении аккаунта',
+                                          ? 'auth.delete_success'.tr()
+                                          : 'auth.delete_failure'.tr(),
                                     ),
                                   ),
                                 );
@@ -368,15 +404,20 @@ class SettingsSection extends ConsumerWidget {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.redAccent,
                             ),
-                            child: Text('auth.delete_confirm'.tr(),
-                                style: const TextStyle(color: Colors.white)),
+                            child: Text(
+                              'auth.delete_confirm'.tr(),
+                              style: const TextStyle(color: Colors.white),
+                            ),
                           ),
                         ],
                       ),
                     );
                   },
-                  leading: const Icon(Icons.delete_forever,
-                      size: 20, color: Colors.redAccent),
+                  leading: const Icon(
+                    Icons.delete_forever,
+                    size: 20,
+                    color: Colors.redAccent,
+                  ),
                   title: Text(
                     'auth.delete_account'.tr(),
                     style: const TextStyle(
@@ -426,8 +467,11 @@ class SettingsSection extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 4),
-                    const Icon(Icons.chevron_right,
-                        size: 18, color: Colors.white38),
+                    const Icon(
+                      Icons.chevron_right,
+                      size: 18,
+                      color: Colors.white38,
+                    ),
                   ],
                 ),
                 onTap: () => _showLanguageSelector(context),
@@ -438,7 +482,8 @@ class SettingsSection extends ConsumerWidget {
                 label: 'onboarding.view_onboarding'.tr(),
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => const OnboardingScreen(isFromSettings: true),
+                    builder: (_) =>
+                        const OnboardingScreen(isFromSettings: true),
                   ),
                 ),
               ),
@@ -503,13 +548,18 @@ class _SettingsTile extends StatelessWidget {
           color: comingSoon ? Colors.white38 : Colors.white,
         ),
       ),
-      trailing: trailingWidget ??
+      trailing:
+          trailingWidget ??
           (comingSoon
               ? Text(
                   'profile.coming_soon'.tr(),
                   style: const TextStyle(fontSize: 11.5, color: Colors.white24),
                 )
-              : const Icon(Icons.chevron_right, size: 18, color: Colors.white38)),
+              : const Icon(
+                  Icons.chevron_right,
+                  size: 18,
+                  color: Colors.white38,
+                )),
       shape: isLast
           ? const RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
@@ -518,4 +568,3 @@ class _SettingsTile extends StatelessWidget {
     );
   }
 }
-

@@ -185,7 +185,10 @@ class ProfileHeader extends ConsumerWidget {
               data: (me) => GestureDetector(
                 onTap: () => _editUsername(context, ref, me.username),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(12),
@@ -295,7 +298,7 @@ class _UsernameEditSheetState extends ConsumerState<_UsernameEditSheet> {
       setState(() {
         _isChecking = false;
         _isAvailable = false;
-        _errorMessage = 'Минимум 3 символа';
+        _errorMessage = 'profile.username_min_length'.tr();
       });
       return;
     }
@@ -304,17 +307,19 @@ class _UsernameEditSheetState extends ConsumerState<_UsernameEditSheet> {
       setState(() {
         _isChecking = false;
         _isAvailable = false;
-        _errorMessage = 'Максимум 30 символов';
+        _errorMessage = 'profile.username_max_length'.tr();
       });
       return;
     }
 
-    final regex = RegExp(r'^(?!.*\.\.)(?!.*\.$)[a-z0-9_][a-z0-9_\.]{1,28}[a-z0-9_]$');
+    final regex = RegExp(
+      r'^(?!.*\.\.)(?!.*\.$)[a-z0-9_][a-z0-9_\.]{1,28}[a-z0-9_]$',
+    );
     if (!regex.hasMatch(clean)) {
       setState(() {
         _isChecking = false;
         _isAvailable = false;
-        _errorMessage = 'Разрешены только a-z, 0-9, . и _';
+        _errorMessage = 'profile.username_allowed_chars'.tr();
       });
       return;
     }
@@ -334,7 +339,7 @@ class _UsernameEditSheetState extends ConsumerState<_UsernameEditSheet> {
           setState(() {
             _isChecking = false;
             _isAvailable = available;
-            _errorMessage = available ? null : 'Этот никнейм уже занят';
+            _errorMessage = available ? null : 'profile.username_taken'.tr();
           });
         }
       } catch (_) {
@@ -342,7 +347,7 @@ class _UsernameEditSheetState extends ConsumerState<_UsernameEditSheet> {
           setState(() {
             _isChecking = false;
             _isAvailable = false;
-            _errorMessage = 'Ошибка проверки доступности';
+            _errorMessage = 'profile.username_check_error'.tr();
           });
         }
       }
@@ -360,7 +365,7 @@ class _UsernameEditSheetState extends ConsumerState<_UsernameEditSheet> {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Никнейм успешно изменен на @$clean'),
+            content: Text('profile.username_changed'.tr(args: ['@$clean'])),
             backgroundColor: const Color(0xFF22C55E),
           ),
         );
@@ -400,9 +405,9 @@ class _UsernameEditSheetState extends ConsumerState<_UsernameEditSheet> {
             ),
           ),
           const SizedBox(height: 18),
-          const Text(
-            'Уникальный никнейм',
-            style: TextStyle(
+          Text(
+            'profile.username_title'.tr(),
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -410,7 +415,7 @@ class _UsernameEditSheetState extends ConsumerState<_UsernameEditSheet> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Друзья смогут находить вас по этому нику (@username), как в Instagram.',
+            'profile.username_desc'.tr(),
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.5),
               fontSize: 13,
@@ -432,19 +437,22 @@ class _UsernameEditSheetState extends ConsumerState<_UsernameEditSheet> {
                 fontWeight: FontWeight.w700,
                 fontSize: 16,
               ),
-              hintText: 'ваш_никнейм',
+              hintText: 'profile.username_hint'.tr(),
               hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
               filled: true,
               fillColor: Colors.white.withValues(alpha: 0.05),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
                 borderSide: BorderSide(
                   color: _errorMessage != null
                       ? Colors.redAccent
                       : _isAvailable == true
-                          ? const Color(0xFF22C55E)
-                          : Colors.white12,
+                      ? const Color(0xFF22C55E)
+                      : Colors.white12,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
@@ -453,8 +461,8 @@ class _UsernameEditSheetState extends ConsumerState<_UsernameEditSheet> {
                   color: _errorMessage != null
                       ? Colors.redAccent
                       : _isAvailable == true
-                          ? const Color(0xFF22C55E)
-                          : Colors.white12,
+                      ? const Color(0xFF22C55E)
+                      : Colors.white12,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
@@ -463,8 +471,8 @@ class _UsernameEditSheetState extends ConsumerState<_UsernameEditSheet> {
                   color: _errorMessage != null
                       ? Colors.redAccent
                       : _isAvailable == true
-                          ? const Color(0xFF22C55E)
-                          : CommunityTheme.accentColor,
+                      ? const Color(0xFF22C55E)
+                      : CommunityTheme.accentColor,
                   width: 1.5,
                 ),
               ),
@@ -474,14 +482,21 @@ class _UsernameEditSheetState extends ConsumerState<_UsernameEditSheet> {
                       child: SizedBox(
                         width: 16,
                         height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white70,
+                        ),
                       ),
                     )
                   : _isAvailable == true && _errorMessage == null
-                      ? const Icon(Icons.check_circle, color: Color(0xFF22C55E), size: 20)
-                      : _errorMessage != null
-                          ? const Icon(Icons.cancel, color: Colors.redAccent, size: 20)
-                          : null,
+                  ? const Icon(
+                      Icons.check_circle,
+                      color: Color(0xFF22C55E),
+                      size: 20,
+                    )
+                  : _errorMessage != null
+                  ? const Icon(Icons.cancel, color: Colors.redAccent, size: 20)
+                  : null,
             ),
             onChanged: _onChanged,
           ),
@@ -492,18 +507,27 @@ class _UsernameEditSheetState extends ConsumerState<_UsernameEditSheet> {
               style: const TextStyle(color: Colors.redAccent, fontSize: 12),
             )
           else if (_isAvailable == true && _controller.text.trim().isNotEmpty)
-            const Text(
-              '✓ Этот никнейм свободен',
-              style: TextStyle(color: Color(0xFF22C55E), fontSize: 12, fontWeight: FontWeight.w500),
+            Text(
+              'profile.username_available'.tr(),
+              style: const TextStyle(
+                color: Color(0xFF22C55E),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
             )
           else
             Text(
-              'От 3 до 30 символов: a-z, 0-9, точки и подчеркивания.',
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.35), fontSize: 12),
+              'profile.username_requirements'.tr(),
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.35),
+                fontSize: 12,
+              ),
             ),
           const SizedBox(height: 24),
           ElevatedButton(
-            onPressed: (_isAvailable == true && !_isChecking && !_isSaving) ? _save : null,
+            onPressed: (_isAvailable == true && !_isChecking && !_isSaving)
+                ? _save
+                : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: CommunityTheme.accentColor,
               disabledBackgroundColor: Colors.white.withValues(alpha: 0.1),
@@ -518,11 +542,17 @@ class _UsernameEditSheetState extends ConsumerState<_UsernameEditSheet> {
                 ? const SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.black,
+                    ),
                   )
-                : const Text(
-                    'Сохранить никнейм',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                : Text(
+                    'profile.save_username'.tr(),
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
           ),
         ],

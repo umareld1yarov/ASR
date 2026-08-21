@@ -7,15 +7,17 @@ import 'dart:io';
 /// 2. 0 пропущенных ключей (Missing keys = 0).
 /// 3. 0 ошибок паритета языков и плейсхолдеров ({count}, {date}, {duration}).
 void main() async {
-  print('====================================================');
-  print(' 🌐 ASR STRICTOR LOCALIZATION AUDIT TOOL');
-  print('====================================================\n');
+  stdout.writeln('====================================================');
+  stdout.writeln(' 🌐 ASR STRICTOR LOCALIZATION AUDIT TOOL');
+  stdout.writeln('====================================================\n');
 
   final libDir = Directory('lib');
   final translationsDir = Directory('assets/translations');
 
   if (!libDir.existsSync() || !translationsDir.existsSync()) {
-    print('❌ Error: Directory lib/ or assets/translations/ not found!');
+    stdout.writeln(
+      '❌ Error: Directory lib/ or assets/translations/ not found!',
+    );
     exit(1);
   }
 
@@ -43,7 +45,7 @@ void main() async {
       languageLeafKeys[langCode] = keys;
       languageLeafValues[langCode] = values;
     } catch (e) {
-      print('❌ Error parsing ${file.path}: $e');
+      stdout.writeln('❌ Error parsing ${file.path}: $e');
       exit(1);
     }
   }
@@ -97,36 +99,72 @@ void main() async {
       // Находим вызовы .tr()
       for (final match in trMethodRegex.allMatches(line)) {
         final rawKey = match.group(1)!;
-        _registerKey(rawKey, usedKeys, keyUsages, '$relativePath:$lineNumber', ruKeys);
+        _registerKey(
+          rawKey,
+          usedKeys,
+          keyUsages,
+          '$relativePath:$lineNumber',
+          ruKeys,
+        );
         if (ruValues.containsKey(rawKey)) {
-          localizedUserStrings.add('$relativePath:$lineNumber -> "${ruValues[rawKey]}"');
+          localizedUserStrings.add(
+            '$relativePath:$lineNumber -> "${ruValues[rawKey]}"',
+          );
         }
       }
       for (final match in trFuncRegex.allMatches(line)) {
         final rawKey = match.group(1)!;
-        _registerKey(rawKey, usedKeys, keyUsages, '$relativePath:$lineNumber', ruKeys);
+        _registerKey(
+          rawKey,
+          usedKeys,
+          keyUsages,
+          '$relativePath:$lineNumber',
+          ruKeys,
+        );
         if (ruValues.containsKey(rawKey)) {
-          localizedUserStrings.add('$relativePath:$lineNumber -> "${ruValues[rawKey]}"');
+          localizedUserStrings.add(
+            '$relativePath:$lineNumber -> "${ruValues[rawKey]}"',
+          );
         }
       }
       for (final match in doubleQuoteTrRegex.allMatches(line)) {
         final rawKey = match.group(1)!;
-        _registerKey(rawKey, usedKeys, keyUsages, '$relativePath:$lineNumber', ruKeys);
+        _registerKey(
+          rawKey,
+          usedKeys,
+          keyUsages,
+          '$relativePath:$lineNumber',
+          ruKeys,
+        );
       }
       for (final match in doubleQuoteFuncRegex.allMatches(line)) {
         final rawKey = match.group(1)!;
-        _registerKey(rawKey, usedKeys, keyUsages, '$relativePath:$lineNumber', ruKeys);
+        _registerKey(
+          rawKey,
+          usedKeys,
+          keyUsages,
+          '$relativePath:$lineNumber',
+          ruKeys,
+        );
       }
 
       // Сканируем хардкод кириллических строк для UI (в пользовательском интерфейсе)
-      final isTechnicalFile = relativePath.startsWith('lib/core/') || relativePath.startsWith('lib/data/');
-      final isTechnicalLine = line.contains('StateError') || line.contains('Exception') || line.contains('print') || line.contains('debugPrint');
+      final isTechnicalFile =
+          relativePath.startsWith('lib/core/') ||
+          relativePath.startsWith('lib/data/');
+      final isTechnicalLine =
+          line.contains('StateError') ||
+          line.contains('Exception') ||
+          line.contains('print') ||
+          line.contains('debugPrint');
 
       if (!isMockFile && !isTechnicalFile && !isTechnicalLine) {
         for (final match in cyrillicStringRegex.allMatches(line)) {
           final text = match.group(2)!;
           // Проверяем, не является ли это вызовом .tr() или комментарием
-          if (!line.contains('.tr(') && !line.contains('tr(') && !_isDocCommentOrAsset(text)) {
+          if (!line.contains('.tr(') &&
+              !line.contains('tr(') &&
+              !_isDocCommentOrAsset(text)) {
             hardcodedUserStrings.add('$relativePath:$lineNumber -> "$text"');
           }
         }
@@ -169,10 +207,14 @@ void main() async {
     if (missingInTarget.isNotEmpty || extraInTarget.isNotEmpty) {
       final errors = <String>[];
       if (missingInTarget.isNotEmpty) {
-        errors.add('Missing keys (${missingInTarget.length}): ${missingInTarget.take(5).join(", ")}');
+        errors.add(
+          'Missing keys (${missingInTarget.length}): ${missingInTarget.take(5).join(", ")}',
+        );
       }
       if (extraInTarget.isNotEmpty) {
-        errors.add('Extra keys (${extraInTarget.length}): ${extraInTarget.take(5).join(", ")}');
+        errors.add(
+          'Extra keys (${extraInTarget.length}): ${extraInTarget.take(5).join(", ")}',
+        );
       }
       parityErrors[targetLang] = errors;
     }
@@ -180,89 +222,107 @@ void main() async {
     final placeholderRegex = RegExp(r'\{[a-zA-Z0-9\_]*\}');
     for (final ruKey in baseKeys) {
       if (targetValues.containsKey(ruKey)) {
-        final ruPlaceholders = placeholderRegex.allMatches(ruValues[ruKey]!).map((m) => m.group(0)!).toList()..sort();
-        final targetPlaceholders = placeholderRegex.allMatches(targetValues[ruKey]!).map((m) => m.group(0)!).toList()..sort();
+        final ruPlaceholders =
+            placeholderRegex
+                .allMatches(ruValues[ruKey]!)
+                .map((m) => m.group(0)!)
+                .toList()
+              ..sort();
+        final targetPlaceholders =
+            placeholderRegex
+                .allMatches(targetValues[ruKey]!)
+                .map((m) => m.group(0)!)
+                .toList()
+              ..sort();
 
         if (ruPlaceholders.join(',') != targetPlaceholders.join(',')) {
-          placeholderErrors.add('[$targetLang.json] Key "$ruKey": placeholders RU [${ruPlaceholders.join(", ")}] vs $targetLang [${targetPlaceholders.join(", ")}]');
+          placeholderErrors.add(
+            '[$targetLang.json] Key "$ruKey": placeholders RU [${ruPlaceholders.join(", ")}] vs $targetLang [${targetPlaceholders.join(", ")}]',
+          );
         }
       }
     }
   }
 
   // 6. Формирование Отчёта по категориям
-  print('----------------------------------------------------');
-  print(' 🔍 DETAILED AUDIT REPORT');
-  print('----------------------------------------------------');
-  print('📱 Localized user-facing strings: ${localizedUserStrings.length}');
-  print('⚠️ Hardcoded user-facing strings: ${hardcodedUserStrings.length}');
-  print('🔑 Used localization keys: ${usedKeys.length}');
-  print('❌ Missing localization keys: ${missingKeys.length}');
-  print('📦 Unused localization keys: ${unusedKeys.length}');
-  print('🔄 Placeholder mismatches: ${placeholderErrors.length}\n');
+  stdout.writeln('----------------------------------------------------');
+  stdout.writeln(' 🔍 DETAILED AUDIT REPORT');
+  stdout.writeln('----------------------------------------------------');
+  stdout.writeln(
+    '📱 Localized user-facing strings: ${localizedUserStrings.length}',
+  );
+  stdout.writeln(
+    '⚠️ Hardcoded user-facing strings: ${hardcodedUserStrings.length}',
+  );
+  stdout.writeln('🔑 Used localization keys: ${usedKeys.length}');
+  stdout.writeln('❌ Missing localization keys: ${missingKeys.length}');
+  stdout.writeln('📦 Unused localization keys: ${unusedKeys.length}');
+  stdout.writeln('🔄 Placeholder mismatches: ${placeholderErrors.length}\n');
 
   var hasFailures = false;
 
   if (hardcodedUserStrings.isNotEmpty) {
     hasFailures = true;
-    print('🚨 HARDCODED USER-FACING STRINGS FOUND (${hardcodedUserStrings.length}):');
+    stdout.writeln(
+      '🚨 HARDCODED USER-FACING STRINGS FOUND (${hardcodedUserStrings.length}):',
+    );
     for (final h in hardcodedUserStrings) {
-      print('   - $h');
+      stdout.writeln('   - $h');
     }
-    print('');
+    stdout.writeln();
   } else {
-    print('✅ Hardcoded user-facing strings: 0 (Strict PASS)');
+    stdout.writeln('✅ Hardcoded user-facing strings: 0 (Strict PASS)');
   }
 
   if (missingKeys.isNotEmpty) {
     hasFailures = true;
-    print('❌ MISSING LOCALIZATION KEYS (${missingKeys.length}):');
+    stdout.writeln('❌ MISSING LOCALIZATION KEYS (${missingKeys.length}):');
     for (final k in missingKeys) {
-      print('   - $k');
+      stdout.writeln('   - $k');
     }
-    print('');
+    stdout.writeln();
   } else {
-    print('✅ Missing localization keys: 0');
+    stdout.writeln('✅ Missing localization keys: 0');
   }
 
   if (placeholderErrors.isNotEmpty) {
     hasFailures = true;
-    print('❌ PLACEHOLDER MISMATCHES (${placeholderErrors.length}):');
+    stdout.writeln('❌ PLACEHOLDER MISMATCHES (${placeholderErrors.length}):');
     for (final err in placeholderErrors) {
-      print('   - $err');
+      stdout.writeln('   - $err');
     }
-    print('');
+    stdout.writeln();
   } else {
-    print('✅ Placeholder mismatches: 0');
+    stdout.writeln('✅ Placeholder mismatches: 0');
   }
 
   if (parityErrors.isNotEmpty) {
     hasFailures = true;
-    print('❌ CROSS-LANGUAGE PARITY ERRORS:');
+    stdout.writeln('❌ CROSS-LANGUAGE PARITY ERRORS:');
     parityErrors.forEach((lang, errors) {
-      print('   [$lang.json]: ${errors.join("; ")}');
+      stdout.writeln('   [$lang.json]: ${errors.join("; ")}');
     });
-    print('');
+    stdout.writeln();
   } else {
-    print('✅ Cross-language key parity OK');
+    stdout.writeln('✅ Cross-language key parity OK');
   }
 
   if (unusedKeys.isNotEmpty) {
-    print('ℹ️ UNUSED LOCALIZATION KEYS (${unusedKeys.length}):');
+    stdout.writeln('ℹ️ UNUSED LOCALIZATION KEYS (${unusedKeys.length}):');
     for (final k in unusedKeys) {
-      print('   - $k');
+      stdout.writeln('   - $k');
     }
-    print('');
+    stdout.writeln();
   }
 
-  print('====================================================');
+  stdout.writeln('====================================================');
   if (hasFailures) {
-    print(' 💥 OVERALL AUDIT STATUS: FAIL');
-    print('====================================================');
+    stdout.writeln(' 💥 OVERALL AUDIT STATUS: FAIL');
+    stdout.writeln('====================================================');
     exit(1);
   } else {
-    print(' 🎉 OVERALL AUDIT STATUS: PASS');
-    print('====================================================');
+    stdout.writeln(' 🎉 OVERALL AUDIT STATUS: PASS');
+    stdout.writeln('====================================================');
     exit(0);
   }
 }
@@ -331,11 +391,24 @@ String _stripPluralSuffix(String key) {
 
 bool _isDocCommentOrAsset(String text) {
   final trimmed = text.trim();
-  if (trimmed.startsWith('//') || trimmed.startsWith('/*')) return true;
-  if (trimmed.startsWith('assets/') || trimmed.startsWith('package:')) return true;
-  
+  if (trimmed.startsWith('//') || trimmed.startsWith('/*')) {
+    return true;
+  }
+  if (trimmed.startsWith('assets/') || trimmed.startsWith('package:')) {
+    return true;
+  }
+
   // Допустимые эндонимы языков в меню выбора
-  const languageEndonyms = ['Русский', 'Кыргызча', 'English', 'العربية', 'Türkçe', 'Deutsch', 'Español', 'Português'];
+  const languageEndonyms = [
+    'Русский',
+    'Кыргызча',
+    'English',
+    'العربية',
+    'Türkçe',
+    'Deutsch',
+    'Español',
+    'Português',
+  ];
   if (languageEndonyms.any((e) => trimmed.contains(e))) return true;
 
   // Распознаём технические шаблоны форматирования времени (напр. "$hч $mм", "$hoursч", "$mм", "minsм")
@@ -350,7 +423,9 @@ bool _isDocCommentOrAsset(String text) {
     return true;
   }
 
-  if (RegExp(r'^[$\{\}\w\s\:\.\-\—\(\)\?\>\<\=\"]*(?:ч|мин|м|минут)[$\{\}\w\s\:\.\-\—\(\)\?\>\<\=\"]*$').hasMatch(trimmed)) {
+  if (RegExp(
+    r'^[$\{\}\w\s\:\.\-\—\(\)\?\>\<\=\"]*(?:ч|мин|м|минут)[$\{\}\w\s\:\.\-\—\(\)\?\>\<\=\"]*$',
+  ).hasMatch(trimmed)) {
     return true;
   }
   return false;

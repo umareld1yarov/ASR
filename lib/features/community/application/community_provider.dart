@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/services/supabase_service.dart';
@@ -86,9 +87,7 @@ class CommunityController {
     if (!isPro) {
       final currentFriends = await _repo.getFriends();
       if (currentFriends.length >= 3) {
-        throw Exception(
-          'В бесплатной версии доступно до 3 друзей. Получите ASR PRO для безлимитного добавления друзей.',
-        );
+        throw Exception('community.free_friend_limit'.tr());
       }
     }
 

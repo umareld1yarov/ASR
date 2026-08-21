@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:isar_community/isar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -34,19 +35,15 @@ class CloudSyncService {
   Future<SyncResult> performFullSync() async {
     final client = _supabase;
     if (client == null) {
-      return const SyncResult(
-        isSuccess: false,
-        message: 'Supabase не инициализирован (проверьте .env)',
-      );
+      return SyncResult(isSuccess: false, message: 'sync.not_initialized'.tr());
     }
 
     final currentUser =
         client.auth.currentUser ?? client.auth.currentSession?.user;
     if (currentUser == null) {
-      return const SyncResult(
+      return SyncResult(
         isSuccess: false,
-        message:
-            'Пользователь не авторизован в облаке (войдите по Email и Паролю)',
+        message: 'sync.not_authenticated'.tr(),
       );
     }
 
@@ -66,13 +63,16 @@ class CloudSyncService {
         isSuccess: true,
         syncedEntries: syncedEntriesCount,
         syncedGoals: syncedGoalsCount,
-        message: 'Синхронизация завершена успешно!',
+        message: 'sync.success'.tr(),
       );
     } catch (e, stack) {
       if (kDebugMode) {
         print('[CloudSyncService] Ошибка синхронизации: $e\n$stack');
       }
-      return SyncResult(isSuccess: false, message: 'Ошибка синхронизации: $e');
+      return SyncResult(
+        isSuccess: false,
+        message: 'sync.error'.tr(args: ['$e']),
+      );
     }
   }
 

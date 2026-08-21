@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/application/auth_controller.dart';
@@ -60,7 +61,9 @@ class SyncController extends StateNotifier<SyncState> {
     final authState = _ref.read(authControllerProvider);
 
     // Авто-бэкап работает ТОЛЬКО для PRO пользователей с включенным бэкапом
-    if (!isPro || !authState.isAuthenticated || !authState.isCloudBackupEnabled) {
+    if (!isPro ||
+        !authState.isAuthenticated ||
+        !authState.isCloudBackupEnabled) {
       return;
     }
 
@@ -74,29 +77,23 @@ class SyncController extends StateNotifier<SyncState> {
   Future<SyncResult> triggerSync({bool silent = false}) async {
     final isPro = _ref.read(isProProvider);
     if (!isPro) {
-      return const SyncResult(
-        isSuccess: false,
-        message: 'Облачный бэкап и синхронизация доступны только в ASR PRO',
-      );
+      return SyncResult(isSuccess: false, message: 'sync.pro_required'.tr());
     }
 
     final authState = _ref.read(authControllerProvider);
     if (!authState.isAuthenticated) {
-      return const SyncResult(
-        isSuccess: false,
-        message: 'Для синхронизации необходимо войти в аккаунт',
-      );
+      return SyncResult(isSuccess: false, message: 'sync.login_required'.tr());
     }
 
     if (state.isSyncing) {
-      return const SyncResult(
-        isSuccess: false,
-        message: 'Синхронизация уже выполняется...',
-      );
+      return SyncResult(isSuccess: false, message: 'sync.already_running'.tr());
     }
 
     if (!silent) {
-      state = state.copyWith(isSyncing: true, statusMessage: 'Синхронизация...');
+      state = state.copyWith(
+        isSyncing: true,
+        statusMessage: 'sync.in_progress'.tr(),
+      );
     } else {
       state = state.copyWith(isSyncing: true);
     }
@@ -120,8 +117,9 @@ class SyncController extends StateNotifier<SyncState> {
   }
 }
 
-final syncControllerProvider =
-    StateNotifierProvider<SyncController, SyncState>((ref) {
-  final service = ref.watch(syncServiceProvider);
-  return SyncController(service, ref);
-});
+final syncControllerProvider = StateNotifierProvider<SyncController, SyncState>(
+  (ref) {
+    final service = ref.watch(syncServiceProvider);
+    return SyncController(service, ref);
+  },
+);

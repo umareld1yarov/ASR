@@ -1,11 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/config/supabase_config.dart';
 import '../../../core/services/supabase_service.dart';
-
-
 
 /// Репозиторий для управления авторизацией через Supabase.
 class AuthRepository {
@@ -94,29 +93,28 @@ class AuthRepository {
 
     final googleAuth = await googleUser.authentication.timeout(
       const Duration(seconds: 15),
-      onTimeout: () => throw Exception('Не удалось получить токены от Google (таймаут 15 сек)'),
+      onTimeout: () => throw Exception('auth.google_tokens_timeout'.tr()),
     );
     final idToken = googleAuth.idToken;
     final accessToken = googleAuth.accessToken;
 
     if (idToken == null) {
-      throw Exception(
-        'Google не вернул idToken. Убедитесь, что в Google Cloud Console добавлен Android OAuth Client с SHA-1 отпечатком и пакетом com.naiza.asr, а GOOGLE_WEB_CLIENT_ID в .env — это Web Client ID.',
-      );
+      throw Exception('auth.google_id_token_error'.tr());
     }
 
-    final response = await client.auth.signInWithIdToken(
-      provider: OAuthProvider.google,
-      idToken: idToken,
-      accessToken: accessToken,
-    ).timeout(
-      const Duration(seconds: 15),
-      onTimeout: () => throw Exception('Превышено время ожидания ответа от Supabase (15 сек). Проверьте интернет или включен ли Google Provider в панели Supabase.'),
-    );
+    final response = await client.auth
+        .signInWithIdToken(
+          provider: OAuthProvider.google,
+          idToken: idToken,
+          accessToken: accessToken,
+        )
+        .timeout(
+          const Duration(seconds: 15),
+          onTimeout: () => throw Exception('auth.supabase_timeout'.tr()),
+        );
 
     return response.user != null;
   }
-
 
   /// Вход через Apple OAuth.
   Future<bool> signInWithApple() async {
@@ -141,4 +139,3 @@ class AuthRepository {
     await signOut();
   }
 }
-

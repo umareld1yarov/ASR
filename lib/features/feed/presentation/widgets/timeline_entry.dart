@@ -20,7 +20,6 @@ class TimelineEntry extends StatelessWidget {
 
   static const _lineColor = Color(0x26FFFFFF); // белый, ~15% непрозрачности
   static const _lineWidth = 2.0;
-  static const _dotSize = 14.0;
   static const _railWidth = 18.0;
   static const _dotTop = 22.0; // высота от верха до центра точки
   static const _gapAfter = 14.0; // отступ до следующей записи

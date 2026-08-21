@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/services/supabase_service.dart';
@@ -45,8 +46,10 @@ class SupabaseCommunityRepository implements CommunityRepository {
 
     // Если профиль ещё не создан триггером, создаём его
     final emailName = _currentUser?.email?.split('@').first ?? 'user';
-    final defaultUsername = '${emailName}_${userId.substring(0, 4)}'.toLowerCase();
-    final defaultDisplayName = _currentUser?.userMetadata?['name'] ??
+    final defaultUsername = '${emailName}_${userId.substring(0, 4)}'
+        .toLowerCase();
+    final defaultDisplayName =
+        _currentUser?.userMetadata?['name'] ??
         _currentUser?.userMetadata?['full_name'] ??
         emailName;
 
@@ -124,13 +127,15 @@ class SupabaseCommunityRepository implements CommunityRepository {
 
     // 4. Собираем итоговый список
     return friendIds.map((fId) {
-      final friendUser = profilesMap[fId] ??
+      final friendUser =
+          profilesMap[fId] ??
           CommunityUser(
             id: fId,
             username: 'user_${fId.substring(0, 4)}',
             displayName: 'Friend',
           );
-      final permission = permissionsMap[fId] ??
+      final permission =
+          permissionsMap[fId] ??
           SharingPermission(friendId: fId, scope: SharingScope.none);
 
       return Friendship(
@@ -166,14 +171,16 @@ class SupabaseCommunityRepository implements CommunityRepository {
       for (final r in profilesData)
         r['id'] as String: CommunityUser(
           id: r['id'] as String,
-          username: r['username'] ?? 'user_${(r['id'] as String).substring(0, 4)}',
+          username:
+              r['username'] ?? 'user_${(r['id'] as String).substring(0, 4)}',
           displayName: r['display_name'] ?? r['name'] ?? 'User',
           avatarUrl: r['avatar_url'],
-        )
+        ),
     };
 
     return senderIds.map((senderId) {
-      final user = profilesMap[senderId] ??
+      final user =
+          profilesMap[senderId] ??
           CommunityUser(
             id: senderId,
             username: 'user_${senderId.substring(0, 4)}',
@@ -182,8 +189,10 @@ class SupabaseCommunityRepository implements CommunityRepository {
       return Friendship(
         friend: user,
         status: FriendshipStatus.incomingPending,
-        myPermissionForFriend:
-            SharingPermission(friendId: senderId, scope: SharingScope.none),
+        myPermissionForFriend: SharingPermission(
+          friendId: senderId,
+          scope: SharingScope.none,
+        ),
       );
     }).toList();
   }
@@ -213,14 +222,16 @@ class SupabaseCommunityRepository implements CommunityRepository {
       for (final r in profilesData)
         r['id'] as String: CommunityUser(
           id: r['id'] as String,
-          username: r['username'] ?? 'user_${(r['id'] as String).substring(0, 4)}',
+          username:
+              r['username'] ?? 'user_${(r['id'] as String).substring(0, 4)}',
           displayName: r['display_name'] ?? r['name'] ?? 'User',
           avatarUrl: r['avatar_url'],
-        )
+        ),
     };
 
     return targetIds.map((targetId) {
-      final user = profilesMap[targetId] ??
+      final user =
+          profilesMap[targetId] ??
           CommunityUser(
             id: targetId,
             username: 'user_${targetId.substring(0, 4)}',
@@ -229,8 +240,10 @@ class SupabaseCommunityRepository implements CommunityRepository {
       return Friendship(
         friend: user,
         status: FriendshipStatus.outgoingPending,
-        myPermissionForFriend:
-            SharingPermission(friendId: targetId, scope: SharingScope.none),
+        myPermissionForFriend: SharingPermission(
+          friendId: targetId,
+          scope: SharingScope.none,
+        ),
       );
     }).toList();
   }
@@ -265,12 +278,16 @@ class SupabaseCommunityRepository implements CommunityRepository {
 
     return res
         .where((row) => !excludedIds.contains(row['id']))
-        .map((row) => CommunityUser(
-              id: row['id'] as String,
-              username: row['username'] ?? 'user_${(row['id'] as String).substring(0, 4)}',
-              displayName: row['display_name'] ?? row['name'] ?? 'ASR User',
-              avatarUrl: row['avatar_url'],
-            ))
+        .map(
+          (row) => CommunityUser(
+            id: row['id'] as String,
+            username:
+                row['username'] ??
+                'user_${(row['id'] as String).substring(0, 4)}',
+            displayName: row['display_name'] ?? row['name'] ?? 'ASR User',
+            avatarUrl: row['avatar_url'],
+          ),
+        )
         .toList();
   }
 
@@ -325,7 +342,9 @@ class SupabaseCommunityRepository implements CommunityRepository {
     await client
         .from('friendships')
         .delete()
-        .or('and(user_id.eq.$userId,friend_id.eq.$myId),and(user_id.eq.$myId,friend_id.eq.$userId)');
+        .or(
+          'and(user_id.eq.$userId,friend_id.eq.$myId),and(user_id.eq.$myId,friend_id.eq.$userId)',
+        );
   }
 
   @override
@@ -338,12 +357,16 @@ class SupabaseCommunityRepository implements CommunityRepository {
     await client
         .from('friendships')
         .delete()
-        .or('and(user_id.eq.$userId,friend_id.eq.$myId),and(user_id.eq.$myId,friend_id.eq.$userId)');
+        .or(
+          'and(user_id.eq.$userId,friend_id.eq.$myId),and(user_id.eq.$myId,friend_id.eq.$userId)',
+        );
 
     await client
         .from('sharing_permissions')
         .delete()
-        .or('and(owner_id.eq.$myId,friend_id.eq.$userId),and(owner_id.eq.$userId,friend_id.eq.$myId)');
+        .or(
+          'and(owner_id.eq.$myId,friend_id.eq.$userId),and(owner_id.eq.$userId,friend_id.eq.$myId)',
+        );
   }
 
   @override
@@ -422,7 +445,9 @@ class SupabaseCommunityRepository implements CommunityRepository {
     if (clean.length < 3 || clean.length > 30) return false;
 
     // Instagram style: letters, numbers, underscores, dots (no consecutive dots or starting/ending with dot)
-    final regex = RegExp(r'^(?!.*\.\.)(?!.*\.$)[a-z0-9_][a-z0-9_\.]{1,28}[a-z0-9_]$');
+    final regex = RegExp(
+      r'^(?!.*\.\.)(?!.*\.$)[a-z0-9_][a-z0-9_\.]{1,28}[a-z0-9_]$',
+    );
     if (!regex.hasMatch(clean)) return false;
 
     final myId = _currentUser?.id;
@@ -445,23 +470,26 @@ class SupabaseCommunityRepository implements CommunityRepository {
       throw Exception('Никнейм должен содержать от 3 до 30 символов');
     }
 
-    final regex = RegExp(r'^(?!.*\.\.)(?!.*\.$)[a-z0-9_][a-z0-9_\.]{1,28}[a-z0-9_]$');
+    final regex = RegExp(
+      r'^(?!.*\.\.)(?!.*\.$)[a-z0-9_][a-z0-9_\.]{1,28}[a-z0-9_]$',
+    );
     if (!regex.hasMatch(clean)) {
-      throw Exception(
-        'Никнейм может содержать только строчные латинские буквы (a-z), цифры (0-9), точки (.) и подчеркивания (_)',
-      );
+      throw Exception('community.username_invalid'.tr());
     }
 
     final isAvailable = await checkUsernameAvailable(clean);
     if (!isAvailable) {
-      throw Exception('Этот никнейм уже занят. Пожалуйста, выберите другой.');
+      throw Exception('community.username_taken'.tr());
     }
 
     final userId = _myId;
-    await client.from('user_profiles').update({
-      'username': clean,
-      'updated_at': DateTime.now().toIso8601String(),
-    }).eq('id', userId);
+    await client
+        .from('user_profiles')
+        .update({
+          'username': clean,
+          'updated_at': DateTime.now().toIso8601String(),
+        })
+        .eq('id', userId);
   }
 
   @override

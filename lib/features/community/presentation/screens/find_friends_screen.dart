@@ -88,21 +88,25 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
                                   color: Colors.white.withValues(alpha: 0.05),
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
-                                    color: CommunityTheme.accentColor.withValues(alpha: 0.2),
+                                    color: CommunityTheme.accentColor
+                                        .withValues(alpha: 0.2),
                                   ),
                                 ),
                                 child: Column(
                                   children: [
                                     Text(
-                                      'Ваш никнейм для друзей:',
+                                      'community.your_username'.tr(),
                                       style: TextStyle(
-                                        color: Colors.white.withValues(alpha: 0.6),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.6,
+                                        ),
                                         fontSize: 13,
                                       ),
                                     ),
                                     const SizedBox(height: 8),
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           '@${me.username}',
@@ -120,15 +124,25 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
                                             size: 18,
                                             color: Colors.white70,
                                           ),
-                                          tooltip: 'Скопировать ник',
+                                          tooltip: 'community.copy_username'
+                                              .tr(),
                                           onPressed: () {
                                             Clipboard.setData(
-                                              ClipboardData(text: '@${me.username}'),
+                                              ClipboardData(
+                                                text: '@${me.username}',
+                                              ),
                                             );
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(
-                                                content: Text('Никнейм скопирован в буфер обмена'),
-                                                duration: Duration(seconds: 2),
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  'community.username_copied'
+                                                      .tr(),
+                                                ),
+                                                duration: const Duration(
+                                                  seconds: 2,
+                                                ),
                                               ),
                                             );
                                           },
@@ -137,10 +151,12 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      'Отправьте его другу, чтобы он мог найти вас в ASR',
+                                      'community.share_username_hint'.tr(),
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
-                                        color: Colors.white.withValues(alpha: 0.4),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.4,
+                                        ),
                                         fontSize: 12,
                                       ),
                                     ),
@@ -167,60 +183,61 @@ class _FindFriendsScreenState extends ConsumerState<FindFriendsScreen> {
                         ),
                       )
                     : resultsAsync.when(
-                      loading: () => const Center(
-                        child: CircularProgressIndicator(
-                          color: CommunityTheme.accentColor,
-                        ),
-                      ),
-                      error: (e, _) => Center(
-                        child: Text(
-                          'community.search_error'.tr(),
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.4),
+                        loading: () => const Center(
+                          child: CircularProgressIndicator(
+                            color: CommunityTheme.accentColor,
                           ),
                         ),
-                      ),
-                      data: (users) => users.isEmpty
-                          ? Center(
-                              child: Text(
-                                'community.no_users_found'.tr(),
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.35),
-                                ),
-                              ),
-                            )
-                          : ListView.builder(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              itemCount: users.length,
-                              itemBuilder: (context, index) {
-                                final user = users[index];
-                                return UserTile(
-                                  user: user,
-                                  trailing: IconButton(
-                                    onPressed: () async {
-                                      await controller.sendFriendRequest(
-                                        user.id,
-                                      );
-                                      ref.invalidate(
-                                        userSearchProvider(_query),
-                                      );
-                                    },
-                                    icon: const Icon(
-                                      Icons.person_add,
-                                      color: CommunityTheme.accentColor,
-                                      size: 20,
-                                    ),
-                                  ),
-                                );
-                              },
+                        error: (e, _) => Center(
+                          child: Text(
+                            'community.search_error'.tr(),
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.4),
                             ),
-                    ),
-            ),
-          ],
+                          ),
+                        ),
+                        data: (users) => users.isEmpty
+                            ? Center(
+                                child: Text(
+                                  'community.no_users_found'.tr(),
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.35),
+                                  ),
+                                ),
+                              )
+                            : ListView.builder(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                itemCount: users.length,
+                                itemBuilder: (context, index) {
+                                  final user = users[index];
+                                  return UserTile(
+                                    user: user,
+                                    trailing: IconButton(
+                                      onPressed: () async {
+                                        await controller.sendFriendRequest(
+                                          user.id,
+                                        );
+                                        ref.invalidate(
+                                          userSearchProvider(_query),
+                                        );
+                                      },
+                                      icon: const Icon(
+                                        Icons.person_add,
+                                        color: CommunityTheme.accentColor,
+                                        size: 20,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
-    ),);
+    );
   }
 }

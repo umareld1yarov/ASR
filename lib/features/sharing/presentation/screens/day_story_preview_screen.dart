@@ -35,8 +35,7 @@ class DayStoryPreviewScreen extends ConsumerStatefulWidget {
       _DayStoryPreviewScreenState();
 }
 
-class _DayStoryPreviewScreenState
-    extends ConsumerState<DayStoryPreviewScreen> {
+class _DayStoryPreviewScreenState extends ConsumerState<DayStoryPreviewScreen> {
   final GlobalKey _captureKey = GlobalKey();
   bool _isSharing = false;
 
@@ -72,7 +71,8 @@ class _DayStoryPreviewScreenState
     final selection = ref.watch(dayStorySelectionProvider);
     final controller = ref.read(dayStorySelectionProvider.notifier);
 
-    final isSingleDay = widget.periodType == StatsPeriodType.day || widget.range == null;
+    final isSingleDay =
+        widget.periodType == StatsPeriodType.day || widget.range == null;
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
@@ -107,7 +107,10 @@ class _DayStoryPreviewScreenState
             // Фильтры и темы доступны для дневных сторис
             if (isSingleDay) ...[
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 6,
+                ),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -121,13 +124,16 @@ class _DayStoryPreviewScreenState
                       _ThemeChip(
                         label: 'sharing.theme_dark_focus'.tr(),
                         isSelected: selection.theme == DayStoryTheme.darkFocus,
-                        onTap: () => controller.setTheme(DayStoryTheme.darkFocus),
+                        onTap: () =>
+                            controller.setTheme(DayStoryTheme.darkFocus),
                       ),
                       const SizedBox(width: 8),
                       _ThemeChip(
                         label: 'sharing.theme_minimal'.tr(),
-                        isSelected: selection.theme == DayStoryTheme.minimalQuote,
-                        onTap: () => controller.setTheme(DayStoryTheme.minimalQuote),
+                        isSelected:
+                            selection.theme == DayStoryTheme.minimalQuote,
+                        onTap: () =>
+                            controller.setTheme(DayStoryTheme.minimalQuote),
                       ),
                     ],
                   ),
@@ -135,7 +141,10 @@ class _DayStoryPreviewScreenState
               ),
 
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 4,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -165,7 +174,10 @@ class _DayStoryPreviewScreenState
                   key: _captureKey,
                   child: isSingleDay
                       ? DayStoryCard(dateKey: widget.dateKey)
-                      : _buildPeriodStoryWidget(widget.periodType, widget.range!),
+                      : _buildPeriodStoryWidget(
+                          widget.periodType,
+                          widget.range!,
+                        ),
                 ),
               ),
             ),
@@ -197,7 +209,9 @@ class _DayStoryPreviewScreenState
                         )
                       : const Icon(Icons.ios_share, size: 20),
                   label: Text(
-                    _isSharing ? 'sharing.preparing_story'.tr() : 'sharing.share_story'.tr(),
+                    _isSharing
+                        ? 'sharing.preparing_story'.tr()
+                        : 'sharing.share_story'.tr(),
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -245,7 +259,6 @@ class _DayStoryPreviewScreenState
           case StatsPeriodType.year:
             return YearStoryCard(data: periodData);
           case StatsPeriodType.day:
-          default:
             return DayStoryCard(dateKey: widget.dateKey);
         }
       },
@@ -272,7 +285,9 @@ class _ThemeChip extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF06B6D4) : Colors.white.withValues(alpha: 0.08),
+          color: isSelected
+              ? const Color(0xFF06B6D4)
+              : Colors.white.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected

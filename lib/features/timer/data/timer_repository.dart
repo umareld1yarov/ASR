@@ -29,12 +29,6 @@ class TimerRepository {
     });
   }
 
-  Future<void> _clearCurrent() async {
-    await _isar.writeTxn(() async {
-      await _isar.currentActivitys.delete(0);
-    });
-  }
-
   // ── Завершённые записи ──────────────────────
 
   Future<void> _addEntry(ActivityEntry entry) async {

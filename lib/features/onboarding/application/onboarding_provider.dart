@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,21 +19,18 @@ class OnboardingController {
   final Ref _ref;
 
   /// Завершить онбординг, сохранить стартовое имя и выбранную категорию фокуса.
-  Future<void> completeOnboarding({
-    String? name,
-    String? categoryKey,
-  }) async {
+  Future<void> completeOnboarding({String? name, String? categoryKey}) async {
     final cleanName = name?.trim();
     if (cleanName != null && cleanName.isNotEmpty) {
-      await _ref
-          .read(profileControllerProvider)
-          .updateProfile(name: cleanName);
+      await _ref.read(profileControllerProvider).updateProfile(name: cleanName);
     }
 
     if (categoryKey != null && categoryKey.isNotEmpty) {
       final timerController = _ref.read(timerControllerProvider);
       await timerController.switchActivity(
-        name: cleanName != null && cleanName.isNotEmpty ? 'Старт пути' : 'Фокус',
+        name: cleanName != null && cleanName.isNotEmpty
+            ? 'onboarding.default_activity_start'.tr()
+            : 'onboarding.default_activity_focus'.tr(),
         categoryKey: categoryKey,
       );
     }
