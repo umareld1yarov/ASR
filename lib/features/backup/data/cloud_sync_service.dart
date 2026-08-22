@@ -2,13 +2,14 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:isar_community/isar.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../core/services/supabase_service.dart';
 import '../../../data/isar_service.dart';
+import '../../feed/data/photo_cache_service.dart';
 import '../../profile/domain/models/goal.dart';
 import '../../profile/domain/models/user_profile.dart';
 import '../../timer/domain/models/activity_entry.dart';
+import 'sync_ownership_store.dart';
+import 'sync_remote_gateway.dart';
 
 class SyncResult {
   final bool isSuccess;
@@ -24,23 +25,39 @@ class SyncResult {
   });
 }
 
-/// Сервис фоновой оффлайн-первой синхронизации между Isar DB и Supabase.
-class CloudSyncService {
-  CloudSyncService();
+abstract interface class SyncService {
+  Future<SyncResult> performFullSync();
+}
 
-  SupabaseClient? get _supabase => SupabaseService.client;
-  Isar get _isar => IsarService.instance;
+/// Сервис фоновой оффлайн-первой синхронизации между Isar DB и Supabase.
+class CloudSyncService implements SyncService {
+  CloudSyncService({
+    SyncRemoteGateway? remoteGateway,
+    Isar? isar,
+    SyncOwnershipStore? ownershipStore,
+    PhotoCacheService? photoCacheService,
+  }) : _remote = remoteGateway ?? SupabaseSyncRemoteGateway(),
+       _providedIsar = isar,
+       _ownershipStore =
+           ownershipStore ?? SharedPreferencesSyncOwnershipStore(),
+       _photoCacheService = photoCacheService ?? PhotoCacheService.instance;
+
+  final SyncRemoteGateway _remote;
+  final Isar? _providedIsar;
+  final SyncOwnershipStore _ownershipStore;
+  final PhotoCacheService _photoCacheService;
+
+  Isar get _isar => _providedIsar ?? IsarService.instance;
 
   /// Запуск полного цикла двусторонней синхронизации.
+  @override
   Future<SyncResult> performFullSync() async {
-    final client = _supabase;
-    if (client == null) {
+    if (!_remote.isAvailable) {
       return SyncResult(isSuccess: false, message: 'sync.not_initialized'.tr());
     }
 
-    final currentUser =
-        client.auth.currentUser ?? client.auth.currentSession?.user;
-    if (currentUser == null) {
+    final userId = _remote.currentUserId;
+    if (userId == null) {
       return SyncResult(
         isSuccess: false,
         message: 'sync.not_authenticated'.tr(),
@@ -48,16 +65,27 @@ class CloudSyncService {
     }
 
     try {
-      final userId = currentUser.id;
+      final ownerId = await _ownershipStore.readOwnerId();
+      if (ownerId != null && ownerId != userId) {
+        return SyncResult(
+          isSuccess: false,
+          message: 'sync.account_mismatch'.tr(),
+        );
+      }
+      if (ownerId == null) {
+        // Привязываем до первого сетевого изменения: даже частично успешная
+        // синхронизация не должна позволить затем отправить базу в другой аккаунт.
+        await _ownershipStore.bindTo(userId);
+      }
 
       // 1. Выгрузка и загрузка записей активностей (ActivityEntry)
-      final syncedEntriesCount = await _syncActivityEntries(client, userId);
+      final syncedEntriesCount = await _syncActivityEntries(userId);
 
       // 2. Выгрузка и загрузка целей (Goal)
-      final syncedGoalsCount = await _syncGoals(client, userId);
+      final syncedGoalsCount = await _syncGoals(userId);
 
       // 3. Синхронизация профиля пользователя (UserProfile)
-      await _syncUserProfile(client, userId);
+      await _syncUserProfile(userId);
 
       return SyncResult(
         isSuccess: true,
@@ -77,12 +105,9 @@ class CloudSyncService {
   }
 
   /// Синхронизация записей активностей (ActivityEntry)
-  Future<int> _syncActivityEntries(SupabaseClient client, String userId) async {
+  Future<int> _syncActivityEntries(String userId) async {
     var localEntries = await _isar.activityEntrys.where().findAll();
-    final remoteData = await client
-        .from('activity_entries')
-        .select()
-        .eq('user_id', userId);
+    final remoteData = await _remote.fetchActivityEntries(userId);
 
     int remoteUpdatedAt(Map<String, dynamic> row) =>
         DateTime.tryParse(
@@ -119,6 +144,7 @@ class CloudSyncService {
     });
     localEntries = await _isar.activityEntrys.where().findAll();
     final localBySyncId = {for (final e in localEntries) e.syncId: e};
+    final removedRemotePhotoUrls = <String>{};
 
     // Сначала применяем отсутствующие или более новые облачные версии.
     await _isar.writeTxn(() async {
@@ -141,23 +167,37 @@ class CloudSyncService {
         entry.nextExperiment = row['next_experiment'];
         entry.note = row['note'];
         entry.updatedAt = remoteUpdatedAt(row);
-        if (row['photo_urls'] != null) {
-          entry.photoPaths = (row['photo_urls'] as List?)?.cast<String>();
-        }
+        final previousPhotos = List<String>.from(entry.photoPaths ?? const []);
+        final remotePhotos =
+            (row['photo_urls'] as List?)?.cast<String>() ?? <String>[];
+        entry.photoPaths = remotePhotos;
+        removedRemotePhotoUrls.addAll(
+          previousPhotos.where(
+            (photo) =>
+                PhotoCacheService.isRemoteSource(photo) &&
+                !remotePhotos.contains(photo),
+          ),
+        );
         await _isar.activityEntrys.put(entry);
       }
     });
+    for (final removedUrl in removedRemotePhotoUrls) {
+      await _photoCacheService.deleteCachedCopy(removedUrl);
+    }
 
     // Затем выгружаем только новые или действительно более свежие локальные
     // версии. Сама синхронизация updatedAt не меняет.
     localEntries = await _isar.activityEntrys.where().findAll();
     final payload = <Map<String, dynamic>>[];
+    final normalizedPhotosByEntryId = <int, List<String>>{};
+    var hadPhotoUploadFailure = false;
     for (final e in localEntries) {
       final remote = remoteBySyncId[e.syncId];
       if (remote != null && e.updatedAt <= remoteUpdatedAt(remote)) continue;
       List<String>? remotePhotoUrls = e.photoPaths != null
           ? List<String>.from(e.photoPaths!)
           : null;
+      var photoUploadFailed = false;
 
       // Если есть локальные фото, пробуем загрузить новые в Supabase Storage
       if (remotePhotoUrls != null && remotePhotoUrls.isNotEmpty) {
@@ -169,13 +209,32 @@ class CloudSyncService {
             final file = File(path);
             if (file.existsSync()) {
               final cloudUrl = await uploadPhoto(file, userId);
-              updatedUrls.add(cloudUrl ?? path);
+              if (cloudUrl == null) {
+                photoUploadFailed = true;
+                break;
+              }
+              await _photoCacheService.seed(cloudUrl, file);
+              updatedUrls.add(cloudUrl);
             } else {
-              updatedUrls.add(path);
+              // Локальный путь другого устройства нельзя сохранять в облаке.
+              // Оставляем запись несинхронизированной, чтобы повторить попытку
+              // после восстановления файла или сети.
+              photoUploadFailed = true;
+              break;
             }
           }
         }
         remotePhotoUrls = updatedUrls;
+      }
+
+      if (photoUploadFailed) {
+        hadPhotoUploadFailure = true;
+        continue;
+      }
+
+      if (remotePhotoUrls != null &&
+          !listEquals(remotePhotoUrls, e.photoPaths)) {
+        normalizedPhotosByEntryId[e.id] = remotePhotoUrls;
       }
 
       payload.add({
@@ -201,16 +260,67 @@ class CloudSyncService {
       });
     }
     if (payload.isNotEmpty) {
-      await client
-          .from('activity_entries')
-          .upsert(payload, onConflict: 'user_id,sync_id');
+      await _remote.upsertActivityEntries(userId, payload);
+      if (normalizedPhotosByEntryId.isNotEmpty) {
+        await _isar.writeTxn(() async {
+          for (final item in normalizedPhotosByEntryId.entries) {
+            final entry = await _isar.activityEntrys.get(item.key);
+            if (entry == null) continue;
+            entry.photoPaths = item.value;
+            // updatedAt намеренно не меняется: путь был нормализован самой
+            // синхронизацией, пользовательские данные не редактировались.
+            await _isar.activityEntrys.put(entry);
+          }
+        });
+      }
+    }
+
+    // Удаление файла из Storage отделено от удаления ссылки из записи.
+    // Очередь остаётся в Isar до подтверждённого ответа облака и переживает
+    // отсутствие сети, перезапуск приложения и частично успешный sync.
+    final entriesWithPendingDeletes = await _isar.activityEntrys
+        .filter()
+        .pendingPhotoDeleteUrlsIsNotEmpty()
+        .findAll();
+    final urlsToDelete = <String>{};
+    final resolvedPendingByEntryId = <int, Set<String>>{};
+    for (final entry in entriesWithPendingDeletes) {
+      final referencedPhotos = entry.photoPaths ?? const <String>[];
+      for (final url in entry.pendingPhotoDeleteUrls ?? const <String>[]) {
+        resolvedPendingByEntryId
+            .putIfAbsent(entry.id, () => <String>{})
+            .add(url);
+        if (!referencedPhotos.contains(url)) urlsToDelete.add(url);
+      }
+    }
+    if (urlsToDelete.isNotEmpty) {
+      await _remote.deleteActivityPhotos(userId, urlsToDelete.toList());
+      for (final url in urlsToDelete) {
+        await _photoCacheService.deleteCachedCopy(url);
+      }
+    }
+    if (resolvedPendingByEntryId.isNotEmpty) {
+      await _isar.writeTxn(() async {
+        for (final item in resolvedPendingByEntryId.entries) {
+          final entry = await _isar.activityEntrys.get(item.key);
+          if (entry == null) continue;
+          final pending = List<String>.from(
+            entry.pendingPhotoDeleteUrls ?? const [],
+          )..removeWhere(item.value.contains);
+          entry.pendingPhotoDeleteUrls = pending;
+          await _isar.activityEntrys.put(entry);
+        }
+      });
+    }
+    if (hadPhotoUploadFailure) {
+      throw StateError('One or more activity photos could not be uploaded');
     }
 
     return localEntries.length;
   }
 
   /// Синхронизация целей (Goal)
-  Future<int> _syncGoals(SupabaseClient client, String userId) async {
+  Future<int> _syncGoals(String userId) async {
     final localGoals = await _isar.goals.where().findAll();
 
     if (localGoals.isNotEmpty) {
@@ -228,13 +338,10 @@ class CloudSyncService {
         };
       }).toList();
 
-      await client.from('goals').upsert(payload, onConflict: 'id, user_id');
+      await _remote.upsertGoals(userId, payload);
     }
 
-    final remoteGoals = await client
-        .from('goals')
-        .select()
-        .eq('user_id', userId);
+    final remoteGoals = await _remote.fetchGoals(userId);
 
     if (remoteGoals.isNotEmpty) {
       await _isar.writeTxn(() async {
@@ -259,10 +366,10 @@ class CloudSyncService {
   }
 
   /// Синхронизация профиля пользователя (UserProfile)
-  Future<void> _syncUserProfile(SupabaseClient client, String userId) async {
+  Future<void> _syncUserProfile(String userId) async {
     final profile = await _isar.userProfiles.get(0);
     if (profile != null) {
-      await client.from('user_profiles').upsert({
+      await _remote.upsertUserProfile(userId, {
         'id': userId,
         'display_name': profile.name,
         'avatar_url': profile.avatarPath,
@@ -274,17 +381,8 @@ class CloudSyncService {
 
   /// Загрузка фото в Supabase Storage (Private / Public Bucket)
   Future<String?> uploadPhoto(File file, String userId) async {
-    final client = _supabase;
-    if (client == null) return null;
-
-    final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
-    final path = '$userId/$fileName';
-
     try {
-      await client.storage
-          .from('activity_photos')
-          .upload(path, file, fileOptions: const FileOptions(upsert: true));
-      return client.storage.from('activity_photos').getPublicUrl(path);
+      return await _remote.uploadActivityPhoto(file, userId);
     } catch (e) {
       if (kDebugMode) {
         print('[CloudSyncService] Ошибка загрузки фото: $e');

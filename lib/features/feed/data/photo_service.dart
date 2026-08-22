@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 
+import 'photo_cache_service.dart';
+
 /// Сервис работы с фото, прикреплёнными к записям.
 /// Файлы хранятся в подпапке документов приложения — path_provider уже
 /// используется в проекте для Isar, здесь та же папка, но другая подпапка.
@@ -30,6 +32,10 @@ class PhotoService {
 
   /// Удаляет файл фото с диска (вызывается при удалении фото из записи).
   static Future<void> deletePhoto(String path) async {
+    if (PhotoCacheService.isRemoteSource(path)) {
+      await PhotoCacheService.instance.deleteCachedCopy(path);
+      return;
+    }
     final file = File(path);
     if (await file.exists()) {
       await file.delete();

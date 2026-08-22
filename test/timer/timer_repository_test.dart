@@ -164,8 +164,9 @@ void main() {
     });
 
     test('initializeOnStart нарезает активность, если телефон лежал включённым через полночь', () async {
-      // 2026-08-20 23:30:00
-      final startedAt = DateTime(2026, 8, 20, 23, 30, 0).millisecondsSinceEpoch;
+      final now = DateTime.now();
+      final startDate = DateTime(now.year, now.month, now.day - 2, 23, 30);
+      final startedAt = startDate.millisecondsSinceEpoch;
 
       final overnightActivity = CurrentActivity()
         ..name = 'Сон / Отдых'
@@ -186,14 +187,19 @@ void main() {
       ).millisecondsSinceEpoch;
 
       final chunk = entries.first;
-      expect(chunk.dateKey, equals('2026-08-20'));
+      expect(chunk.dateKey, equals(du.DateUtils.dateKey(startDate)));
       expect(chunk.endedAt, equals(midnight));
       expect(chunk.durationSeconds, equals(1800)); // 30 минут
 
       final updatedCurrent = (await repository.getCurrent())!;
       expect(updatedCurrent.name, equals('Сон / Отдых'));
-      // Начало текущего куска перенесено на полночь
-      expect(updatedCurrent.startedAt, equals(midnight));
+      // После нарезки всех прошедших суток текущий кусок начинается сегодня.
+      final todayMidnight = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).millisecondsSinceEpoch;
+      expect(updatedCurrent.startedAt, equals(todayMidnight));
     });
 
     test('getActivitySuggestions агрегирует уникальные названия, частоту и цели', () async {

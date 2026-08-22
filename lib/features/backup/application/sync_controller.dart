@@ -7,8 +7,12 @@ import '../../premium/application/premium_controller.dart';
 import '../../timer/application/timer_provider.dart';
 import '../data/cloud_sync_service.dart';
 
-final syncServiceProvider = Provider<CloudSyncService>((ref) {
+final syncServiceProvider = Provider<SyncService>((ref) {
   return CloudSyncService();
+});
+
+final syncDebounceDurationProvider = Provider<Duration>((ref) {
+  return const Duration(seconds: 3);
 });
 
 class SyncState {
@@ -44,7 +48,7 @@ class SyncController extends StateNotifier<SyncState> {
     _initAutoSyncListener();
   }
 
-  final CloudSyncService _service;
+  final SyncService _service;
   final Ref _ref;
   Timer? _debounceTimer;
 
@@ -68,7 +72,7 @@ class SyncController extends StateNotifier<SyncState> {
     }
 
     _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(seconds: 3), () {
+    _debounceTimer = Timer(_ref.read(syncDebounceDurationProvider), () {
       triggerSync(silent: true);
     });
   }
@@ -98,7 +102,17 @@ class SyncController extends StateNotifier<SyncState> {
       state = state.copyWith(isSyncing: true);
     }
 
-    final result = await _service.performFullSync();
+    late SyncResult result;
+    try {
+      result = await _service.performFullSync();
+    } catch (e) {
+      // CloudSyncService штатно превращает ошибки в SyncResult, но этот
+      // защитный слой не позволит внешней ошибке оставить UI в вечной загрузке.
+      result = SyncResult(
+        isSuccess: false,
+        message: 'sync.error'.tr(args: ['$e']),
+      );
+    }
 
     state = state.copyWith(
       isSyncing: false,

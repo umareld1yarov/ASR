@@ -1,6 +1,7 @@
 import 'package:isar_community/isar.dart';
 
 import '../../timer/domain/models/activity_entry.dart';
+import 'photo_cache_service.dart';
 import 'dart:math';
 import 'package:uuid/uuid.dart';
 
@@ -128,6 +129,13 @@ class FeedRepository {
       final photos = List<String>.from(entry.photoPaths ?? []);
       photos.remove(photoPath);
       entry.photoPaths = photos;
+      if (PhotoCacheService.isRemoteSource(photoPath)) {
+        final pending = List<String>.from(
+          entry.pendingPhotoDeleteUrls ?? const [],
+        );
+        if (!pending.contains(photoPath)) pending.add(photoPath);
+        entry.pendingPhotoDeleteUrls = pending;
+      }
       entry.updatedAt = DateTime.now().millisecondsSinceEpoch;
       await _isar.activityEntrys.put(entry);
     });

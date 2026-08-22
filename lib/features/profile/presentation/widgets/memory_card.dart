@@ -1,11 +1,10 @@
-import 'dart:io';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/activity_category.dart';
 import '../../../../core/utils/date_utils.dart' as du;
+import '../../../../shared/widgets/asr_photo.dart';
 import '../../application/profile_provider.dart';
 import '../screens/memories_screen.dart';
 
@@ -44,8 +43,8 @@ class MemoryCard extends ConsumerWidget {
               children: [
                 AspectRatio(
                   aspectRatio: 16 / 10,
-                  child: Image.file(
-                    File(entry.photoPaths!.first),
+                  child: AsrPhoto(
+                    source: entry.photoPaths!.first,
                     fit: BoxFit.cover,
                   ),
                 ),

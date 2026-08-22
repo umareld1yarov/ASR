@@ -179,6 +179,14 @@ DROP POLICY IF EXISTS "Storage Select Policy" ON storage.objects;
 CREATE POLICY "Storage Select Policy" ON storage.objects
     FOR SELECT USING (bucket_id = 'activity_photos');
 
+DROP POLICY IF EXISTS "Storage Delete Own Photos Policy" ON storage.objects;
+CREATE POLICY "Storage Delete Own Photos Policy" ON storage.objects
+    FOR DELETE TO authenticated
+    USING (
+        bucket_id = 'activity_photos'
+        AND auth.uid()::text = (storage.foldername(name))[1]
+    );
+
 
 -- 10. Триггер автоматического создания профиля при регистрации в Supabase
 CREATE OR REPLACE FUNCTION public.handle_new_user()

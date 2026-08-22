@@ -372,6 +372,7 @@
   "auth": {
     "login_title": "Bei ASR anmelden",
     "login_error": "Anmeldefehler: {}",
+    "logout_error": "Abmeldefehler: {}",
     "registration_confirmation": "Registrierung erstellt! Prüfe deinen Posteingang und bestätige deine E-Mail oder melde dich mit deinem Passwort an.",
     "registration_error": "Registrierungsfehler: {}",
     "google_error": "Fehler bei der Google-Anmeldung: {}",
@@ -422,6 +423,7 @@
     "pro_required": "Cloud-Backup und Synchronisierung sind nur mit ASR PRO verfügbar",
     "login_required": "Melde dich an, um deine Daten zu synchronisieren",
     "already_running": "Die Synchronisierung läuft bereits...",
+    "account_mismatch": "Die lokalen Daten auf diesem Gerät sind bereits mit einem anderen Konto verknüpft. Die Synchronisierung wurde gestoppt, damit keine Daten vermischt werden.",
     "in_progress": "Synchronisierung läuft...",
     "not_initialized": "Supabase ist nicht initialisiert. Prüfe deine .env-Datei",
     "not_authenticated": "Der Benutzer ist nicht in der Cloud angemeldet. Melde dich mit E-Mail und Passwort an",

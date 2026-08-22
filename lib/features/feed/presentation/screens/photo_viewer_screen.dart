@@ -1,7 +1,7 @@
-import 'dart:io';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../shared/widgets/asr_photo.dart';
 
 class PhotoViewerScreen extends StatefulWidget {
   const PhotoViewerScreen({
@@ -53,7 +53,10 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text('common.delete'.tr(), style: const TextStyle(color: Colors.red)),
+            child: Text(
+              'common.delete'.tr(),
+              style: const TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
@@ -97,15 +100,7 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
                 minScale: 1,
                 maxScale: 4,
                 child: Center(
-                  child: Image.file(
-                    File(_photos[index]),
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => const Icon(
-                      Icons.broken_image_outlined,
-                      color: Colors.white24,
-                      size: 48,
-                    ),
-                  ),
+                  child: AsrPhoto(source: _photos[index], fit: BoxFit.contain),
                 ),
               );
             },

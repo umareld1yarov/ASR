@@ -372,6 +372,7 @@
   "auth": {
     "login_title": "ASR'ye Giriş Yap",
     "login_error": "Giriş hatası: {}",
+    "logout_error": "Çıkış hatası: {}",
     "registration_confirmation": "Kayıt oluşturuldu! Gelen kutunuzu kontrol edip e-postanızı onaylayın veya parolanızla giriş yapın.",
     "registration_error": "Kayıt hatası: {}",
     "google_error": "Google ile giriş hatası: {}",
@@ -422,6 +423,7 @@
     "pro_required": "Bulut yedekleme ve senkronizasyon yalnızca ASR PRO ile kullanılabilir",
     "login_required": "Verilerinizi senkronize etmek için giriş yapın",
     "already_running": "Senkronizasyon zaten devam ediyor...",
+    "account_mismatch": "Bu cihazdaki yerel veriler başka bir hesaba bağlı. Verilerin karışmasını önlemek için senkronizasyon durduruldu.",
     "in_progress": "Senkronize ediliyor...",
     "not_initialized": "Supabase başlatılmadı. .env dosyanızı kontrol edin",
     "not_authenticated": "Kullanıcı bulutta oturum açmamış. E-posta ve parolayla giriş yapın",

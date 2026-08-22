@@ -372,6 +372,7 @@
   "auth": {
     "login_title": "Iniciar sesión en ASR",
     "login_error": "Error de inicio de sesión: {}",
+    "logout_error": "Error al cerrar sesión: {}",
     "registration_confirmation": "¡Registro creado! Revisa tu correo y confirma tu email, o inicia sesión con tu contraseña.",
     "registration_error": "Error de registro: {}",
     "google_error": "Error de inicio con Google: {}",
@@ -422,6 +423,7 @@
     "pro_required": "La copia en la nube y la sincronización solo están disponibles con ASR PRO",
     "login_required": "Inicia sesión para sincronizar tus datos",
     "already_running": "La sincronización ya está en curso...",
+    "account_mismatch": "Los datos locales de este dispositivo ya están vinculados a otra cuenta. La sincronización se detuvo para evitar mezclar datos.",
     "in_progress": "Sincronizando...",
     "not_initialized": "Supabase no está inicializado. Comprueba tu archivo .env",
     "not_authenticated": "El usuario no está autenticado en la nube. Inicia sesión con email y contraseña",

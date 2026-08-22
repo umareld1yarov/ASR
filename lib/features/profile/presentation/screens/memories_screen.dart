@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/activity_category.dart';
 import '../../../../core/utils/date_utils.dart' as du;
 import '../../../../shared/widgets/app_background.dart';
+import '../../../../shared/widgets/asr_photo.dart';
 import '../../application/profile_provider.dart';
 
 class _MemoryPhoto {
@@ -105,8 +104,8 @@ class MemoriesScreen extends ConsumerWidget {
                                   ),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
-                                    child: Image.file(
-                                      File(photo.path),
+                                    child: AsrPhoto(
+                                      source: photo.path,
                                       fit: BoxFit.cover,
                                     ),
                                   ),
@@ -163,7 +162,10 @@ class _MemoryViewerScreenState extends State<_MemoryViewerScreen> {
               itemBuilder: (context, index) {
                 return InteractiveViewer(
                   child: Center(
-                    child: Image.file(File(widget.photos[index].path)),
+                    child: AsrPhoto(
+                      source: widget.photos[index].path,
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 );
               },

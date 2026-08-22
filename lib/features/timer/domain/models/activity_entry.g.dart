@@ -47,19 +47,24 @@ const ActivityEntrySchema = CollectionSchema(
       name: r'obstacles',
       type: IsarType.stringList,
     ),
-    r'photoPaths': PropertySchema(
+    r'pendingPhotoDeleteUrls': PropertySchema(
       id: 10,
+      name: r'pendingPhotoDeleteUrls',
+      type: IsarType.stringList,
+    ),
+    r'photoPaths': PropertySchema(
+      id: 11,
       name: r'photoPaths',
       type: IsarType.stringList,
     ),
     r'startedAt': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'startedAt',
       type: IsarType.long,
     ),
-    r'syncId': PropertySchema(id: 12, name: r'syncId', type: IsarType.string),
+    r'syncId': PropertySchema(id: 13, name: r'syncId', type: IsarType.string),
     r'updatedAt': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'updatedAt',
       type: IsarType.long,
     ),
@@ -147,6 +152,18 @@ int _activityEntryEstimateSize(
     }
   }
   {
+    final list = object.pendingPhotoDeleteUrls;
+    if (list != null) {
+      bytesCount += 3 + list.length * 3;
+      {
+        for (var i = 0; i < list.length; i++) {
+          final value = list[i];
+          bytesCount += value.length * 3;
+        }
+      }
+    }
+  }
+  {
     final list = object.photoPaths;
     if (list != null) {
       bytesCount += 3 + list.length * 3;
@@ -178,10 +195,11 @@ void _activityEntrySerialize(
   writer.writeString(offsets[7], object.nextExperiment);
   writer.writeString(offsets[8], object.note);
   writer.writeStringList(offsets[9], object.obstacles);
-  writer.writeStringList(offsets[10], object.photoPaths);
-  writer.writeLong(offsets[11], object.startedAt);
-  writer.writeString(offsets[12], object.syncId);
-  writer.writeLong(offsets[13], object.updatedAt);
+  writer.writeStringList(offsets[10], object.pendingPhotoDeleteUrls);
+  writer.writeStringList(offsets[11], object.photoPaths);
+  writer.writeLong(offsets[12], object.startedAt);
+  writer.writeString(offsets[13], object.syncId);
+  writer.writeLong(offsets[14], object.updatedAt);
 }
 
 ActivityEntry _activityEntryDeserialize(
@@ -202,10 +220,11 @@ ActivityEntry _activityEntryDeserialize(
   object.nextExperiment = reader.readStringOrNull(offsets[7]);
   object.note = reader.readStringOrNull(offsets[8]);
   object.obstacles = reader.readStringList(offsets[9]);
-  object.photoPaths = reader.readStringList(offsets[10]);
-  object.startedAt = reader.readLong(offsets[11]);
-  object.syncId = reader.readString(offsets[12]);
-  object.updatedAt = reader.readLong(offsets[13]);
+  object.pendingPhotoDeleteUrls = reader.readStringList(offsets[10]);
+  object.photoPaths = reader.readStringList(offsets[11]);
+  object.startedAt = reader.readLong(offsets[12]);
+  object.syncId = reader.readString(offsets[13]);
+  object.updatedAt = reader.readLong(offsets[14]);
   return object;
 }
 
@@ -239,10 +258,12 @@ P _activityEntryDeserializeProp<P>(
     case 10:
       return (reader.readStringList(offset)) as P;
     case 11:
-      return (reader.readLong(offset)) as P;
+      return (reader.readStringList(offset)) as P;
     case 12:
-      return (reader.readString(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 13:
+      return (reader.readString(offset)) as P;
+    case 14:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1755,6 +1776,260 @@ extension ActivityEntryQueryFilter
   }
 
   QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  pendingPhotoDeleteUrlsIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'pendingPhotoDeleteUrls'),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  pendingPhotoDeleteUrlsIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'pendingPhotoDeleteUrls'),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  pendingPhotoDeleteUrlsElementEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'pendingPhotoDeleteUrls',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  pendingPhotoDeleteUrlsElementGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'pendingPhotoDeleteUrls',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  pendingPhotoDeleteUrlsElementLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'pendingPhotoDeleteUrls',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  pendingPhotoDeleteUrlsElementBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'pendingPhotoDeleteUrls',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  pendingPhotoDeleteUrlsElementStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'pendingPhotoDeleteUrls',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  pendingPhotoDeleteUrlsElementEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'pendingPhotoDeleteUrls',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  pendingPhotoDeleteUrlsElementContains(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'pendingPhotoDeleteUrls',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  pendingPhotoDeleteUrlsElementMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'pendingPhotoDeleteUrls',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  pendingPhotoDeleteUrlsElementIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'pendingPhotoDeleteUrls', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  pendingPhotoDeleteUrlsElementIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          property: r'pendingPhotoDeleteUrls',
+          value: '',
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  pendingPhotoDeleteUrlsLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'pendingPhotoDeleteUrls',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  pendingPhotoDeleteUrlsIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'pendingPhotoDeleteUrls', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  pendingPhotoDeleteUrlsIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'pendingPhotoDeleteUrls',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  pendingPhotoDeleteUrlsLengthLessThan(int length, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'pendingPhotoDeleteUrls',
+        0,
+        true,
+        length,
+        include,
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  pendingPhotoDeleteUrlsLengthGreaterThan(int length, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'pendingPhotoDeleteUrls',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
+  pendingPhotoDeleteUrlsLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'pendingPhotoDeleteUrls',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
+
+  QueryBuilder<ActivityEntry, ActivityEntry, QAfterFilterCondition>
   photoPathsIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -2623,6 +2898,13 @@ extension ActivityEntryQueryWhereDistinct
     });
   }
 
+  QueryBuilder<ActivityEntry, ActivityEntry, QDistinct>
+  distinctByPendingPhotoDeleteUrls() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'pendingPhotoDeleteUrls');
+    });
+  }
+
   QueryBuilder<ActivityEntry, ActivityEntry, QDistinct> distinctByPhotoPaths() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'photoPaths');
@@ -2717,6 +2999,13 @@ extension ActivityEntryQueryProperty
   obstaclesProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'obstacles');
+    });
+  }
+
+  QueryBuilder<ActivityEntry, List<String>?, QQueryOperations>
+  pendingPhotoDeleteUrlsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'pendingPhotoDeleteUrls');
     });
   }
 

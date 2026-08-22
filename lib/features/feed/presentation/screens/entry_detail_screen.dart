@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/activity_category.dart';
 import '../../../../core/utils/duration_formatter.dart';
 import '../../../../shared/widgets/app_background.dart';
+import '../../../../shared/widgets/asr_photo.dart';
 import '../../../../shared/widgets/glass_pill_button.dart';
 import '../../../timer/domain/models/activity_entry.dart';
 import '../../application/feed_provider.dart';
@@ -258,17 +259,10 @@ class _EntryDetailScreenState extends ConsumerState<EntryDetailScreen> {
                     borderRadius: BorderRadius.circular(18),
                     child: GestureDetector(
                       onTap: () => _openPhotoViewer(index),
-                      child: Image.file(
-                        File(_photos[index]),
+                      child: AsrPhoto(
+                        source: _photos[index],
                         width: double.infinity,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          color: const Color(0xFF1F1F1F),
-                          child: const Icon(
-                            Icons.broken_image_outlined,
-                            color: Colors.white24,
-                          ),
-                        ),
                       ),
                     ),
                   ),

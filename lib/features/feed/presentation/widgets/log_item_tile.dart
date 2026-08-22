@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/activity_category.dart';
+import '../../../../shared/widgets/asr_photo.dart';
 import '../../../timer/domain/models/activity_entry.dart';
 
 import '../../../../core/utils/duration_formatter.dart';
@@ -117,23 +116,11 @@ class LogItemTile extends StatelessWidget {
                         padding: const EdgeInsets.only(right: 6),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(10),
-                          child: Image.file(
-                            File(path),
+                          child: AsrPhoto(
+                            source: path,
                             width: 44,
                             height: 44,
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                width: 44,
-                                height: 44,
-                                color: const Color(0xFF1F1F1F),
-                                child: const Icon(
-                                  Icons.broken_image_outlined,
-                                  color: Colors.white24,
-                                  size: 16,
-                                ),
-                              );
-                            },
                           ),
                         ),
                       );

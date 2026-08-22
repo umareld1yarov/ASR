@@ -154,10 +154,8 @@ class AuthController extends StateNotifier<AuthStateModel> {
         name: name,
       );
 
-      final sessionUser = response.user ?? response.session?.user;
-
-      if (sessionUser == null && response.user != null) {
-        // Требуется подтверждение email от Supabase
+      // Сценарий 1: Пользователь создан, но активная сессия не выдана (требуется подтверждение email)
+      if (response.user != null && response.session == null) {
         state = state.copyWith(
           clearLoading: true,
           errorMessage: 'auth.registration_confirmation'.tr(),
@@ -165,17 +163,21 @@ class AuthController extends StateNotifier<AuthStateModel> {
         return false;
       }
 
+      // Сценарий 2: Регистрация завершена с активной сессией
+      final sessionUser = response.session?.user;
+      final isAuthenticated = sessionUser != null;
+
       state = state.copyWith(
         clearLoading: true,
         user: sessionUser,
-        isCloudBackupEnabled: sessionUser != null,
+        isCloudBackupEnabled: isAuthenticated,
       );
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_kCloudBackupEnabledKey, sessionUser != null);
-      if (sessionUser != null) {
+      await prefs.setBool(_kCloudBackupEnabledKey, isAuthenticated);
+      if (isAuthenticated) {
         _triggerAutoSync();
       }
-      return sessionUser != null;
+      return isAuthenticated;
     } on AuthException catch (e) {
       state = state.copyWith(clearLoading: true, errorMessage: e.message);
       return false;
@@ -190,9 +192,19 @@ class AuthController extends StateNotifier<AuthStateModel> {
 
   /// Выход из аккаунта.
   Future<void> signOut() async {
-    state = state.copyWith(loadingAction: AuthLoadingAction.account);
-    await _repository.signOut();
-    state = state.copyWith(clearLoading: true, clearUser: true);
+    state = state.copyWith(
+      loadingAction: AuthLoadingAction.account,
+      clearError: true,
+    );
+    try {
+      await _repository.signOut();
+      state = state.copyWith(clearLoading: true, clearUser: true);
+    } catch (e) {
+      state = state.copyWith(
+        clearLoading: true,
+        errorMessage: 'auth.logout_error'.tr(args: ['$e']),
+      );
+    }
   }
 
   /// Вход через Google.

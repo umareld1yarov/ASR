@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/activity_category.dart';
 import '../../../../core/utils/date_utils.dart' as du;
 import '../../../../core/utils/duration_formatter.dart';
+import '../../../../shared/widgets/asr_photo.dart';
 import '../../../feed/data/feed_repository.dart';
 import '../../application/day_story_provider.dart';
 
@@ -43,7 +42,10 @@ class DayStoryCard extends ConsumerWidget {
           error: (e, _) => Container(
             color: const Color(0xFF141414),
             child: Center(
-              child: Text('common.error'.tr(), style: const TextStyle(color: Colors.white54)),
+              child: Text(
+                'common.error'.tr(),
+                style: const TextStyle(color: Colors.white54),
+              ),
             ),
           ),
           data: (data) {
@@ -87,7 +89,10 @@ class _JournalThemeCard extends ConsumerWidget {
       child: Column(
         children: [
           // Шапка карточки
-          _StoryHeader(dateKey: data.dateKey, themeLabel: 'sharing.daily_journal'.tr()),
+          _StoryHeader(
+            dateKey: data.dateKey,
+            themeLabel: 'sharing.daily_journal'.tr(),
+          ),
           const SizedBox(height: 12),
 
           // Статистика (если включена)
@@ -157,8 +162,12 @@ class _DarkFocusThemeCard extends ConsumerWidget {
     final photoEntries = data.entries
         .where((e) => e.photoPaths != null && e.photoPaths!.isNotEmpty)
         .toList();
-    final firstPhoto = photoEntries.isNotEmpty ? photoEntries.first.photoPaths!.first : null;
-    final notes = data.entries.where((e) => (e.note ?? '').trim().isNotEmpty).toList();
+    final firstPhoto = photoEntries.isNotEmpty
+        ? photoEntries.first.photoPaths!.first
+        : null;
+    final notes = data.entries
+        .where((e) => (e.note ?? '').trim().isNotEmpty)
+        .toList();
 
     final hours = data.totalDurationSeconds ~/ 3600;
     final minutes = (data.totalDurationSeconds % 3600) ~/ 60;
@@ -185,7 +194,9 @@ class _DarkFocusThemeCard extends ConsumerWidget {
               textBaseline: TextBaseline.alphabetic,
               children: [
                 Text(
-                  hours > 0 ? '$hours${'milestones.units.h'.tr()} $minutes' : '$minutes',
+                  hours > 0
+                      ? '$hours${'milestones.units.h'.tr()} $minutes'
+                      : '$minutes',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 48,
@@ -236,7 +247,7 @@ class _DarkFocusThemeCard extends ConsumerWidget {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        Image.file(File(firstPhoto), fit: BoxFit.cover),
+                        AsrPhoto(source: firstPhoto, fit: BoxFit.cover),
                         Container(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
@@ -275,12 +286,18 @@ class _DarkFocusThemeCard extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.04),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.08),
+                      ),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.bolt, color: Color(0xFF06B6D4), size: 36),
+                        const Icon(
+                          Icons.bolt,
+                          color: Color(0xFF06B6D4),
+                          size: 36,
+                        ),
                         const SizedBox(height: 10),
                         if (selection.showNotes && notes.isNotEmpty)
                           Text(
@@ -327,13 +344,15 @@ class _MinimalQuoteThemeCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notes = data.entries.where((e) => (e.note ?? '').trim().isNotEmpty).toList();
-    final mainNote = notes.isNotEmpty ? notes.first.note!.trim() : 'sharing.day_quote_fallback'.tr();
+    final notes = data.entries
+        .where((e) => (e.note ?? '').trim().isNotEmpty)
+        .toList();
+    final mainNote = notes.isNotEmpty
+        ? notes.first.note!.trim()
+        : 'sharing.day_quote_fallback'.tr();
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF0D0E11),
-      ),
+      decoration: const BoxDecoration(color: Color(0xFF0D0E11)),
       padding: const EdgeInsets.fromLTRB(26, 32, 26, 22),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -384,16 +403,28 @@ class _MinimalQuoteThemeCard extends ConsumerWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.timer_outlined, color: Colors.white70, size: 18),
+                  const Icon(
+                    Icons.timer_outlined,
+                    color: Colors.white70,
+                    size: 18,
+                  ),
                   const SizedBox(width: 8),
                   Text(
-                    'sharing.day_focus'.tr(args: [_formatDuration(data.totalDurationSeconds)]),
+                    'sharing.day_focus'.tr(
+                      args: [_formatDuration(data.totalDurationSeconds)],
+                    ),
                     style: const TextStyle(color: Colors.white, fontSize: 13),
                   ),
                   const Spacer(),
                   Text(
-                    'feed.entry_count'.plural(data.entries.length, args: ['${data.entries.length}']),
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 12),
+                    'feed.entry_count'.plural(
+                      data.entries.length,
+                      args: ['${data.entries.length}'],
+                    ),
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.4),
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),
@@ -464,10 +495,7 @@ class _StoryHeader extends StatelessWidget {
 }
 
 class _MiniStatsBar extends StatelessWidget {
-  const _MiniStatsBar({
-    required this.totalSeconds,
-    required this.durations,
-  });
+  const _MiniStatsBar({required this.totalSeconds, required this.durations});
 
   final int totalSeconds;
   final Map<String, int> durations;
@@ -566,17 +594,27 @@ class _NoPhotosPlaceholder extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.photo_library_outlined, color: Colors.white.withValues(alpha: 0.3), size: 40),
+            Icon(
+              Icons.photo_library_outlined,
+              color: Colors.white.withValues(alpha: 0.3),
+              size: 40,
+            ),
             const SizedBox(height: 12),
             Text(
               'sharing.no_photos_today'.tr(),
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 13),
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.6),
+                fontSize: 13,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
               'sharing.no_photos_hint'.tr(),
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.35), fontSize: 11),
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.35),
+                fontSize: 11,
+              ),
             ),
           ],
         ),
@@ -642,7 +680,9 @@ class _PolaroidTile extends ConsumerWidget {
         entry.photoPaths[photoIndex.clamp(0, entry.photoPaths.length - 1)];
     final hasMultiplePhotos = entry.photoPaths.length > 1;
     final hasNote = (entry.note ?? '').trim().isNotEmpty;
-    final captionHidden = selection.hiddenCaptionEntryIds.contains(entry.entryId);
+    final captionHidden = selection.hiddenCaptionEntryIds.contains(
+      entry.entryId,
+    );
 
     return Padding(
       padding: const EdgeInsets.all(3),
@@ -676,7 +716,7 @@ class _PolaroidTile extends ConsumerWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image.file(File(photoPath), fit: BoxFit.cover),
+                    AsrPhoto(source: photoPath, fit: BoxFit.cover),
                     const Positioned.fill(
                       child: DecoratedBox(
                         decoration: BoxDecoration(
@@ -717,7 +757,10 @@ class _PolaroidTile extends ConsumerWidget {
                       bottom: (hasNote && selection.showNotes) ? 14 : 5,
                       child: Row(
                         children: [
-                          Text(category.emoji, style: const TextStyle(fontSize: 9)),
+                          Text(
+                            category.emoji,
+                            style: const TextStyle(fontSize: 9),
+                          ),
                           const SizedBox(width: 3),
                           Expanded(
                             child: Text(
@@ -740,15 +783,20 @@ class _PolaroidTile extends ConsumerWidget {
                         right: 5,
                         bottom: 3,
                         child: GestureDetector(
-                          onTap: () => controller.toggleCaptionHidden(entry.entryId),
+                          onTap: () =>
+                              controller.toggleCaptionHidden(entry.entryId),
                           child: Text(
-                            captionHidden ? 'sharing.hidden_item'.tr() : '«${entry.note!.trim()}»',
+                            captionHidden
+                                ? 'sharing.hidden_item'.tr()
+                                : '«${entry.note!.trim()}»',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 7.5,
                               fontStyle: FontStyle.italic,
-                              color: captionHidden ? Colors.white38 : Colors.white70,
+                              color: captionHidden
+                                  ? Colors.white38
+                                  : Colors.white70,
                             ),
                           ),
                         ),
